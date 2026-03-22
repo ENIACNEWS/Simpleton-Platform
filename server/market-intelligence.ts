@@ -1,3 +1,4 @@
+import { simplicitySelfAwareness } from './simplicity-self-awareness';
 /**
  * Market Intelligence Training Loop
  * Fetches live market data every 10 minutes and makes it available
@@ -123,7 +124,6 @@ async function fetchMetalsData(): Promise<MetalsSnapshot | null> {
   try {
     const { getKitcoPricing } = await import('./kitco-pricing');
 
-import { simplicitySelfAwareness } from './simplicity-self-awareness';
     const pricing = await getKitcoPricing();
     
     if (!pricing) return null;
