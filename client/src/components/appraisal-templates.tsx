@@ -102,7 +102,7 @@ function SignatureBlock({ isCertified, certifiedAt }: { isCertified: boolean; ce
       <div style={{ fontSize: 12, fontWeight: 700 }}>Demiris Brown</div>
       <div style={{ fontSize: 10, lineHeight: 1.5, color: '#333' }}>
         GIA Certified Jewelry Appraiser<br />
-        LaDale Industries LLC
+        Simpleton Technologies
       </div>
     </div>
   );
@@ -370,7 +370,7 @@ export function ModernTemplate(p: TemplateProps) {
         <BrandHeader centered />
 
         <div style={{ textAlign: 'center', fontSize: 10, color: '#666', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 4 }}>
-          demiris@simpletonapp.com · simpletonapp.com
+          demiris@simpletonapp.com Â· simpletonapp.com
         </div>
 
         <div style={{ textAlign: 'center', margin: '16px 0', borderTop: '1px solid #ddd', borderBottom: '1px solid #ddd', padding: '14px 0' }}>
@@ -524,7 +524,7 @@ export function DetailedTemplate(p: TemplateProps) {
       <div style={{ position: 'relative', zIndex: 1, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
         <BrandHeader centered />
         <div style={{ textAlign: 'center', fontSize: 10, color: '#666', marginTop: 2, marginBottom: 10 }}>
-          demiris@simpletonapp.com · simpletonapp.com
+          demiris@simpletonapp.com Â· simpletonapp.com
         </div>
 
         <div style={{ textAlign: 'center', margin: '10px 0 16px', fontFamily: '"Playfair Display", Georgia, serif' }}>
@@ -617,7 +617,7 @@ export function DetailedTemplate(p: TemplateProps) {
           display: 'flex', justifyContent: 'space-between',
           fontSize: 9.5, color: '#555',
         }}>
-          <span>Simpleton · simpletonapp.com</span>
+          <span>Simpleton Â· simpletonapp.com</span>
           <span>demiris@simpletonapp.com</span>
           <span>&copy; {new Date().getFullYear()} Simpleton</span>
         </div>
