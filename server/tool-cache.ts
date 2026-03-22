@@ -1,3 +1,5 @@
+import { simplicitySelfAwareness } from './simplicity-self-awareness';
+
 interface CacheEntry<T> {
   value: T;
   expires: number;
@@ -11,8 +13,10 @@ class ToolCache {
     if (!entry) return null;
     if (Date.now() > entry.expires) {
       this.store.delete(key);
+      simplicitySelfAwareness.recordCacheMiss();
       return null;
     }
+    simplicitySelfAwareness.recordCacheHit();
     return entry.value as T;
   }
 
