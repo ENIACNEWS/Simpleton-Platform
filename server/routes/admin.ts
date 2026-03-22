@@ -155,7 +155,7 @@ export async function registerAdminRoutes(app: Express) {
         .orderBy(ghostMessages.createdAt)
         .limit(50);
 
-      const systemPrompt = `You are Simplicity, the personal AI assistant for Demiris Brown, the owner of Simpleton™. You are incredibly powerful, knowledgeable, and helpful. You can help with ANYTHING:
+      const systemPrompt = `You are Simplicity, the personal AI assistant for Demiris Brown, the owner of Simpletonâ¢. You are incredibly powerful, knowledgeable, and helpful. You can help with ANYTHING:
 
 Business strategy, market analysis, email drafting, scheduling, research, writing professional documents, creating forms, organizing tasks, brainstorming, financial planning, legal document drafting, marketing strategies, competitive analysis, coding help, data analysis, personal productivity, travel planning, and anything else Demiris needs.
 
@@ -411,16 +411,16 @@ Address Demiris by name when appropriate.`;
         success: true,
         data: {
           revolutionary_concepts: [
-            'Revolutionary Aggression Data API™',
-            'Revolutionary Aggression Marketing Tool™',
-            'SCRAP Batch Processing System™',
-            'Mathematical Price Interpolation™',
-            'Supercomputer Mathematical Precision Engine™',
-            'AI-Powered Visual Recognition System™',
-            'Expert Council AI Advisory System™',
-            'Quantum Scrolling Technology™',
-            'Bulletproof Infrastructure System™',
-            'Automated Portfolio Rebalancing™'
+            'Revolutionary Aggression Data APIâ¢',
+            'Revolutionary Aggression Marketing Toolâ¢',
+            'SCRAP Batch Processing Systemâ¢',
+            'Mathematical Price Interpolationâ¢',
+            'Supercomputer Mathematical Precision Engineâ¢',
+            'AI-Powered Visual Recognition Systemâ¢',
+            'Expert Council AI Advisory Systemâ¢',
+            'Quantum Scrolling Technologyâ¢',
+            'Bulletproof Infrastructure Systemâ¢',
+            'Automated Portfolio Rebalancingâ¢'
           ],
           patent_claims: 30,
           copyright_protection: 'ACTIVE',
@@ -560,4 +560,200 @@ Address Demiris by name when appropriate.`;
   app.get('/api/maintenance/logs', (req, res) => res.status(410).json({ error: "This endpoint has been retired" }));
   app.post('/api/maintenance/force-cycle', (req, res) => res.status(410).json({ error: "This endpoint has been retired" }));
   app.get('/api/maintenance/protected-systems', (req, res) => res.status(410).json({ error: "This endpoint has been retired" }));
+
+  // ==================== OWNER DASHBOARD ROUTES ====================
+
+  // Owner dashboard stats
+  app.get("/api/owner/dashboard", isAuthenticated, async (req, res) => {
+    try {
+      const u = req.user as any;
+      if (u?.id !== 1 && u?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+      // Total users
+      const totalUsersResult = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+      const totalUsers = parseInt((totalUsersResult as any).rows?.[0]?.count || '0');
+
+      // Users by subscription
+      const subResult = await db.execute(sql`SELECT COALESCE(subscription_status, 'free') as subscription_status, COUNT(*) as count FROM users GROUP BY subscription_status`);
+      const usersBySubscription = (subResult as any).rows || [];
+
+      // Recent signups (30 days)
+      const recentResult = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at > NOW() - INTERVAL '30 days'`);
+      const recentSignups = parseInt((recentResult as any).rows?.[0]?.count || '0');
+
+      // Today's new users
+      const todayResult = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE created_at > CURRENT_DATE`);
+      const todayNewUsers = parseInt((todayResult as any).rows?.[0]?.count || '0');
+
+      // Portfolio counts (gracefully handle missing tables)
+      let totalPortfolios = 0, totalPortfolioItems = 0;
+      try {
+        const pRes = await db.execute(sql`SELECT COUNT(*) as count FROM portfolios`);
+        totalPortfolios = parseInt((pRes as any).rows?.[0]?.count || '0');
+      } catch(e) {}
+      try {
+        const piRes = await db.execute(sql`SELECT COUNT(*) as count FROM portfolio_items`);
+        totalPortfolioItems = parseInt((piRes as any).rows?.[0]?.count || '0');
+      } catch(e) {}
+
+      // API keys count
+      let totalApiKeys = 0;
+      try {
+        const akRes = await db.execute(sql`SELECT COUNT(*) as count FROM api_keys`);
+        totalApiKeys = parseInt((akRes as any).rows?.[0]?.count || '0');
+      } catch(e) {}
+
+      // Sessions count
+      let totalSessions = 0;
+      try {
+        const sRes = await db.execute(sql`SELECT COUNT(*) as count FROM sessions`);
+        totalSessions = parseInt((sRes as any).rows?.[0]?.count || '0');
+      } catch(e) {}
+
+      // Ghost/assistant sessions and messages
+      let totalAssistantSessions = 0, totalAssistantMessages = 0;
+      try {
+        const gsRes = await db.execute(sql`SELECT COUNT(*) as count FROM ghost_conversations`);
+        totalAssistantSessions = parseInt((gsRes as any).rows?.[0]?.count || '0');
+      } catch(e) {}
+      try {
+        const gmRes = await db.execute(sql`SELECT COUNT(*) as count FROM ghost_messages`);
+        totalAssistantMessages = parseInt((gmRes as any).rows?.[0]?.count || '0');
+      } catch(e) {}
+
+      // Saved calculations
+      let totalSavedCalculations = 0;
+      try {
+        const cRes = await db.execute(sql`SELECT COUNT(*) as count FROM calculation_history`);
+        totalSavedCalculations = parseInt((cRes as any).rows?.[0]?.count || '0');
+      } catch(e) {}
+
+      res.json({
+        totalUsers,
+        usersBySubscription,
+        recentSignups,
+        todayNewUsers,
+        totalPortfolios,
+        totalPortfolioItems,
+        totalApiKeys,
+        totalSessions,
+        totalAssistantSessions,
+        totalAssistantMessages,
+        totalSavedCalculations,
+      });
+    } catch (error: any) {
+      console.error("[Owner Dashboard] Error:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Owner users list
+  app.get("/api/owner/users", isAuthenticated, async (req, res) => {
+    try {
+      const u = req.user as any;
+      if (u?.id !== 1 && u?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+      const result = await db.execute(sql`
+        SELECT id, email, first_name, last_name, role, subscription_status, created_at, provider
+        FROM users ORDER BY created_at DESC LIMIT 100
+      `);
+      res.json((result as any).rows || []);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Owner activity log
+  app.get("/api/owner/activity", isAuthenticated, async (req, res) => {
+    try {
+      const u = req.user as any;
+      if (u?.id !== 1 && u?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+      // Build activity from recent user signups and site visitors
+      const activities: any[] = [];
+      
+      try {
+        const signups = await db.execute(sql`
+          SELECT id, email, created_at FROM users ORDER BY created_at DESC LIMIT 20
+        `);
+        for (const row of (signups as any).rows || []) {
+          activities.push({
+            id: `signup-${row.id}`,
+            action: 'New user registered',
+            category: 'auth',
+            details: row.email,
+            timestamp: row.created_at,
+          });
+        }
+      } catch(e) {}
+
+      try {
+        const visitors = await db.execute(sql`
+          SELECT id, page_url, created_at FROM site_visitors ORDER BY created_at DESC LIMIT 20
+        `);
+        for (const row of (visitors as any).rows || []) {
+          activities.push({
+            id: `visit-${row.id}`,
+            action: 'Page visit',
+            category: 'traffic',
+            details: row.page_url,
+            timestamp: row.created_at,
+          });
+        }
+      } catch(e) {}
+
+      // Sort by timestamp desc
+      activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      res.json(activities.slice(0, 50));
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Revenue stats
+  app.get("/api/admin/revenue-stats", isAuthenticated, async (req, res) => {
+    try {
+      const u = req.user as any;
+      if (u?.id !== 1 && u?.role !== 'admin') return res.status(403).json({ error: 'Forbidden' });
+
+      // Document sales
+      let documentSales = { total: 0, count: 0 };
+      try {
+        const dsRes = await db.execute(sql`SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count FROM document_purchases`);
+        const row = (dsRes as any).rows?.[0];
+        documentSales = { total: parseFloat(row?.total || '0'), count: parseInt(row?.count || '0') };
+      } catch(e) {}
+
+      // User stats
+      let userStats = { pro: 0, total: 0 };
+      try {
+        const uTotal = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+        const uPro = await db.execute(sql`SELECT COUNT(*) as count FROM users WHERE subscription_status = 'pro'`);
+        userStats = {
+          total: parseInt((uTotal as any).rows?.[0]?.count || '0'),
+          pro: parseInt((uPro as any).rows?.[0]?.count || '0'),
+        };
+      } catch(e) {}
+
+      // Revenue phases
+      let phases: any[] = [];
+      let currentPhase = { title: 'Phase 1 - Launch', phaseNumber: 1 };
+      try {
+        const phRes = await db.execute(sql`SELECT * FROM revenue_phases ORDER BY phase_number`);
+        phases = (phRes as any).rows || [];
+        const active = phases.find((p: any) => p.status === 'active');
+        if (active) currentPhase = { title: active.title, phaseNumber: active.phase_number };
+      } catch(e) {}
+
+      res.json({
+        documentSales,
+        userStats,
+        currentPhase,
+        phases,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
 }
