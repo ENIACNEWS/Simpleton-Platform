@@ -47,10 +47,10 @@ export default function LegalDisclosure() {
                 </h3>
                 <div className="space-y-3 text-sm text-center">
                   <div>
-                    <strong>Legal Name:</strong> LaDale Industries LLC
+                    <strong>Legal Name:</strong> Simpleton Technologies
                   </div>
                   <div>
-                    <strong>DBA:</strong> <span className="text-blue-500 font-semibold">Simpleton™</span>
+                    <strong>DBA:</strong> <span className="text-blue-500 font-semibold">Simpletonâ¢</span>
                   </div>
                   <div>
                     <strong>State of Formation:</strong> Michigan
@@ -79,7 +79,7 @@ export default function LegalDisclosure() {
             <h3>Financial Services Disclaimer</h3>
             <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-950">
               <AlertDescription>
-                <strong>Important:</strong> <span className="simpleton-brand">Simpleton</span>™ is NOT a registered investment advisor, broker-dealer, 
+                <strong>Important:</strong> <span className="simpleton-brand">Simpleton</span>â¢ is NOT a registered investment advisor, broker-dealer, 
                 or financial institution. We provide informational data only, not financial advice.
               </AlertDescription>
             </Alert>
@@ -104,8 +104,8 @@ export default function LegalDisclosure() {
             
             <h3>Trademarks</h3>
             <ul>
-              <li><strong><span className="simpleton-brand">Simpleton</span>™</strong> - Trademark pending registration (USPTO Application pending)</li>
-              <li><strong>Precious Metals, Simplified™</strong> - Trademark pending registration</li>
+              <li><strong><span className="simpleton-brand">Simpleton</span>â¢</strong> - Trademark pending registration (USPTO Application pending)</li>
+              <li><strong>Precious Metals, Simplifiedâ¢</strong> - Trademark pending registration</li>
               <li>All logos, designs, and brand elements are proprietary</li>
             </ul>
 
@@ -144,7 +144,7 @@ export default function LegalDisclosure() {
               <li>AI image analysis provides preliminary observations and should <strong>not</strong> be considered professional authentication</li>
               <li>AI outputs are <strong>not a substitute</strong> for professional appraisal, authentication, or certification by qualified experts</li>
               <li>Professional authentication by certified specialists is recommended for all high-value transactions</li>
-              <li>LaDale Industries LLC assumes no liability for decisions made based on AI-generated assessments</li>
+              <li>Simpleton Technologies assumes no liability for decisions made based on AI-generated assessments</li>
             </ul>
 
             <h2>Export Control & International Compliance</h2>
