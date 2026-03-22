@@ -40,12 +40,12 @@ export function useAuth() {
         credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-      
+
       if (!response.ok) {
         const error = await response.text();
         throw new Error(error || "Login failed");
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -64,17 +64,51 @@ export function useAuth() {
     },
   });
 
+  const registerMutation = useMutation({
+    mutationFn: async ({ email, password }: { email: string; password: string }) => {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(error || "Registration failed");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      toast({
+        title: "Account created!",
+        description: "Welcome to Simpleton. You're now logged in.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Registration failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const logoutMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch("/api/auth/logout", {
         method: "POST",
         credentials: 'include',
       });
-      
+
       if (!response.ok) {
         throw new Error("Logout failed");
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -94,8 +128,10 @@ export function useAuth() {
     isLoading,
     isAuthenticated: !!user,
     login: loginMutation.mutateAsync,
+    register: registerMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
+    isRegistering: registerMutation.isPending,
     isLoggingOut: logoutMutation.isPending,
   };
 }
