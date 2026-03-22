@@ -177,7 +177,7 @@ export default function Home() {
       <AIAssistant isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
 
       {/* ═══════════════════════ HERO SECTION ═══════════════════════ */}
-      <section className="flex-1 text-center pt-24 sm:pt-28 md:pt-36 pb-8 sm:pb-12 px-4 sm:px-6 relative overflow-hidden">
+      <section className="flex-1 text-center pt-20 sm:pt-28 md:pt-36 pb-8 sm:pb-12 px-4 sm:px-6 relative overflow-hidden">
 
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/[0.03] rounded-full blur-3xl"></div>
@@ -213,7 +213,7 @@ export default function Home() {
             Institutional-grade market intelligence for precious metals, diamonds, Rolex watches, and coins — powered by <span className="font-semibold" style={{ color: 'var(--foreground)' }}>Simplicity</span>, your AI market analyst.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center px-4 mb-10 sm:mb-14">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center px-2 sm:px-4 mb-10 sm:mb-14 max-w-lg sm:max-w-none mx-auto">
             <Link href="/calculator" className="group flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 active:scale-[0.98] bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border border-amber-500/30 hover:border-amber-400/50 text-amber-300 hover:text-amber-200">
               <Calculator className="w-5 h-5" />
               <span>Precious Metals Calculator</span>
@@ -250,7 +250,7 @@ export default function Home() {
                   <Link
                     key={feature.title}
                     href={feature.href}
-                    className="group snap-center flex-shrink-0 w-[65%] sm:w-[55%] md:w-[45%]"
+                    className="group snap-center flex-shrink-0 w-[82%] sm:w-[55%] md:w-[45%]"
                   >
                     <div
                       className={`relative p-4 sm:p-5 rounded-xl border transition-all duration-500 ${index === activeCard ? 'scale-100 opacity-100' : 'scale-[0.97] opacity-60'}`}
@@ -350,7 +350,7 @@ export default function Home() {
       <Footer />
       <InstallPrompt />
 
-      <Link href="/jewelry-appraisal" className="fixed top-[136px] left-6 z-50 group" aria-label="Get a professional appraisal">
+      <Link href="/jewelry-appraisal" className="fixed top-[136px] left-6 z-50 group hidden sm:flex" aria-label="Get a professional appraisal">
         <div className="relative">
           <div
             className="w-16 h-16 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-95"
