@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { revolutionaryMetalsAggregator } from './metals-aggregator';
 import { toolCache, withRetry, withTimeout } from './tool-cache';
+import { simplicitySelfAwareness } from './simplicity-self-awareness';
 
 interface KitcoPricing {
   gold: number;
@@ -24,9 +25,11 @@ export async function getKitcoPricing(): Promise<KitcoPricing | null> {
     );
     if (pricing) {
       toolCache.set(PRICING_CACHE_KEY, pricing, PRICING_TTL);
+    simplicitySelfAwareness.updateDataFreshness('Kitco Metals', true);
     }
     return pricing;
   } catch (error: any) {
+    simplicitySelfAwareness.updateDataFreshness('Kitco Metals', false, error?.message || 'Kitco fetch error');
     console.error('Metal pricing failed after retries:', error.message);
     throw error;
   }
