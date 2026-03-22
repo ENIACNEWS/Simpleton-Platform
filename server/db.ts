@@ -32,22 +32,62 @@ export async function checkDatabaseHealth(): Promise<boolean> {
   }
 }
 
+// Ensure missing columns are added to existing tables (schema drift fix)
+async function ensureUserColumns() {
+  const requiredColumns: Array<{ column: string; type: string; defaultVal?: string }> = [
+    { column: 'gmail_refresh_token', type: 'TEXT' },
+    { column: 'first_name', type: 'TEXT' },
+    { column: 'last_name', type: 'TEXT' },
+    { column: 'profile_image_url', type: 'TEXT' },
+    { column: 'provider', type: 'TEXT', defaultVal: "'email'" },
+    { column: 'provider_id', type: 'TEXT' },
+    { column: 'is_verified', type: 'BOOLEAN', defaultVal: 'false' },
+    { column: 'email_verified', type: 'BOOLEAN', defaultVal: 'false' },
+    { column: 'subscription_status', type: 'TEXT', defaultVal: "'free'" },
+    { column: 'stripe_customer_id', type: 'TEXT' },
+    { column: 'stripe_subscription_id', type: 'TEXT' },
+    { column: 'subscription_expires_at', type: 'TIMESTAMP' },
+    { column: 'username', type: 'TEXT' },
+  ];
+
+  for (const col of requiredColumns) {
+    try {
+      const check = await pool.query(`
+        SELECT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = 'users' AND column_name = $1
+        );
+      `, [col.column]);
+      if (!check.rows[0]?.exists) {
+        const defaultClause = col.defaultVal ? ` DEFAULT ${col.defaultVal}` : '';
+        await pool.query(`ALTER TABLE users ADD COLUMN ${col.column} ${col.type}${defaultClause};`);
+        console.log(`[Migration] Added missing column users.${col.column}`);
+      }
+    } catch (err: any) {
+      // Column might already exist from a concurrent migration — ignore "already exists" errors
+      if (!err.message?.includes('already exists')) {
+        console.error(`[Migration] Failed to add column users.${col.column}:`, err.message);
+      }
+    }
+  }
+}
+
 // Manual table creation for cases where drizzle-kit is not available
 export async function ensureTablesExist() {
   try {
     // Check if coins table exists
     const result = await pool.query(`
       SELECT EXISTS (
-        SELECT FROM information_schema.tables 
-        WHERE table_schema = 'public' 
+        SELECT FROM information_schema.tables
+        WHERE table_schema = 'public'
         AND table_name = 'coins'
       );
     `);
-    
+
     const coinsTableExists = result.rows[0]?.exists;
-    
+
     if (!coinsTableExists) {
-      console.log("🔧 Creating coins table...");
+      console.log("Creating coins table...");
       await pool.query(`
         CREATE TABLE IF NOT EXISTS coins (
           id SERIAL PRIMARY KEY,
@@ -66,11 +106,12 @@ export async function ensureTablesExist() {
           created_at TIMESTAMP DEFAULT NOW()
         );
       `);
-      console.log("✅ Coins table created successfully");
-    } else {
-      console.log("✅ Coins table already exists");
+      console.log("Coins table created successfully");
     }
+
+    // Ensure all schema columns exist on the users table
+    await ensureUserColumns();
   } catch (error) {
-    console.error("❌ Error checking/creating tables:", error);
+    console.error("Error checking/creating tables:", error);
   }
 }
