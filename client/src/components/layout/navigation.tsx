@@ -149,14 +149,6 @@ export function Navigation(
                         <Coins className="w-4 h-4" style={{ color: 'var(--primary)' }} />
                         <span className="font-medium">Coin Calculator</span>
                       </Link>
-                      <Link
-                        href="/price-board"
-                        className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
-                        style={{ color: 'var(--foreground)' }}
-                      >
-                        <BarChart3 className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                        <span className="font-medium">Live Price Board</span>
-                      </Link>
                       <div className="border-t my-1" style={{ borderColor: 'var(--border)' }} />
                       <Link
                         href="/jewelry-appraisal"
@@ -557,21 +549,6 @@ export function Navigation(
                           <div className="flex-1">
                             <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}>Coin Calculator</span>
                             <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>Junk silver, bullion & vintage</span>
-                          </div>
-                          <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
-                        </Link>
-                        <Link
-                          href="/price-board"
-                          className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
-                          style={{ color: 'var(--foreground)' }}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
-                            <BarChart3 className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}>Live Price Board</span>
-                            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>TV display for counter pricing</span>
                           </div>
                           <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
                         </Link>
