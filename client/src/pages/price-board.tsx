@@ -18,7 +18,7 @@ import { Maximize2, Minimize2, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 
 const TROY = 31.1034768;
 
-// ── Algorithm (from MCPB whiteboard) ─────────────────────────────────────────
+// ââ Algorithm (from MCPB whiteboard) âââââââââââââââââââââââââââââââââââââââââ
 // These are adjustable via the settings panel on screen
 const DEFAULT_CONFIG = {
   goldLoanPct:     0.79,   // 79% of melt
@@ -78,7 +78,7 @@ function calcPlatRates(spotPerOz: number, cfg = DEFAULT_CONFIG) {
   return { loan, sell };
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// ââ Component âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 export default function PriceBoard() {
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -135,7 +135,7 @@ export default function PriceBoard() {
 
   const lastUpdatedText = dataUpdatedAt
     ? new Date(dataUpdatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    : '—';
+    : 'â';
 
   const isLive = !error && gold > 0;
 
@@ -151,7 +151,7 @@ export default function PriceBoard() {
       userSelect: 'none',
     }}>
 
-      {/* ── Top bar ── */}
+      {/* ââ Top bar ââ */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -168,7 +168,7 @@ export default function PriceBoard() {
               GUARANTEED HIGHEST PRICES
             </div>
             <div style={{ fontSize: 12, color: '#666', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              Motor City Pawn Brokers · Live Market Rates
+              Simpleton Technologies Â· Live Market Rates
             </div>
           </div>
         </div>
@@ -188,9 +188,9 @@ export default function PriceBoard() {
                 transition: 'color 0.3s',
                 textShadow: lastChange[key] === 'up' ? '0 0 12px #22c55e' : lastChange[key] === 'down' ? '0 0 12px #ef4444' : 'none',
               }}>
-                {value > 0 ? `$${value.toFixed(0)}` : '—'}
-                {lastChange[key] === 'up' && <span style={{ color: '#22c55e', fontSize: 14, marginLeft: 4 }}>▲</span>}
-                {lastChange[key] === 'down' && <span style={{ color: '#ef4444', fontSize: 14, marginLeft: 4 }}>▼</span>}
+                {value > 0 ? `$${value.toFixed(0)}` : 'â'}
+                {lastChange[key] === 'up' && <span style={{ color: '#22c55e', fontSize: 14, marginLeft: 4 }}>â²</span>}
+                {lastChange[key] === 'down' && <span style={{ color: '#ef4444', fontSize: 14, marginLeft: 4 }}>â¼</span>}
               </div>
             </div>
           ))}
@@ -204,7 +204,7 @@ export default function PriceBoard() {
               animation: isLive ? 'pulse 2s infinite' : 'none',
             }} />
             <div style={{ fontSize: 11, color: '#555' }}>
-              {isLive ? `LIVE · ${lastUpdatedText}` : 'OFFLINE'}
+              {isLive ? `LIVE Â· ${lastUpdatedText}` : 'OFFLINE'}
             </div>
           </div>
 
@@ -216,7 +216,7 @@ export default function PriceBoard() {
           {/* Controls */}
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setShowSettings(s => !s)} style={{ background: '#222', border: '1px solid #444', borderRadius: 6, padding: '6px 10px', color: '#888', cursor: 'pointer', fontSize: 11 }}>
-              ⚙ Rates
+              â Rates
             </button>
             <button onClick={toggleFullscreen} style={{ background: '#222', border: '1px solid #444', borderRadius: 6, padding: '6px 10px', color: '#888', cursor: 'pointer' }}>
               {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
@@ -225,7 +225,7 @@ export default function PriceBoard() {
         </div>
       </div>
 
-      {/* ── Main grid ── */}
+      {/* ââ Main grid ââ */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
@@ -268,13 +268,13 @@ export default function PriceBoard() {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 'clamp(32px, 4vw, 60px)', fontWeight: 900, color: '#5b9bd5', letterSpacing: '0.02em', fontVariantNumeric: 'tabular-nums' }}>
-                    {rates ? `$${rates.loan}` : '—'}
+                    {rates ? `$${rates.loan}` : 'â'}
                   </div>
                   <div style={{ fontSize: 10, color: '#333' }}>/gram</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 'clamp(32px, 4vw, 60px)', fontWeight: 900, color: '#e8793a', letterSpacing: '0.02em', fontVariantNumeric: 'tabular-nums' }}>
-                    {rates ? `$${rates.sell}` : '—'}
+                    {rates ? `$${rates.sell}` : 'â'}
                   </div>
                   <div style={{ fontSize: 10, color: '#333', textAlign: 'right' }}>/gram</div>
                 </div>
@@ -299,13 +299,13 @@ export default function PriceBoard() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 'clamp(32px, 4vw, 60px)', fontWeight: 900, color: '#5b9bd5', fontVariantNumeric: 'tabular-nums' }}>
-                {platRates.loan > 0 ? `$${platRates.loan}` : '—'}
+                {platRates.loan > 0 ? `$${platRates.loan}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333' }}>/gram</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 'clamp(32px, 4vw, 60px)', fontWeight: 900, color: '#e8793a', fontVariantNumeric: 'tabular-nums' }}>
-                {platRates.sell > 0 ? `$${platRates.sell}` : '—'}
+                {platRates.sell > 0 ? `$${platRates.sell}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333', textAlign: 'right' }}>/gram</div>
             </div>
@@ -328,13 +328,13 @@ export default function PriceBoard() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 'clamp(32px, 4vw, 60px)', fontWeight: 900, color: '#5b9bd5', fontVariantNumeric: 'tabular-nums' }}>
-                {silverRates.loan > 0 ? `$${silverRates.loan.toFixed(2)}` : '—'}
+                {silverRates.loan > 0 ? `$${silverRates.loan.toFixed(2)}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333' }}>/gram</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 'clamp(32px, 4vw, 60px)', fontWeight: 900, color: '#e8793a', fontVariantNumeric: 'tabular-nums' }}>
-                {silverRates.sell > 0 ? `$${silverRates.sell.toFixed(2)}` : '—'}
+                {silverRates.sell > 0 ? `$${silverRates.sell.toFixed(2)}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333', textAlign: 'right' }}>/gram</div>
             </div>
@@ -408,8 +408,8 @@ export default function PriceBoard() {
                 <div>Pre-1934 Gold Coins</div>
                 <div style={{ color: '#666', fontSize: '0.85em' }}>($2.50, $5, $10, $20)</div>
                 <div style={{ color: '#c9a84c', fontWeight: 900, marginTop: 4 }}>
-                  {gold > 0 ? `≈ ${Math.round((gold / 31.1035) * 0.9 * 0.79 * 100) / 100 > 0
-                    ? `$${Math.round((gold / 31.1035) * 0.9)}` : '—'}/g melt` : '—'}
+                  {gold > 0 ? `â ${Math.round((gold / 31.1035) * 0.9 * 0.79 * 100) / 100 > 0
+                    ? `$${Math.round((gold / 31.1035) * 0.9)}` : 'â'}/g melt` : 'â'}
                 </div>
               </div>
             </div>
@@ -429,13 +429,13 @@ export default function PriceBoard() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 'clamp(20px, 2.5vw, 38px)', fontWeight: 900, color: '#5b9bd5' }}>
-                {silver > 0 ? `$${Math.round((silver - 25) * 10) / 10}` : '—'}
+                {silver > 0 ? `$${Math.round((silver - 25) * 10) / 10}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333' }}>under spot</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 'clamp(20px, 2.5vw, 38px)', fontWeight: 900, color: '#e8793a' }}>
-                {silver > 0 ? `$${Math.round((silver - 20) * 10) / 10}` : '—'}
+                {silver > 0 ? `$${Math.round((silver - 20) * 10) / 10}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333', textAlign: 'right' }}>under spot</div>
             </div>
@@ -455,13 +455,13 @@ export default function PriceBoard() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 'clamp(20px, 2.5vw, 38px)', fontWeight: 900, color: '#5b9bd5' }}>
-                {silver > 0 ? `$${Math.round((silver - 15) * 10) / 10}` : '—'}
+                {silver > 0 ? `$${Math.round((silver - 15) * 10) / 10}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333' }}>under spot</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 'clamp(20px, 2.5vw, 38px)', fontWeight: 900, color: '#e8793a' }}>
-                {silver > 0 ? `$${Math.round((silver - 10) * 10) / 10}` : '—'}
+                {silver > 0 ? `$${Math.round((silver - 10) * 10) / 10}` : 'â'}
               </div>
               <div style={{ fontSize: 10, color: '#333', textAlign: 'right' }}>under spot</div>
             </div>
@@ -491,7 +491,7 @@ export default function PriceBoard() {
         </div>
       </div>
 
-      {/* ── Bottom ticker ── */}
+      {/* ââ Bottom ticker ââ */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
         background: '#111', borderTop: '1px solid #222',
@@ -499,14 +499,14 @@ export default function PriceBoard() {
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <div style={{ fontSize: 11, color: '#333' }}>
-          All prices per gram · Rates update automatically with live spot · Powered by Simpleton™ simpletonapp.com
+          All prices per gram Â· Rates update automatically with live spot Â· Powered by Simpletonâ¢ simpletonapp.com
         </div>
         <div style={{ fontSize: 11, color: '#333' }}>
-          Gold {cfg.goldLoanPct * 100}% loan · +${cfg.goldSellSpread}/g sell spread
+          Gold {cfg.goldLoanPct * 100}% loan Â· +${cfg.goldSellSpread}/g sell spread
         </div>
       </div>
 
-      {/* ── Settings overlay ── */}
+      {/* ââ Settings overlay ââ */}
       {showSettings && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)',
