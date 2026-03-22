@@ -18,6 +18,7 @@ import {
   Home,
   Diamond,
   Bitcoin,
+  Tv,
   Calculator,
 } from "lucide-react";
 
@@ -40,6 +41,7 @@ const moreMenuItems: MoreMenuItem[] = [
   { label: "Diamond Calculator", icon: Diamond, path: "/diamond-calculator", description: "Rapaport pricing & grading" },
   { label: "Diamonds", icon: Diamond, path: "/diamonds", description: "Diamond search & database" },
     { label: "Cryptocurrency", icon: Bitcoin, path: "/cryptocurrency", description: "Live crypto prices & market data" },
+    { label: "News Hub", icon: Tv, path: "/news-hub", description: "Live financial news streams" },
   { label: "Rolex Intelligence", icon: Watch, path: "/watches", description: "Market data and authentication" },
   { label: "Market Intelligence", icon: TrendingUp, path: "/markets", description: "AI-powered market analysis" },
   { label: "Market Signals", icon: BarChart3, path: "/market-signals", description: "Convergence signal detector" },
