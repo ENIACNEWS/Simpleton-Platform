@@ -59,6 +59,7 @@ import AppraisalView from "@/pages/appraisal-view";
 import WhatIsThisWorth from "@/pages/what-is-this-worth";
 import S7Panel from "@/pages/s7-panel";
 import PriceBoard from "@/pages/price-board";
+import Cryptocurrency from "@/pages/cryptocurrency";
 
 function DesktopRouter() {
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -118,6 +119,8 @@ function DesktopRouter() {
         <Route path="/ghost-admin-dashboard" component={GhostAdminDashboard} />
         <Route path="/s7" component={S7Panel} />
         <Route path="/price-board" component={PriceBoard} />
+        <Route path="/cryptocurrency" component={Cryptocurrency} />
+        <Route path="/crypto" component={Cryptocurrency} />
         <Route path="/terms-of-service" component={TermsOfService} />
         <Route path="/privacy-policy" component={PrivacyPolicy} />
         <Route path="/legal-disclosure" component={LegalDisclosure} />
@@ -158,6 +161,8 @@ function MobileRouter() {
       <Route path="/subscription" component={Subscription} />
       <Route path="/login" component={Login} />
       <Route path="/price-board" component={PriceBoard} />
+      <Route path="/cryptocurrency" component={Cryptocurrency} />
+      <Route path="/crypto" component={Cryptocurrency} />
       <Route path="/simpletons-list" component={SimpletonsList} />
       <Route path="/quantum-ticker" component={QuantumTickerPage} />
       <Route path="/tickers" component={TickersPage} />
