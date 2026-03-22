@@ -42,6 +42,7 @@ import {
   Heart,
   ExternalLink,
   Store,
+  Menu,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -117,7 +118,7 @@ export function Navigation(
             </div>
 
             {/* Desktop Navigation - Your Exact Specification */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-6">
               <div className="flex items-center space-x-3">
                 <div className="relative group">
                   <button className="font-medium flex items-center transition-colors hover:opacity-80" style={{ color: 'var(--foreground)' }}>
@@ -430,7 +431,7 @@ export function Navigation(
               {/* Simpleton Mode - visible on mobile */}
               <Link
                 href="/simpleton-mode"
-                className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95"
+                className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95"
                 style={{ background: 'var(--primary)', color: 'var(--background)' }}
               >
                 <Zap className="w-3.5 h-3.5" />
@@ -440,10 +441,10 @@ export function Navigation(
               {/* Menu Button */}
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-white hover:text-gold transition-colors duration-200 text-3xl font-bold"
+                className="p-2 rounded-lg transition-colors duration-200 hover:bg-white/10"
                 aria-label="Toggle menu"
               >
-                S
+                <Menu className="w-6 h-6" style={{ color: 'var(--foreground)' }} />
               </button>
             </div>
           </div>
