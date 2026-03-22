@@ -24,6 +24,7 @@ import { registerSimpletonListRoutes } from "./routes/simpletons-list";
 import { registerAIServiceRoutes } from "./routes/ai-services";
 import { registerIntelligenceRoutes } from "./routes/intelligence";
 import { registerPlatformRoutes } from "./routes/platform";
+import { registerCryptoRoutes } from "./routes/crypto";
 import seoRoutes from "./routes/seo";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -101,6 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/seo", seoRoutes);
 
   // --- PRE-AUTH ROUTES (assistant, appraisal, intelligence must come before API auth middleware) ---
+  registerCryptoRoutes(app);
   registerAssistantRoutes(app);
   registerAppraisalRoutes(app);
   registerIntelligenceRoutes(app);
