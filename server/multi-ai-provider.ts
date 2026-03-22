@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
-import { GoogleGenerativeAI } from '@google/generai';
+import { GoogleGenAI } from '@google/genai';
 
 // Types and interfaces
 interface ProviderResponse {
@@ -63,7 +63,7 @@ const anthropicClient = process.env.ANTHROPIC_API_KEY
   : null;
 
 const googleClient = process.env.GOOGLE_AI_API_KEY
-  ? new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY)
+  ? new GoogleGenAI({ apiKey: process.env.GOOGLE_AI_API_KEY })
   : null;
 
 // Helper: Create timeout promise
