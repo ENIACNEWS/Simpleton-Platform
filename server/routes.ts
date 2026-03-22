@@ -25,6 +25,7 @@ import { registerAIServiceRoutes } from "./routes/ai-services";
 import { registerIntelligenceRoutes } from "./routes/intelligence";
 import { registerPlatformRoutes } from "./routes/platform";
 import { registerCryptoRoutes } from "./routes/crypto";
+import { startMarketIntelligence } from "./market-intelligence";
 import seoRoutes from "./routes/seo";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -103,6 +104,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // --- PRE-AUTH ROUTES (assistant, appraisal, intelligence must come before API auth middleware) ---
   registerCryptoRoutes(app);
+
+  // Start the 10-minute market intelligence training loop
+  startMarketIntelligence();
   registerAssistantRoutes(app);
   registerAppraisalRoutes(app);
   registerIntelligenceRoutes(app);
