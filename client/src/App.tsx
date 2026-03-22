@@ -13,8 +13,6 @@ import { BrainAwarenessWatcher } from "@/components/brain/BrainAwarenessWatcher"
 import { useAuth } from "@/hooks/use-auth";
 import ErrorBoundary from "@/components/error-boundary";
 import { ThemeProvider } from "@/contexts/theme-context";
-import { MobileAppShell } from "@/components/mobile/mobile-app-shell";
-import { useAppMode } from "@/hooks/use-app-mode";
 
 import Home from "@/pages/home";
 import Calculator from "@/pages/calculator";
@@ -134,54 +132,6 @@ function DesktopRouter() {
   );
 }
 
-function MobileRouter() {
-  return (
-    <Switch>
-      <Route path="/" component={SimpletonMode} />
-      <Route path="/simpleton-mode" component={SimpletonMode} />
-      <Route path="/calculator" component={Calculator} />
-      <Route path="/coin-calculator" component={CoinCalculator} />
-      <Route path="/diamond-calculator" component={DiamondCalculatorPage} />
-      <Route path="/diamonds" component={Diamonds} />
-      <Route path="/database" component={Database} />
-      <Route path="/watches" component={Watches} />
-      <Route path="/rolex-market-data" component={Watches} />
-      <Route path="/markets" component={SimpletonMarkets} />
-      <Route path="/market-signals" component={MarketSignals} />
-      <Route path="/ai-chat" component={AIChat} />
-      <Route path="/ai-market-analysis" component={AIMarketAnalysis} />
-      <Route path="/ai-price-advisor" component={AIPriceAdvisor} />
-      <Route path="/jewelry-appraisal" component={JewelryAppraisal} />
-      <Route path="/appraisal/:token" component={AppraisalView} />
-      <Route path="/what-is-this-worth" component={WhatIsThisWorth} />
-      <Route path="/standalone-precious-metals" component={StandalonePreciousMetals} />
-      <Route path="/standalone-diamond-calculator" component={StandaloneDiamondCalculator} />
-      <Route path="/portfolio" component={Portfolio} />
-      <Route path="/education" component={Education} />
-      <Route path="/tutorials" component={Tutorials} />
-      <Route path="/user-guide" component={UserGuide} />
-      <Route path="/account" component={Account} />
-      <Route path="/subscription" component={Subscription} />
-      <Route path="/login" component={Login} />
-      <Route path="/price-board" component={PriceBoard} />
-      <Route path="/cryptocurrency" component={Cryptocurrency} />
-      <Route path="/crypto" component={Cryptocurrency} />
-      <Route path="/simpletons-list" component={SimpletonsList} />
-      <Route path="/quantum-ticker" component={QuantumTickerPage} />
-      <Route path="/tickers" component={TickersPage} />
-      <Route path="/about" component={About} />
-      <Route path="/feedback" component={Feedback} />
-      <Route path="/terms-of-service" component={TermsOfService} />
-      <Route path="/privacy-policy" component={PrivacyPolicy} />
-      <Route path="/legal-disclosure" component={LegalDisclosure} />
-      <Route path="/admin-dashboard" component={AdminDashboard} />
-      <Route path="/ghost-admin" component={GhostAdmin} />
-      <Route path="/ghost-admin-dashboard" component={GhostAdminDashboard} />
-      <Route path="/s7" component={S7Panel} />
-      <Route>{() => <SimpletonMode />}</Route>
-    </Switch>
-  );
-}
 
 function AppContent() {
   const { mode, setMode } = useAppMode();
