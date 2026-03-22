@@ -59,7 +59,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CORS configuration - Enable credentials for authentication routes (locked to own domain)
   const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['https://simpletonapp.com', 'http://localhost:5000'];
+    : ['https://simpletonapp.com', 'https://simpleton-platform-production.up.railway.app', 'http://localhost:5000'];
 
   app.use('/api/auth', cors({
     origin: (origin, callback) => {
