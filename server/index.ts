@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { ensureTablesExist } from "./db";
 import { simplicityBodySystem } from "./simplicity-body-system";
+import { simplicitySelfAwareness } from "./simplicity-self-awareness";
 import { healthMonitor, registerHealthRoutes } from "./health-monitor";
 import { backgroundLearner, startBackgroundLearning, stopBackgroundLearning } from "./simplicity-background-learner";
 
@@ -84,6 +85,7 @@ app.use((req, res, next) => {
     setTimeout(() => {
       try {
         simplicityBodySystem.start();
+    simplicitySelfAwareness.start();
         log('Simplicity Body System initialized');
       } catch (err) {
         console.error('Body System startup error (non-blocking):', err);
