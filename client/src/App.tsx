@@ -134,16 +134,6 @@ function DesktopRouter() {
 
 
 function AppContent() {
-  const { mode, setMode } = useAppMode();
-
-  if (mode === "mobile") {
-    return (
-      <MobileAppShell onSwitchToDesktop={() => setMode("desktop")}>
-        <MobileRouter />
-      </MobileAppShell>
-    );
-  }
-
   return <DesktopRouter />;
 }
 
