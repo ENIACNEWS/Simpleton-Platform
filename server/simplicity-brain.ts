@@ -1,6 +1,7 @@
 import { storage } from './storage';
 import type { AssistantSession, AssistantMessage, SimplicityKnowledge } from '@shared/schema';
 import { getKitcoPricing } from './kitco-pricing';
+import { getMarketBriefing } from './market-intelligence';
 
 const PAGE_CONTEXT_MAP: Record<string, { name: string; description: string; expertise: string }> = {
   '/': { name: 'Home', description: 'the main dashboard with live pricing tickers and platform overview', expertise: 'Introduce yourself warmly and offer to help with anything - pricing, appraisals, education, or navigation.' },
@@ -681,8 +682,14 @@ CRITICAL: Always use the prices above. Never use memorized or training-data pric
     }
   }
 
+  // Inject market intelligence briefing (refreshed every 10 minutes)
+  const marketIntelligenceContext = (() => {
+    const briefing = getMarketBriefing();
+    return briefing ? "\n\n" + briefing : "";
+  })();
+
   return {
-    systemPrompt: personalityPrompt + livePriceContext + memoryContext + knowledgeContext + conversationHistory,
+    systemPrompt: personalityPrompt + livePriceContext + marketIntelligenceContext + memoryContext + knowledgeContext + conversationHistory,
     session,
     history,
     knowledgeUsed: knowledge.entries.length,
