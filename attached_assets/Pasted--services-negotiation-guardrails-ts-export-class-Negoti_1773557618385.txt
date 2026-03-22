@@ -1,0 +1,71 @@
+// services/negotiation-guardrails.ts
+export class NegotiationGuardrails {
+  /**
+   * Verify every negotiation attempt against strict rules
+   * Rejects anything outside parameters
+   */
+  async validateNegotiation(negotiation: NegotiationRequest): Promise<ValidationResult> {
+    const violations = [];
+
+    // 1. User-set limits
+    if (negotiation.proposedAmount < negotiation.minAccept) {
+      violations.push(`Below minimum: $${negotiation.proposedAmount} < $${negotiation.minAccept}`);
+    }
+    
+    if (negotiation.proposedAmount > negotiation.maxCounter) {
+      violations.push(`Above maximum: $${negotiation.proposedAmount} > $${negotiation.maxCounter}`);
+    }
+
+    // 2. Market sanity check
+    const marketPrice = await this.getMarketPrice(negotiation.item);
+    const deviation = Math.abs(negotiation.proposedAmount - marketPrice) / marketPrice;
+    
+    if (deviation > 0.2) { // More than 20% off market
+      violations.push(`Price deviates ${(deviation * 100).toFixed(1)}% from market`);
+    }
+
+    // 3. Pattern detection (avoid repeated bad offers)
+    const recentOffers = await this.getRecentOffers(negotiation);
+    if (this.detectBadPattern(recentOffers)) {
+      violations.push('Suspicious pattern detected');
+    }
+
+    // 4. User verification
+    const user = await this.getUser(negotiation.userId);
+    if (!user.verified) {
+      violations.push('User not verified');
+    }
+
+    // 5. Daily limits
+    const todayCount = await this.getTodayNegotiationCount(negotiation.userId);
+    if (todayCount >= user.dailyLimit) {
+      violations.push('Daily limit reached');
+    }
+
+    return {
+      valid: violations.length === 0,
+      violations,
+      requiresHumanReview: violations.length > 0 && violations.length < 3,
+      timestamp: new Date()
+    };
+  }
+
+  /**
+   * Log every negotiation for audit
+   */
+  async auditLog(negotiation: NegotiationRequest, action: string): Promise<void> {
+    await db.query(`
+      INSERT INTO negotiation_audit (
+        user_id, negotiation_id, action, 
+        details, ip_address, timestamp
+      ) VALUES ($1, $2, $3, $4, $5, $6)
+    `, [
+      negotiation.userId,
+      negotiation.id,
+      action,
+      JSON.stringify(negotiation),
+      negotiation.ipAddress,
+      new Date()
+    ]);
+  }
+}

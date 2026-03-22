@@ -1,0 +1,90 @@
+1. LAB-GROWN DIAMOND PRICING FORMULA  
+PriceLGD = carat  
+         × basePricePerCt_LGD(carat)  
+         × colorFactor(color)  
+         × clarityFactor(clarity)  
+         × shapeFactor(shape)  
+         × methodFactor(method)
+
+Where:
+
+  • basePricePerCt_LGD(carat):  
+      – 0.30–0.49 ct → \$500/ct  
+      – 0.50–0.74 ct → \$800/ct  
+      – 0.75–0.99 ct → \$1 100/ct  
+      – 1.00–1.49 ct → \$1 300/ct  
+      – 1.50–2.49 ct → \$1 500/ct  
+      – 2.50–3.99 ct → \$1 700/ct  
+      – ≥4.00 ct     → \$1 900/ct  
+
+  • colorFactor(color): same as natural mapping (D→1.00, E→0.98, F→0.96, G→0.90, H→0.85, I→0.80, J→0.75, K→0.70, L→0.65, M→0.60)
+
+  • clarityFactor(clarity): same as natural (FL→1.00, IF→0.98, VVS1→0.96, VVS2→0.94, VS1→0.90, VS2→0.85, SI1→0.75, SI2→0.65, I1→0.50)
+
+  • shapeFactor(shape): same relative discounts (Round→1.00, Princess→0.85, Cushion→0.75, Emerald→0.65, Asscher→0.65, Marquise→0.80, Oval→0.85, Radiant→0.80, Pear→0.80)
+
+  • methodFactor(method):  
+      – CVD → 1.00  
+      – HPHT → 0.95  
+      – Mixed/Other → 0.97  
+
+Example: a 1.20 ct, G-VS2, Cushion, CVD lab-grown diamond:
+
+ base = \$1 300/ct  
+ colorFactor = 0.90  
+ clarityFactor = 0.85  
+ shapeFactor = 0.75  
+ methodFactor = 1.00  
+
+ PriceLGD ≈ 1.20 × 1 300 × 0.90 × 0.85 × 0.75 × 1.00  
+         ≈ \$795.15
+
+2. AI PROMPT FOR YOUR CODE GENERATOR  
+————— PROMPT START —————  
+You are a diamond-pricing engine.  Implement a function  
+
+    priceLabGrownDiamond(carat, color, clarity, shape, method)  
+
+that returns the wholesale price in USD using this formula:
+
+    price = carat
+          × basePricePerCt_LGD(carat)
+          × colorFactor(color)
+          × clarityFactor(clarity)
+          × shapeFactor(shape)
+          × methodFactor(method)
+
+1. basePricePerCt_LGD(carat):  
+     • 0.30–0.49 ct → 500  
+     • 0.50–0.74 ct → 800  
+     • 0.75–0.99 ct → 1100  
+     • 1.00–1.49 ct → 1300  
+     • 1.50–2.49 ct → 1500  
+     • 2.50–3.99 ct → 1700  
+     • ≥4.00 ct     → 1900  
+
+2. colorFactor(color):  
+     { D:1.00, E:0.98, F:0.96, G:0.90, H:0.85, I:0.80, J:0.75, K:0.70, L:0.65, M:0.60 }
+
+3. clarityFactor(clarity):  
+     { FL:1.00, IF:0.98, VVS1:0.96, VVS2:0.94, VS1:0.90, VS2:0.85, SI1:0.75, SI2:0.65, I1:0.50 }
+
+4. shapeFactor(shape):  
+     { Round:1.00, Princess:0.85, Cushion:0.75, Emerald:0.65, Asscher:0.65, Marquise:0.80, Oval:0.85, Radiant:0.80, Pear:0.80 }
+
+5. methodFactor(method):  
+     { CVD:1.00, HPHT:0.95, Mixed:0.97 }
+
+Requirements:  
+• Validate inputs, throw errors on unknown grades or methods.  
+• Allow dynamic updates to basePricePerCt_LGD bracket values (e.g. via config file or API).  
+• Return a numeric USD amount.
+
+Example usage:
+
+    priceLabGrownDiamond(1.2, "G", "VS2", "Cushion", "CVD")  // ≈ 795.15
+
+Provide the complete implementation in the language of your choice.  
+————— PROMPT END —————  
+
+Copy that into your AI or codebase to get a turnkey lab-grown diamond pricing module.

@@ -1,0 +1,77 @@
+// lib/validation/transaction-validator.ts
+export class TransactionValidator {
+  /**
+   * Validate transaction data before it enters the system
+   * Rejects anything that doesn't meet credibility standards
+   */
+  async validateTransaction(transaction: RawTransaction): Promise<ValidationResult> {
+    const issues = [];
+
+    // 1. Price sanity checks
+    if (transaction.price <= 0) {
+      issues.push('Price must be positive');
+    }
+
+    // 2. Market context validation
+    const marketPrice = await this.getMarketPrice(transaction);
+    const deviation = Math.abs(transaction.price - marketPrice) / marketPrice;
+    
+    if (deviation > 0.3) { // More than 30% off market
+      issues.push(`Price deviates ${(deviation * 100).toFixed(1)}% from market`);
+    }
+
+    // 3. Duplicate detection
+    const duplicates = await this.findPotentialDuplicates(transaction);
+    if (duplicates.length > 0) {
+      issues.push('Possible duplicate transaction');
+    }
+
+    // 4. Dealer verification
+    const dealer = await this.getDealerInfo(transaction.dealerId);
+    if (!dealer.verified) {
+      issues.push('Unverified dealer');
+    }
+
+    // 5. Pattern anomalies
+    const patterns = await this.detectAnomalies(transaction);
+    if (patterns.length > 0) {
+      issues.push(...patterns);
+    }
+
+    return {
+      valid: issues.length === 0,
+      issues,
+      confidence: this.calculateConfidence(issues, transaction),
+      verifiedBy: issues.length === 0 ? 'system' : null,
+      timestamp: new Date()
+    };
+  }
+
+  /**
+   * Cross-reference with multiple data sources
+   */
+  private async crossReference(transaction: RawTransaction): Promise<CrossReferenceResult> {
+    const sources = [];
+
+    // Rapaport for diamonds
+    if (transaction.itemType === 'diamond') {
+      const rapaport = await this.getRapaportPrice(transaction);
+      sources.push({ source: 'rapaport', price: rapaport, weight: 0.4 });
+    }
+
+    // LBMA for metals
+    if (['gold', 'silver', 'platinum'].includes(transaction.itemType)) {
+      const lbma = await this.getLBMAPrice(transaction);
+      sources.push({ source: 'lbma', price: lbma, weight: 0.3 });
+    }
+
+    // Internal transaction history
+    const history = await this.getSimilarTransactionHistory(transaction);
+    if (history.length > 5) {
+      const avgHistorical = history.reduce((sum, t) => sum + t.price, 0) / history.length;
+      sources.push({ source: 'internal', price: avgHistorical, weight: 0.3 });
+    }
+
+    return this.aggregateSources(sources);
+  }
+}

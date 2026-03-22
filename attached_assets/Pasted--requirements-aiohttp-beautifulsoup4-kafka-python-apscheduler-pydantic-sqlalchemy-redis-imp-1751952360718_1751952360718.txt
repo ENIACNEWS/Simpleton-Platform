@@ -1,0 +1,79 @@
+# requirements: aiohttp, beautifulsoup4, kafka-python, apscheduler, pydantic, sqlalchemy, redis
+
+import asyncio
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from kafka import KafkaProducer
+import aiohttp
+from bs4 import BeautifulSoup
+from pydantic import BaseModel, ValidationError
+import sqlalchemy as sa
+import redis
+
+# 1) Data model & validation
+class PriceRecord(BaseModel):
+    source: str
+    timestamp: float
+    carat: float
+    color: str
+    clarity: str
+    shape: str
+    price_per_ct: float
+
+# 2) Base connector
+class BaseConnector:
+    SOURCE = "generic"
+    async def fetch(self):
+        raise NotImplementedError
+    async def parse(self, raw) -> list[PriceRecord]:
+        raise NotImplementedError
+    async def run(self, producer: KafkaProducer):
+        raw = await self.fetch()
+        for rec in await self.parse(raw):
+            try:
+                data = rec.dict()
+                producer.send("diamond‐prices", value=data)
+            except ValidationError as e:
+                print("DEPLOY ALERT: invalid record", e)
+
+# 3) Example connector: web scrape a table
+class ExchangeWebConnector(BaseConnector):
+    SOURCE = "ExchangeSite"
+    URL = "https://example.com/rap‐prices"
+    async def fetch(self):
+        async with aiohttp.ClientSession() as ses:
+            r = await ses.get(self.URL)
+            return await r.text()
+    async def parse(self, html) -> list[PriceRecord]:
+        soup = BeautifulSoup(html, "html.parser")
+        rows = soup.select("table#prices tr")
+        out=[]
+        for row in rows[1:]:
+            cols = [td.get_text().strip() for td in row.find_all("td")]
+            rec = PriceRecord(
+                source=self.SOURCE,
+                timestamp=asyncio.get_event_loop().time(),
+                carat=float(cols[0]),
+                color=cols[1],
+                clarity=cols[2],
+                shape=cols[3],
+                price_per_ct=float(cols[4].replace(",",""))
+            )
+            out.append(rec)
+        return out
+
+# 4) Orchestrator
+async def main():
+    # Kafka producer
+    producer = KafkaProducer(bootstrap_servers="localhost:9092",
+                             value_serializer=lambda v: json.dumps(v).encode())
+    connectors = [ExchangeWebConnector(), /* add more connectors */]
+    scheduler = AsyncIOScheduler()
+    for c in connectors:
+        # schedule each connector every 10 minutes
+        scheduler.add_job(c.run, "interval", minutes=10, args=[producer])
+    scheduler.start()
+    # keep alive
+    await asyncio.Event().wait()
+
+if __name__=="__main__":
+    asyncio.run(main())

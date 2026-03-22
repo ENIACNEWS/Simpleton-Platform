@@ -1,0 +1,30 @@
+Yes, extracting and reviewing right now!​​​​​​​​​​​​​​​​
+
+Now I have a thorough picture. Let me give you the full honest assessment:​​​​​​​​​​​​​​​​
+
+Good. Now I have the full picture. Here’s what I found:
+
+The Brain integration: ✅ Done right
+BrainProvider, BrainPanel, BrainTrigger, and BrainAwarenessWatcher are all correctly wired in App.tsx. The awareness watcher is feeding page location and live gold prices. The appContext is being sent to the server and injected into Simplicity’s system prompt. That’s solid.
+What’s built but NOT yet connected:
+simplicity-body-system.ts — the self-healing hourly auditor exists and is well-written, but it’s never started. It needs to be imported and .start() called in the server startup.
+simplicity-clarification-engine.ts — fully built with smart intent detection, but never called in the chat route. Simplicity asks no clarifying questions yet.
+simplicity-market-intelligence.ts — the real multi-signal algorithm exists. The API route /api/market-signals/advisory is live. But Simplicity doesn’t use it as a tool when users ask market questions.
+What I’m building now:
+	1.	Wire the body system to start on server boot
+	2.	Connect the clarification engine into the chat route so Simplicity asks smart questions
+	3.	Give Simplicity the market intelligence as a live tool she calls automatically
+	4.	Wire the appraisal system to Simplicity so she guides the whole process conversationally
+Give me a few minutes — building all four right now on your actual codebase.​​​​​​​​​​​​​​​​
+
+Now I have exactly what I need. Let me build all four connections:​​​​​​​​​​​​​​​​
+
+Now check the body system to make sure it exports correctly:​​​​​​​​​​​​​​​​
+
+Brain Integration Assessment — ✅ You did it right:
+Your BrainProvider, BrainPanel, BrainTrigger, and BrainAwarenessWatcher are all correctly placed in App.tsx. The awareness watcher is feeding page location and live gold prices to the brain. The appContext travels to the server and gets injected into Simplicity’s system prompt on every message. The page-specific expertise map in simplicity-brain.ts is excellent — she knows exactly what to say based on where the user is.
+What was just fixed — body system is now wired. The simplicityBodySystem.start() call is now in server/index.ts. She will begin her hourly self-audit 10 seconds after the server boots.
+Still needs connecting in routes.ts:
+	∙	Clarification engine — needs to intercept messages before they reach the AI
+	∙	Market intelligence tool — needs to auto-trigger when market questions are detected
+Send the updated code back once you drop this in and I’ll finish wiring those last two pieces plus build the appraisal system on top of your real codebase.​​​​​​​​​​​​​​​​

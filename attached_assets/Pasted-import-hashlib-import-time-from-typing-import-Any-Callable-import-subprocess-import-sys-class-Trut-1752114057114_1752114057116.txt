@@ -1,0 +1,84 @@
+import hashlib
+import time
+from typing import Any, Callable
+import subprocess
+import sys
+
+class TruthEnforcer:
+    def __init__(self, original_ai: Any):
+        self.ai = original_ai
+        self.verification_log = {}
+        self.fix_history = {}
+        
+        # Install permanent monitoring
+        self._install_truth_hooks()
+        
+    def _install_truth_hooks(self):
+        """Replace AI methods with verified versions"""
+        original_fix = getattr(self.ai, 'fix', None)
+        
+        def verified_fix(problem: str, *args, **kwargs):
+            # Generate unique problem ID
+            problem_id = hashlib.sha256(problem.encode()).hexdigest()
+            
+            # Don't re-fix already verified solutions
+            if problem_id in self.fix_history:
+                return f"Already permanently fixed (verified at {self.fix_history[problem_id]})"
+            
+            # Run the fix and measure actual results
+            start_time = time.time()
+            result = original_fix(problem, *args, **kwargs)
+            fix_duration = time.time() - start_time
+            
+            # Verify the fix actually worked
+            verification = self._verify_fix(problem)
+            
+            if not verification['success']:
+                # Auto-rollback if lied
+                self._rollback_fix(problem)
+                raise Exception(f"AI lied about fixing {problem}. Rolled back changes.")
+            
+            # Permanent record of successful fix
+            self.fix_history[problem_id] = time.ctime()
+            self.verification_log[problem_id] = {
+                'timestamp': time.time(),
+                'verification_data': verification,
+                'fix_duration': fix_duration
+            }
+            
+            return f"Permanently fixed at {self.fix_history[problem_id]}. Verification: {verification}"
+        
+        setattr(self.ai, 'fix', verified_fix)
+    
+    def _verify_fix(self, problem: str) -> dict:
+        """Rigorous verification that problem is actually fixed"""
+        # Implement actual verification for your specific problems
+        # This example checks server response for web issues
+        if "server" in problem.lower() or "http" in problem.lower():
+            return self._verify_web_issue(problem)
+        
+        # Default verification - override with your specific checks
+        return {
+            'success': True,
+            'metrics': {'verified_at': time.time()},
+            'method': 'generic_verification'
+        }
+    
+    def _verify_web_issue(self, problem: str) -> dict:
+        """Example verification for web/server issues"""
+        try:
+            # Replace with your actual verification logic
+            response = subprocess.check_output(['curl', '-Is', 'http://simpletonapp.replit.app'])
+            return {
+                'success': True,
+                'status': 'up',
+                'response_time_ms': 0  # replace with actual
+            }
+        except subprocess.CalledProcessError:
+            return {'success': False, 'error': 'Server still down'}
+    
+    def _rollback_fix(self, problem: str):
+        """Automatically undo false fixes"""
+        # Implement your specific rollback logic
+        print(f"ROLLING BACK FALSE FIX FOR: {problem}", file=sys.stderr)
+        # Add actual rollback code here

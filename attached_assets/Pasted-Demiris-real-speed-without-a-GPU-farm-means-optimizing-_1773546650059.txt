@@ -1,0 +1,106 @@
+Demiris — real speed without a GPU farm means optimizing **every layer between the user and the model**. No hardware shortcuts, just software leverage.
+
+Here's the exact stack I'd deploy today for maximum throughput on existing infrastructure:
+
+---
+
+## 1. Speculative Decoding (EAGLE-3)
+
+You already have this in your codebase. It's your biggest win.
+
+| Setup | Throughput Gain |
+|-------|-----------------|
+| No EAGLE | 1x baseline |
+| EAGLE-2 | 3-4x |
+| **EAGLE-3** | **6-8x**  |
+
+**Implementation focus:**
+- Draft model should be 60-70% smaller than target
+- Train the draft model on your actual query distribution (metal prices, diamond lookups)
+- Cache draft model in memory, reuse across requests
+
+**Real-world impact:** One H100 doing 8x work without additional hardware.
+
+---
+
+## 2. FlashAttention & Memory Optimizations
+
+Most latency is memory bandwidth, not compute.
+
+| Technique | Gain | Implementation |
+|-----------|------|----------------|
+| FlashAttention-3 | 2-3x attention speed | Replace standard attention kernels |
+| PagedAttention | 4x KV cache efficiency | vLLM or similar |
+| Continuous batching | 10-20x throughput | Batch requests dynamically |
+
+**The key:** These are all software-level. No new GPUs required.
+
+---
+
+## 3. Quantization Without Quality Loss
+
+| Precision | Memory Reduction | Speed Gain |
+|-----------|------------------|------------|
+| FP16 | 1x | 1x |
+| INT8 | 2x | 2-3x |
+| INT4 (AWQ/GPTQ) | 4x | 3-4x |
+| INT4 + Marlin kernel | 4x | **4-6x** |
+
+**Current best practice:**
+- Use AWQ or GPTQ quantization (not naive INT4)
+- Marlin kernels for inference (2-4x speedup over standard INT4)
+- Keep key layers at higher precision (first/last layers, attention)
+
+**For your use case:** Quantize the specialized models (diamond calculator, metal pricing) aggressively. Keep the general chat model at higher precision.
+
+---
+
+## 4. CPU Offloading & Hybrid Execution
+
+Don't let GPU memory be the bottleneck.
+
+| Strategy | When to Use |
+|----------|-------------|
+| Layer-wise offloading | Models larger than VRAM |
+| Prompt processing on CPU | Long contexts, cheap compute |
+| Speculative CPU draft | CPU runs tiny draft model |
+
+**Implementation:** vLLM or TensorRT-LLM handle this automatically. Use them.
+
+---
+
+## 5. The 10x Stack (No New GPUs)
+
+| Layer | Technology | Cumulative Gain |
+|-------|------------|-----------------|
+| 1 | EAGLE-3 speculative decoding | 8x |
+| 2 | 4-bit quantization + Marlin | 4x |
+| 3 | Continuous batching | 10x |
+| 4 | FlashAttention-3 | 2x |
+| **Total** | | **~640x theoretical** |
+
+**Reality check:** You won't get 640x. But 20-40x on existing hardware is absolutely achievable with all layers working together.
+
+---
+
+## 6. The 24-Hour Implementation Plan
+
+| Hour | Task |
+|------|------|
+| 0-2 | Add vLLM or TensorRT-LLM inference engine |
+| 2-6 | Quantize your specialized models to INT4 (AWQ) |
+| 6-12 | Implement continuous batching |
+| 12-18 | Add EAGLE-3 draft model (train on your queries) |
+| 18-24 | Profile, tune, deploy |
+
+---
+
+## The Honest Truth
+
+You don't need a GPU farm. You need **software leverage**.
+
+DeepSeek itself runs efficiently because of these optimizations, not because they have infinite hardware. The techniques are public, proven, and deployable today.
+
+Your existing GPUs can handle 20-40x their baseline throughput with the right stack.
+
+**Want me to write the specific implementation for any of these layers?**

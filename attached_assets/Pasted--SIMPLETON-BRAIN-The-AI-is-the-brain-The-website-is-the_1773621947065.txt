@@ -1,0 +1,205 @@
+/**
+* SIMPLETON BRAIN™
+* The AI is the brain. The website is the body.
+*
+* This context gives the AI awareness of everything happening in the app.
+* Any component can update the brain's awareness, and any component can
+* invoke the brain to take action.
+*/
+import { createContext, useContext, useState, useCallback, useRef, ReactNode } from "react";
+// Everything the Brain can know about the current state of the app
+export interface BrainAwareness {
+// Where the user is
+currentPage: string;
+// Calculator state
+calculator?: {
+display: string;
+selectedMetal: string;
+selectedPurity: number;
+selectedKarat: number;
+selectedUnit: string;
+livePrice: number;
+loanPrice: number;
+sellPrice: number;
+priceMode: "live" | "custom";
+scrapItems?: Array<{ weight: number; karat: string; value: number }>;
+lastCalculation?: number;
+};
+// Diamond state
+diamonds?: {
+selectedCarat?: number;
+selectedClarity?: string;
+selectedColor?: string;
+selectedCut?: string;
+estimatedValue?: number;
+};
+// Database state
+database?: {
+searchQuery?: string;
+selectedCoin?: string;
+selectedMetal?: string;
+viewingCoin?: { name: string; weight: number; purity: number; meltValue: number };
+};
+// Market awareness
+market?: {
+goldPrice: number;
+silverPrice: number;
+platinumPrice: number;
+lastUpdated?: string;
+};
+// User context
+user?: {
+isLoggedIn: boolean;
+portfolioValue?: number;
+};
+// What the user just did (for proactive responses)
+lastAction?: {
+type: string;
+detail: string;
+timestamp: number;
+};
+}
+// Things the Brain can DO — commands it can send back to the app
+export interface BrainAction {
+type:
+| "SET_CALCULATOR_METAL"
+| "SET_CALCULATOR_KARAT"
+| "SET_CALCULATOR_VALUE"
+| "OPEN_SCRAP_MODAL"
+| "OPEN_CUSTOM_RATES"
+| "NAVIGATE_TO"
+| "FILTER_DATABASE"
+| "HIGHLIGHT_COIN"
+| "SHOW_DIAMOND_GRADE"
+| "PULSE_ELEMENT";
+payload: any;
+}
+interface BrainContextType {
+// Current awareness
+awareness: BrainAwareness;
+// Update brain's knowledge (called by components)
+updateAwareness: (update: Partial<BrainAwareness>) => void;
+// Log an action so the brain knows what just happened
+logAction: (type: string, detail: string) => void;
+// AI panel state
+isOpen: boolean;
+openBrain: (prefilledMessage?: string) => void;
+closeBrain: () => void;
+// Pre-filled message for when brain is opened with context
+prefilledMessage: string;
+setPrefilledMessage: (msg: string) => void;
+// Action queue — the brain sends actions back to the app
+pendingAction: BrainAction | null;
+dispatchAction: (action: BrainAction) => void;
+clearAction: () => void;
+// Proactive suggestion the brain wants to surface
+suggestion: { message: string; context: string } | null;
+setSuggestion: (s: { message: string; context: string } | null) => void;
+}
+const BrainContext = createContext<BrainContextType | null>(null);
+export function BrainProvider({ children }: { children: ReactNode }) {
+const [awareness, setAwareness] = useState<BrainAwareness>({
+currentPage: "/",
+});
+const [isOpen, setIsOpen] = useState(false);
+const [prefilledMessage, setPrefilledMessage] = useState("");
+const [pendingAction, setPendingAction] = useState<BrainAction | null>(null);
+const [suggestion, setSuggestion] = useState<{ message: string; context: string } | null>(n
+const updateAwareness = useCallback((update: Partial<BrainAwareness>) => {
+setAwareness(prev => ({
+...prev,
+...update,
+// Deep merge nested objects
+calculator: update.calculator ? { ...prev.calculator, ...update.calculator } : prev.cal
+diamonds: update.diamonds ? { ...prev.diamonds, ...update.diamonds } : prev.diamonds,
+database: update.database ? { ...prev.database, ...update.database } : prev.database,
+market: update.market ? { ...prev.market, ...update.market } : prev.market,
+}));
+}, []);
+const logAction = useCallback((type: string, detail: string) => {
+setAwareness(prev => ({
+...prev,
+lastAction: { type, detail, timestamp: Date.now() }
+}));
+}, []);
+const openBrain = useCallback((prefilledMessage?: string) => {
+if (prefilledMessage) setPrefilledMessage(prefilledMessage);
+setIsOpen(true);
+}, []);
+const closeBrain = useCallback(() => {
+setIsOpen(false);
+setPrefilledMessage("");
+}, []);
+const dispatchAction = useCallback((action: BrainAction) => {
+setPendingAction(action);
+}, []);
+const clearAction = useCallback(() => {
+setPendingAction(null);
+}, []);
+return (
+<BrainContext.Provider value={{
+awareness,
+updateAwareness,
+logAction,
+isOpen,
+openBrain,
+closeBrain,
+prefilledMessage,
+setPrefilledMessage,
+pendingAction,
+dispatchAction,
+clearAction,
+suggestion,
+setSuggestion,
+}}>
+{children}
+</BrainContext.Provider>
+);
+}
+export function useBrain() {
+const ctx = useContext(BrainContext);
+if (!ctx) throw new Error("useBrain must be used inside BrainProvider");
+return ctx;
+}
+// Helper: build a rich system context string from current awareness
+// This gets injected into every AI call so she always knows what's happening
+export function buildBrainSystemContext(awareness: BrainAwareness): string {
+const parts: string[] = [];
+parts.push(`CURRENT APP STATE (what the user is looking at right now):`);
+parts.push(`Page: ${awareness.currentPage}`);
+if (awareness.calculator) {
+const c = awareness.calculator;
+parts.push(`\nCALCULATOR STATE:`);
+parts.push(`- Metal: ${c.selectedMetal}, Purity: ${c.selectedPurity}% (${c.selectedKarat}
+parts.push(`- Display value: ${c.display}`);
+parts.push(`- Price mode: ${c.priceMode}`);
+parts.push(`- Live price: $${c.livePrice?.toFixed(2)}/oz | Loan price: $${c.loanPrice?.to
+if (c.lastCalculation) parts.push(`- Last calculated value: $${c.lastCalculation.toFixed(
+if (c.scrapItems && c.scrapItems.length > 0) {
+parts.push(`- SCRAP batch: ${c.scrapItems.length} items, total value $${c.scrapItems.re
+}
+}
+if (awareness.diamonds) {
+const d = awareness.diamonds;
+parts.push(`\nDIAMOND CALCULATOR STATE:`);
+if (d.selectedCarat) parts.push(`- Carat: ${d.selectedCarat}`);
+if (d.selectedClarity) parts.push(`- Clarity: ${d.selectedClarity}`);
+if (d.selectedColor) parts.push(`- Color: ${d.selectedColor}`);
+if (d.selectedCut) parts.push(`- Cut: ${d.selectedCut}`);
+if (d.estimatedValue) parts.push(`- Estimated value: $${d.estimatedValue.toLocaleString()
+}
+if (awareness.database?.viewingCoin) {
+const coin = awareness.database.viewingCoin;
+parts.push(`\nUSER IS VIEWING COIN: ${coin.name}`);
+parts.push(`- Weight: ${coin.weight}g, Purity: ${coin.purity}%, Melt value: $${coin.meltV
+}
+if (awareness.market) {
+const m = awareness.market;
+parts.push(`\nLIVE MARKET PRICES:`);
+parts.push(`- Gold: $${m.goldPrice?.toFixed(2)}/oz | Silver: $${m.silverPrice?.toFixed(2)
+if (awareness.lastAction) {
+parts.push(`\nLAST USER ACTION: ${awareness.lastAction.type} — ${awareness.lastAction.det
+}
+return parts.join("\n");
+}
+}

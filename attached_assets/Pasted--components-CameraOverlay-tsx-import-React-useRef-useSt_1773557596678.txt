@@ -1,0 +1,120 @@
+// components/CameraOverlay.tsx
+import React, { useRef, useState } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { RNCamera } from 'react-native-camera';
+import Svg, { Rect, Text as SvgText } from 'react-native-svg';
+
+export const CameraOverlay: React.FC = () => {
+  const cameraRef = useRef<RNCamera>(null);
+  const [detectedItems, setDetectedItems] = useState<Detection[]>([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const analyzeFrame = async () => {
+    if (!cameraRef.current || isAnalyzing) return;
+
+    setIsAnalyzing(true);
+    try {
+      const options = { quality: 0.5, base64: true };
+      const data = await cameraRef.current.takePictureAsync(options);
+      
+      // Send to your API
+      const response = await fetch('https://api.simpletonapp.com/v1/appraise/image', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await getToken()}`
+        },
+        body: JSON.stringify({
+          image: data.base64,
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setDetectedItems(result.data.items);
+      }
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Run analysis every 2 seconds while camera is active
+  React.useEffect(() => {
+    const interval = setInterval(analyzeFrame, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <RNCamera
+        ref={cameraRef}
+        style={styles.camera}
+        type={RNCamera.Constants.Type.back}
+        captureAudio={false}
+      >
+        {/* Overlay detected items */}
+        <Svg style={StyleSheet.absoluteFill}>
+          {detectedItems.map((item, index) => (
+            <React.Fragment key={index}>
+              <Rect
+                x={item.bbox.x}
+                y={item.bbox.y}
+                width={item.bbox.width}
+                height={item.bbox.height}
+                stroke="#00FF00"
+                strokeWidth="3"
+                fill="none"
+              />
+              <SvgText
+                x={item.bbox.x}
+                y={item.bbox.y - 10}
+                fill="#00FF00"
+                fontSize="16"
+              >
+                {item.label} - ${item.estimatedPrice}
+              </SvgText>
+            </React.Fragment>
+          ))}
+        </Svg>
+
+        {/* Capture button */}
+        <TouchableOpacity 
+          style={styles.captureButton}
+          onPress={analyzeFrame}
+          disabled={isAnalyzing}
+        >
+          <Text style={styles.captureText}>
+            {isAnalyzing ? 'Analyzing...' : 'Snap'}
+          </Text>
+        </TouchableOpacity>
+      </RNCamera>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'black'
+  },
+  camera: {
+    flex: 1
+  },
+  captureButton: {
+    position: 'absolute',
+    bottom: 30,
+    alignSelf: 'center',
+    backgroundColor: 'white',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25
+  },
+  captureText: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  }
+});

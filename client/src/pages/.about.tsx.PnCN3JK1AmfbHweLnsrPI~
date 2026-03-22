@@ -1,0 +1,117 @@
+export default function About() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-amber-100 dark:from-gray-900 dark:via-gray-800 dark:to-amber-900">
+      <div className="container mx-auto px-4 py-12 max-w-4xl">
+        {/* Hero Section */}
+        <div className="text-center mb-12">
+          <div className="inline-block p-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-600 mb-6">
+            <div className="bg-white dark:bg-gray-900 rounded-full p-8">
+              <div className="w-24 h-24 mx-auto bg-gradient-to-br from-amber-400 to-yellow-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                DB
+              </div>
+            </div>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+            About the Creator
+          </h1>
+          <div className="w-24 h-1 bg-gradient-to-r from-amber-400 to-yellow-600 mx-auto"></div>
+        </div>
+
+        {/* Main Content */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-amber-200 dark:border-amber-800 p-8 md:p-12">
+          
+          {/* Introduction */}
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-amber-400 to-yellow-600 rounded-full mr-4"></div>
+              Demiris Brown
+            </h2>
+            <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
+              <p className="text-xl mb-6">
+                My name is Demiris Brown. For more than twelve years I've worn many hats in the jewelry world—jeweler, diamond trader, certified grader and gemstone appraiser, and pawnshop general manager. Over that time I've seen the same questions and frustrations come up again and again: "What is this gold really worth?", "How do I know a diamond's true market value?", "Where can I quickly compare prices without wading through pages of technical jargon?"
+              </p>
+              <p className="text-xl font-semibold text-amber-700 dark:text-amber-300">
+                Simpletonapp was born from these everyday challenges.
+              </p>
+            </div>
+          </div>
+
+          {/* Why I Built Section */}
+          <div className="mb-12 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-gray-700 dark:to-amber-900/20 rounded-xl p-8 border border-amber-200 dark:border-amber-700">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+              <div className="w-6 h-6 bg-gradient-to-r from-amber-400 to-yellow-600 rounded-full mr-3"></div>
+              Why I Built Simpletonapp
+            </h3>
+            <div className="text-gray-900 dark:text-gray-200 leading-relaxed space-y-4">
+              <p>
+                I've spent my career inside cases and vaults, grading thousands of stones and running daily pricing drills. I know how fast markets move—gold and silver spot prices shift by the minute, diamond price guides are updated every quarter, and Rolex values can spike overnight.
+              </p>
+              <p>
+                Yet when I step back, I realize that most online tools either assume you're an expert or leave out critical details. Simpletonapp bridges that gap. Our gold calculator offers live spot pricing, our diamond database includes market comparisons, and our Rolex authentication system uses cutting-edge AI technology.
+              </p>
+              <p className="font-medium text-amber-800 dark:text-amber-200">
+                This platform combines professional-grade accuracy with user-friendly simplicity.
+              </p>
+            </div>
+          </div>
+
+          {/* Mission Section */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+              <div className="w-6 h-6 bg-gradient-to-r from-amber-400 to-yellow-600 rounded-full mr-3"></div>
+              My Mission
+            </h3>
+            <div className="text-gray-900 dark:text-gray-200 leading-relaxed space-y-4">
+              <p>
+                I want to empower the next generation of jewelry professionals and curious collectors. If you're just starting out, Simpletonapp gives you the same accurate pricing data I've relied on behind the counter. If you've been in the industry for decades, you'll appreciate our custom-price overrides and advanced tools.
+              </p>
+              <p>
+                Our educational sections walk you through diamond grading basics, Rolex model histories, and best practices for buying and selling. This platform is my "baby"—it represents everything I've learned and every tool I wished I'd had when I started.
+              </p>
+            </div>
+          </div>
+
+          {/* Professional Highlights */}
+          <div className="mb-12 grid md:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-lg border border-amber-200 dark:border-amber-700">
+              <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">💎 Expertise Areas</h4>
+              <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                <li>• Diamond Trading & Grading</li>
+                <li>• Certified Gemstone Appraisal</li>
+                <li>• Precious Metals Evaluation</li>
+                <li>• Rolex Authentication</li>
+                <li>• Pawnshop Operations</li>
+              </ul>
+            </div>
+            <div className="bg-white dark:bg-gray-700 rounded-lg p-6 shadow-lg border border-amber-200 dark:border-amber-700">
+              <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">🚀 Platform Features</h4>
+              <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                <li>• Live Market Data Integration</li>
+                <li>• AI-Powered Authentication</li>
+                <li>• Professional Calculators</li>
+                <li>• Educational Resources</li>
+                <li>• Quantum Data Software™</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Closing Message */}
+          <div className="text-center bg-gradient-to-r from-amber-400 to-yellow-600 rounded-xl p-8 text-white">
+            <h3 className="text-2xl font-bold mb-4">Thank You for Visiting</h3>
+            <p className="text-lg leading-relaxed mb-6">
+              I hope Simpletonapp makes your buying, selling, and learning experiences smoother, more transparent, and—above all—<strong>simple</strong>. If you ever have questions, feedback, or just want to share a success story, I'd love to hear from you.
+            </p>
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 inline-block">
+              <p className="font-bold text-xl">Contact</p>
+              <p className="text-lg">Intel@Simpletonapp.com</p>
+            </div>
+            <p className="mt-6 text-lg font-bold">
+              Thank you,<br/>
+              Demiris Brown
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

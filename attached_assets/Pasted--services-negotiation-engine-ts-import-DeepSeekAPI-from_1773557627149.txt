@@ -1,0 +1,134 @@
+// services/negotiation-engine.ts
+import { DeepSeekAPI } from '../lib/deepseek';
+import { EmailService } from './email';
+import { SMSService } from './sms';
+
+export class AutonomousNegotiator {
+  private deepseek: DeepSeekAPI;
+  private email: EmailService;
+  private sms: SMSService;
+  private guardrails: NegotiationGuardrails;
+
+  constructor() {
+    this.deepseek = new DeepSeekAPI({
+      apiKey: process.env.DEEPSEEK_API_KEY,
+      model: 'deepseek-reasoner' // Complex reasoning for negotiation
+    });
+    this.email = new EmailService(process.env.SENDGRID_API_KEY);
+    this.sms = new SMSService(process.env.TWILIO_ACCOUNT_SID);
+    this.guardrails = new NegotiationGuardrails();
+  }
+
+  /**
+   * Start a new negotiation
+   */
+  async startNegotiation(params: NegotiationParams): Promise<NegotiationSession> {
+    // 1. Validate everything
+    const validation = await this.guardrails.validateNegotiation({
+      ...params,
+      proposedAmount: params.initialOffer
+    });
+
+    if (!validation.valid) {
+      throw new Error(`Negotiation rejected: ${validation.violations.join(', ')}`);
+    }
+
+    // 2. Create session
+    const session = await this.createSession(params);
+
+    // 3. Generate initial strategy
+    const strategy = await this.generateStrategy(session);
+
+    // 4. Send initial message
+    await this.sendMessage({
+      sessionId: session.id,
+      channel: params.channel,
+      recipient: params.recipient,
+      content: strategy.initialMessage
+    });
+
+    // 5. Log everything
+    await this.guardrails.auditLog(session, 'started');
+
+    return session;
+  }
+
+  /**
+   * Handle incoming response
+   */
+  async handleResponse(response: IncomingResponse): Promise<void> {
+    const session = await this.getSession(response.sessionId);
+
+    // 1. Validate response
+    const validation = await this.guardrails.validateNegotiation({
+      ...session,
+      proposedAmount: response.amount
+    });
+
+    if (!validation.valid) {
+      await this.escalateToHuman(session, validation.violations);
+      return;
+    }
+
+    // 2. Analyze response with DeepSeek
+    const analysis = await this.deepseek.complete({
+      prompt: this.buildAnalysisPrompt(session, response),
+      temperature: 0.3,
+      maxTokens: 500
+    });
+
+    const decision = this.parseAnalysis(analysis);
+
+    // 3. Take action based on decision
+    if (decision.action === 'accept') {
+      await this.acceptDeal(session, response);
+    } else if (decision.action === 'counter') {
+      await this.sendCounter(session, response, decision.counterAmount);
+    } else if (decision.action === 'walk') {
+      await this.walkAway(session, decision.reason);
+    }
+
+    // 4. Log
+    await this.guardrails.auditLog(session, `responded: ${decision.action}`);
+  }
+
+  private async generateStrategy(session: NegotiationSession): Promise<NegotiationStrategy> {
+    const marketData = await this.getMarketData(session.item);
+    
+    const strategy = await this.deepseek.complete({
+      prompt: `
+        You are a professional negotiator for a pawn shop/jewelry dealer.
+        
+        ITEM: ${session.item.type}
+        SPECS: ${JSON.stringify(session.item.specs)}
+        MARKET VALUE: $${marketData.value}
+        YOUR COST: $${session.yourCost}
+        MIN ACCEPT: $${session.minAccept}
+        MAX COUNTER: $${session.maxCounter}
+        
+        CHANNEL: ${session.channel}
+        RECIPIENT: ${session.recipientContext || 'unknown'}
+        
+        Generate a negotiation strategy:
+        1. Initial message (tone, key points)
+        2. First counter-offer amount
+        3. Concession plan (how much to move each round)
+        4. Deal-breaker points
+        5. Walk-away triggers
+        
+        Return as JSON with:
+        {
+          "initialMessage": "string",
+          "firstCounter": number,
+          "concessionPlan": [number, number, number],
+          "dealBreakers": ["string"],
+          "walkAwayTriggers": ["string"],
+          "tone": "professional/friendly/firm"
+        }
+      `,
+      temperature: 0.4
+    });
+
+    return JSON.parse(strategy);
+  }
+}

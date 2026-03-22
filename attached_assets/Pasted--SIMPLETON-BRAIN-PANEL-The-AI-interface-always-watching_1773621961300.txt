@@ -1,0 +1,364 @@
+/**
+* SIMPLETON BRAIN™ PANEL
+* The AI interface — always watching, always ready.
+* Context-aware: knows exactly what the user is doing at all times.
+*/
+import { useState, useRef, useEffect } from "react";
+import { useBrain, buildBrainSystemContext } from "@/lib/brain-context";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { cn } from "@/lib/utils";
+import {
+X, Send, Bot, User, Sparkles, Minimize2, Maximize2,
+Camera, Upload, Zap, Brain
+} from "lucide-react";
+interface Message {
+id: string;
+role: "user" | "assistant";
+content: string;
+timestamp: Date;
+image?: string;
+}
+export function BrainPanel() {
+const { awareness, isOpen, closeBrain, prefilledMessage, setPrefilledMessage, suggestion, s
+const [messages, setMessages] = useState<Message[]>([]);
+const [input, setInput] = useState("");
+const [isMinimized, setIsMinimized] = useState(false);
+const [isVisionMode, setIsVisionMode] = useState(false);
+const [selectedImage, setSelectedImage] = useState<File | null>(null);
+const [imagePreview, setImagePreview] = useState<string | null>(null);
+const scrollRef = useRef<HTMLDivElement>(null);
+const inputRef = useRef<HTMLInputElement>(null);
+const fileInputRef = useRef<HTMLInputElement>(null);
+const hasGreeted = useRef(false);
+// Auto-scroll to bottom
+useEffect(() => {
+if (scrollRef.current) {
+scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+}
+}, [messages]);
+// Focus input when opened
+useEffect(() => {
+if (isOpen && !isMinimized) {
+setTimeout(() => inputRef.current?.focus(), 100);
+}
+}, [isOpen, isMinimized]);
+// Handle prefilled message (e.g. from a "Ask the Brain" button)
+useEffect(() => {
+if (isOpen && prefilledMessage && prefilledMessage !== input) {
+setInput(prefilledMessage);
+setPrefilledMessage("");
+setTimeout(() => inputRef.current?.focus(), 150);
+}
+}, [isOpen, prefilledMessage]);
+// Greet contextually on first open
+useEffect(() => {
+if (isOpen && !hasGreeted.current) {
+hasGreeted.current = true;
+const greeting = buildContextualGreeting(awareness);
+setMessages([{
+id: "greeting",
+role: "assistant",
+content: greeting,
+timestamp: new Date()
+}]);
+}
+}, [isOpen]);
+// Surface proactive suggestion as message
+useEffect(() => {
+if (suggestion && isOpen) {
+setMessages(prev => [...prev, {
+id: `suggestion-${Date.now()}`,
+role: "assistant",
+content: suggestion.message,
+timestamp: new Date()
+}]);
+setSuggestion(null);
+}
+}, [suggestion, isOpen]);
+const sendMutation = useMutation({
+mutationFn: async ({ message, image, history }: { message: string; image?: string; // Build context-aware system addition
+const appContext = buildBrainSystemContext(awareness);
+histor
+const res = await apiRequest("POST", "/api/ai/chat", {
+message,
+image,
+history,
+appContext, // Send current app state with every message
+});
+return res.json();
+},
+onSuccess: (data) => {
+const assistantMessage: Message = {
+id: Date.now().toString(),
+role: "assistant",
+content: data.response || "I couldn't generate a response.",
+timestamp: new Date()
+};
+setMessages(prev => [...prev, assistantMessage]);
+setSelectedImage(null);
+setImagePreview(null);
+},
+onError: () => {
+setMessages(prev => [...prev, {
+id: Date.now().toString(),
+role: "assistant",
+content: "Something went wrong. Please try again.",
+timestamp: new Date()
+}]);
+}
+});
+const handleSend = async () => {
+const trimmed = input.trim();
+if (!trimmed && !selectedImage) return;
+let imageData: string | undefined;
+if (selectedImage) {
+imageData = await compressImage(selectedImage);
+}
+const userMessage: Message = {
+id: Date.now().toString(),
+role: "user",
+content: trimmed || "Please analyze this image.",
+timestamp: new Date(),
+image: imagePreview || undefined
+};
+const history = messages
+.filter(m => m.id !== "greeting")
+.map(m => ({ role: m.role, content: m.content }));
+setMessages(prev => [...prev, userMessage]);
+setInput("");
+sendMutation.mutate({
+message: userMessage.content,
+image: imageData,
+history
+});
+};
+const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+const file = e.target.files?.[0];
+if (!file) return;
+setSelectedImage(file);
+const reader = new FileReader();
+reader.onload = () => setImagePreview(reader.result as string);
+reader.readAsDataURL(file);
+};
+if (!isOpen) return null;
+return (
+<div className={cn(
+"fixed z-50 transition-all duration-300 ease-in-out",
+"bottom-4 right-4",
+isMinimized
+? "w-72 h-14"
+: "w-96 h-[580px] max-h-[85vh]"
+)}>
+<div className={cn(
+"w-full h-full flex flex-col rounded-2xl overflow-hidden",
+"bg-gray-950 border border-blue-500/30",
+"shadow-[0_0_40px_rgba(59,130,246,0.15),0_20px_60px_rgba(0,0,0,0.5)]"
+)}>
+{/* Header */}
+<div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-blu
+<div className="flex items-center gap-2">
+<div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700
+<Brain className="w-4 h-4 text-white" />
+</div>
+<div>
+<span className="text-white font-semibold text-sm tracking-wide">Simpleton Brai
+{!isMinimized && (
+<div className="flex items-center gap-1">
+<div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+<span className="text-green-400 text-[10px]">ACTIVE · {getPageLabel(awarene
+</div>
+)}
+</div>
+</div>
+<div className="flex items-center gap-1">
+<button
+onClick={() => setIsMinimized(m => !m)}
+className="text-gray-400 hover:text-white transition-colors p-1 rounded"
+>
+{isMinimized ? <Maximize2 className="w-3.5 h-3.5" /> : <Minimize2 className="w-
+</button>
+<button
+onClick={closeBrain}
+className="text-gray-400 hover:text-white transition-colors p-1 rounded"
+>
+<X className="w-3.5 h-3.5" />
+</button>
+</div>
+</div>
+{!isMinimized && (
+<>
+{/* Context strip - shows what the brain is aware of */}
+{getContextSummary(awareness) && (
+<div className="px-3 py-1.5 bg-blue-950/40 border-b border-blue-500/10 flex ite
+<Zap className="w-3 h-3 text-blue-400 flex-shrink-0" />
+<span className="text-blue-300 text-[10px] truncate">{getContextSummary(aware
+</div>
+)}
+{/* Messages */}
+<div
+ref={scrollRef}
+className="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-thin scrollbar-thumb-
+>
+{messages.map(msg => (
+<div key={msg.id} className={cn("flex gap-2", msg.role === "user" ? "flex-row
+{/* Avatar */}
+<div className={cn(
+"w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center mt-0
+msg.role === "assistant"
+? "bg-gradient-to-br from-blue-500 to-blue-700"
+: "bg-gradient-to-br from-gray-600 to-gray-800"
+)}>
+{msg.role === "assistant"
+? <Brain className="w-3 h-3 text-white" />
+: <User className="w-3 h-3 text-white" />
+}
+</div>
+{/* Bubble */}
+<div className={cn(
+"max-w-[80%] rounded-xl px-3 py-2 text-sm leading-relaxed",
+msg.role === "assistant"
+? "bg-gray-800/80 text-gray-100 border border-gray-700/50"
+: "bg-blue-600/80 text-white"
+)}>
+{msg.image && (
+<img src={msg.image} alt="uploaded" className="max-w-full rounded-lg mb
+)}
+{msg.content}
+</div>
+</div>
+))}
+to-blu
+{sendMutation.isPending && (
+<div className="flex gap-2">
+<div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 <Brain className="w-3 h-3 text-white" />
+</div>
+<div className="bg-gray-800/80 border border-gray-700/50 rounded-xl px-3 py
+<span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" sty
+<span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" sty
+<span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" sty
+</div>
+</div>
+)}
+</div>
+{/* Image preview */}
+{imagePreview && (
+<div className="px-3 pb-2 flex-shrink-0">
+<div className="relative inline-block">
+<img src={imagePreview} alt="preview" className="h-16 w-16 object-cover rou
+<button
+onClick={() => { setSelectedImage(null); setImagePreview(null); }}
+className="absolute -top-1.5 -right-1.5 bg-red-500 rounded-full w-4 h-4 f
+>×</button>
+</div>
+</div>
+)}
+{/* Input */}
+<div className="p-3 border-t border-gray-800/50 flex-shrink-0">
+<div className="flex items-center gap-2 bg-gray-900 rounded-xl border border-gr
+<input
+ref={inputRef}
+value={input}
+onChange={e => setInput(e.target.value)}
+onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(
+placeholder={isVisionMode ? "Describe what to analyze..." : "Ask the Brain
+className="flex-1 bg-transparent text-white text-sm placeholder-gray-500 ou
+/>
+<button
+onClick={() => { setIsVisionMode(v => !v); fileInputRef.current?.click(); }
+className={cn("p-1 rounded transition-colors", isVisionMode ? "text-purple-
+title="Upload image"
+>
+<Camera className="w-4 h-4" />
+</button>
+<button
+onClick={handleSend}
+disabled={sendMutation.isPending || (!input.trim() && !selectedImage)}
+className="p-1 rounded text-blue-400 hover:text-blue-300 disabled:text-gray
+>
+<Send className="w-4 h-4" />
+</button>
+</div>
+</div>
+<input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageSel
+</>
+)}
+</div>
+</div>
+);
+}
+// Build a contextual greeting based on what the user is doing
+function buildContextualGreeting(awareness: BrainAwareness): string {
+const page = awareness.currentPage;
+if (page.includes("calculator") || page === "/") {
+const metal = awareness.calculator?.selectedMetal || "precious metals";
+const price = awareness.market?.goldPrice;
+if (price) {
+return `Hey! Gold's sitting at $${price.toFixed(0)}/oz right now. I'm watching the calc
+}
+return `I'm right here with you. Ask me anything about the calculator, pricing, karats, o
+}
+if (page.includes("diamonds")) {
+return `The diamond market is interesting right now. I can help you understand the 4Cs, c
+}
+if (page.includes("database")) {
+return `Looking through the coin database? Tell me what you're hunting for — I know every
+}
+if (page.includes("watches")) {
+return `Love a good timepiece. Whether you want to understand a movement, verify a refere
+}
+return `I'm Simpleton Brain™ — I can see what you're doing anywhere in the app. Ask me anyt
+}
+// Short description of what the brain is currently aware of
+function getContextSummary(awareness: BrainAwareness): string {
+if (awareness.calculator && awareness.calculator.selectedMetal) {
+const { selectedMetal, selectedKarat, display, livePrice } = awareness.calculator;
+const parts = [];
+if (display && display !== "0") parts.push(`${display}${awareness.calculator.selectedUnit
+parts.push(`${selectedKarat}K ${selectedMetal}`);
+if (livePrice) parts.push(`$${livePrice.toFixed(0)}/oz live`);
+return parts.join(" · ");
+}
+if (awareness.database?.viewingCoin) {
+return `Viewing: ${awareness.database.viewingCoin.name}`;
+}
+return "";
+}
+function getPageLabel(path: string): string {
+if (path === "/" || path.includes("calculator")) return "Calculator";
+if (path.includes("diamond")) return "Diamonds";
+if (path.includes("database")) return "Database";
+if (path.includes("watches")) return "Watches";
+if (path.includes("portfolio")) return "Portfolio";
+if (path.includes("education")) return "Education";
+return "App";
+}
+async function compressImage(file: File): Promise<string> {
+return new Promise((resolve) => {
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
+const img = new Image();
+img.onload = () => {
+let { width, height } = img;
+const max = 2048;
+if (width > max || height > max) {
+if (width > height) { height = (height * max) / width; width = max; }
+else { width = (width * max) / height; height = max; }
+}
+canvas.width = width;
+canvas.height = height;
+ctx?.drawImage(img, 0, 0, width, height);
+let q = 0.9;
+let result = canvas.toDataURL("image/jpeg", q);
+while (result.length > 4000 * 1024 * 1.37 && q > 0.1) {
+q -= 0.1;
+result = canvas.toDataURL("image/jpeg", q);
+}
+// Strip data URL prefix for API
+resolve(result.replace(/^data:image\/\w+;base64,/, ""));
+};
+const reader = new FileReader();
+reader.onload = () => { img.src = reader.result as string; };
+reader.readAsDataURL(file);
+});
+}

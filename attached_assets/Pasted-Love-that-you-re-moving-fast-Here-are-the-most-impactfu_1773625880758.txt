@@ -1,0 +1,14 @@
+Love that you’re moving fast. Here are the most impactful things to layer in, in order of priority:
+Do these first — they make the Brain feel truly alive:
+Give her a personality name beyond “Brain.” Something that feels like your brand. Users connect with a named entity differently than a feature.
+Add streaming responses to your API route. Right now she sends the full answer at once — streaming makes her feel like she’s thinking in real time, which changes the emotional experience completely. It’s one stream: true flag in the Anthropic SDK.
+Make her proactive on key moments — not just reactive. When the SCRAP total crosses a certain value, she surfaces an insight. When gold price moves significantly while someone is on the calculator, she notes it. When someone looks at a coin for more than 30 seconds, she offers context. These micro-moments make the body feel like it has a nervous system.
+Medium priority — depth of intelligence:
+Give her memory across sessions using your existing PostgreSQL. Store a user’s preferred metals, their common karat ranges, what coins they look at, their typical transaction sizes. A brain that remembers you is fundamentally different from one that starts fresh every visit.
+Tool use / function calling — this is the big one. Instead of just talking about what’s on screen, she can actually call your existing API endpoints. Ask her “what’s platinum doing this week” and she fetches it. Ask her to “find me all Morgan dollars under $50 melt value” and she queries your coin database. That’s when the brain truly controls the body.
+Voice input. Your users are often handling physical items — coins, jewelry, scrap. Their hands are busy. A microphone button changes the entire use case.
+Longer term — what separates you:
+A deal analysis mode — user describes a buy opportunity, Brain cross-references current spot prices, your loan/sell rates, and tells them yes or no with the math shown.
+Rapaport integration (you already have the data in JSON) — let her answer natural language diamond pricing questions against your actual grid, not just general knowledge.
+The single most important thing though: keep the context window rich. The smarter the awareness object, the smarter she appears. Every new piece of app state you feed her multiplies her usefulness exponentially.
+What are you building into her first?​​​​​​​​​​​​​​​​

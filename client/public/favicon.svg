@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#blueGradient)" />
+  
+  <!-- Gold Ring -->
+  <circle cx="256" cy="256" r="240" fill="none" stroke="url(#goldGradient)" stroke-width="16" />
+  
+  <!-- Letter S -->
+  <path d="M256 140 C200 140, 140 170, 140 220 C140 260, 170 280, 220 300 L290 325 C320 335, 340 350, 340 375 C340 405, 310 420, 256 420 C200 420, 170 395, 160 370 L120 390 C135 430, 185 460, 256 460 C330 460, 380 425, 380 375 C380 330, 350 305, 300 285 L230 260 C200 250, 180 235, 180 215 C180 190, 210 175, 256 175 C300 175, 330 195, 340 215 L380 195 C365 160, 315 140, 256 140 Z" 
+        fill="url(#goldGradient2)" 
+        stroke="#FFD700" 
+        stroke-width="2" />
+  
+  <!-- Calculator Grid Overlay -->
+  <g opacity="0.3">
+    <rect x="320" y="320" width="40" height="40" rx="5" fill="#FFD700" />
+    <rect x="370" y="320" width="40" height="40" rx="5" fill="#FFD700" />
+    <rect x="320" y="370" width="40" height="40" rx="5" fill="#FFD700" />
+    <rect x="370" y="370" width="40" height="40" rx="5" fill="#FFD700" />
+  </g>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6" />
+      <stop offset="50%" style="stop-color:#2563eb" />
+      <stop offset="100%" style="stop-color:#1d4ed8" />
+    </linearGradient>
+    
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700" />
+      <stop offset="50%" style="stop-color:#FFA500" />
+      <stop offset="100%" style="stop-color:#FFD700" />
+    </linearGradient>
+    
+    <linearGradient id="goldGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF8DC" />
+      <stop offset="50%" style="stop-color:#FFD700" />
+      <stop offset="100%" style="stop-color:#FFA500" />
+    </linearGradient>
+  </defs>
+</svg>

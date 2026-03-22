@@ -1,0 +1,73 @@
+# ml/image_appraiser.py
+import torch
+import torchvision
+from deepseek_vl.models import VLChatProcessor
+import numpy as np
+
+class InvisibleAppraiser:
+    """
+    Uses DeepSeek-VL (Janus-Pro) for multimodal analysis
+    Falls back to traditional CV for speed
+    """
+    
+    def __init__(self):
+        self.vl_processor = VLChatProcessor.from_pretrained(
+            "deepseek-ai/deepseek-vl-7b-chat"
+        )
+        self.object_detector = torchvision.models.detection.fasterrcnn_resnet50_fpn(
+            pretrained=True
+        )
+        self.object_detector.eval()
+        
+    async def appraise_from_image(self, image_bytes: bytes) -> AppraisalResult:
+        """
+        Main entry point - analyze image and return pricing
+        """
+        # 1. Quick object detection (50ms)
+        quick_result = await self.detect_objects(image_bytes)
+        
+        # 2. If confidence low, use VL model (500ms)
+        if quick_result.confidence < 0.7:
+            detailed_result = await self.deepseek_analysis(image_bytes)
+            return self.merge_results(quick_result, detailed_result)
+        
+        # 3. Return fast result
+        return await self.price_estimation(quick_result)
+    
+    async def detect_objects(self, image_bytes: bytes) -> DetectionResult:
+        """
+        Fast object detection for common items
+        - Watches
+        - Coins
+        - Gold chains
+        - Diamonds (rough)
+        """
+        image = self.bytes_to_tensor(image_bytes)
+        
+        with torch.no_grad():
+            predictions = self.object_detector([image])
+        
+        return self.parse_predictions(predictions)
+    
+    async def deepseek_analysis(self, image_bytes: str) -> DetailedAnalysis:
+        """
+        DeepSeek-VL for complex cases
+        - Rolex reference number identification
+        - Diamond clarity grading
+        - Coin condition assessment
+        """
+        response = await self.vl_processor.chat({
+            "image": image_bytes,
+            "prompt": """
+                Analyze this item and return:
+                1. Item type (watch/coin/jewelry/diamond)
+                2. Specific model/reference if identifiable
+                3. Condition assessment (1-10)
+                4. Estimated market price range
+                5. Confidence level in each determination
+                
+                Return as JSON only.
+            """
+        })
+        
+        return self.parse_vl_response(response)

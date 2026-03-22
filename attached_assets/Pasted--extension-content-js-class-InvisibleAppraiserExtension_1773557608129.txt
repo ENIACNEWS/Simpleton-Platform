@@ -1,0 +1,105 @@
+// extension/content.js
+class InvisibleAppraiserExtension {
+  constructor() {
+    this.apiEndpoint = 'https://api.simpletonapp.com/v1/appraise';
+    this.overlay = null;
+    this.initialize();
+  }
+
+  initialize() {
+    // Watch for marketplace listings
+    this.watchMarketplaces();
+    
+    // Inject overlay
+    this.createOverlay();
+  }
+
+  watchMarketplaces() {
+    // eBay
+    if (window.location.hostname.includes('ebay.com')) {
+      this.watchEbay();
+    }
+    // Facebook Marketplace
+    else if (window.location.hostname.includes('facebook.com/marketplace')) {
+      this.watchFacebook();
+    }
+    // Craigslist
+    else if (window.location.hostname.includes('craigslist.org')) {
+      this.watchCraigslist();
+    }
+  }
+
+  async analyzeListing(listingData) {
+    try {
+      const response = await fetch(this.apiEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Extension-Token': await this.getToken()
+        },
+        body: JSON.stringify({
+          url: window.location.href,
+          title: listingData.title,
+          price: listingData.price,
+          description: listingData.description,
+          images: listingData.images
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        this.showOverlay(result.data);
+      }
+    } catch (error) {
+      console.error('Analysis failed:', error);
+    }
+  }
+
+  showOverlay(data) {
+    this.overlay.innerHTML = `
+      <div style="
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        z-index: 10000;
+        max-width: 300px;
+      ">
+        <h3 style="margin: 0 0 10px; color: #333;">Simpleton Appraisal</h3>
+        <p style="margin: 5px 0; color: #666;">
+          Market value: <strong style="color: #2ecc71;">$${data.marketValue}</strong>
+        </p>
+        <p style="margin: 5px 0; color: #666;">
+          Confidence: ${data.confidence}%
+        </p>
+        ${data.isGoodDeal ? `
+          <p style="margin: 10px 0 0; padding: 10px; background: #d4edda; color: #155724; border-radius: 5px;">
+            ✓ Good deal — ${data.dealAnalysis}
+          </p>
+        ` : ''}
+        <button 
+          style="
+            margin-top: 15px;
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          "
+          onclick="window.open('https://simpletonapp.com/appraise/${data.id}')"
+        >
+          Full Analysis
+        </button>
+      </div>
+    `;
+  }
+}
+
+// Initialize
+new InvisibleAppraiserExtension();

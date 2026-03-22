@@ -1,0 +1,687 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Falling Diamond Animation */
+@keyframes fall {
+  0% {
+    transform: translateY(-50px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* ── SIMPLETON VISION™ TYPOGRAPHY SYSTEM ───────────────────────────────────
+ *
+ *  Display / Headings  → Poppins    (warm, premium, brand authority)
+ *  Body / UI           → Inter      (clean, readable, professional)
+ *  Numbers / Prices    → JetBrains Mono  (crisp financial data)
+ *
+ *  Tailwind tokens:
+ *    font-display  → Poppins
+ *    font-sans     → Inter  (default for all body text)
+ *    font-mono     → JetBrains Mono
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* SIMPLETON BRAND COLOR - Always Simpleton Blue, white on Simpleton Blue theme */
+.simpleton-brand {
+  color: var(--simpleton-brand, #2E5090);
+}
+
+/* THEME SYSTEM - CSS Variables Applied */
+body {
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Poppins for all heading levels — applied globally */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+/* JetBrains Mono keeps its style for code and pre blocks */
+code, pre, kbd, samp {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-feature-settings: "liga" 0;
+}
+
+/* ── Simpleton Vision™ Utility Classes ──────────────────────────────────────
+ * Use these to keep typography consistent without writing inline styles.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* Hero / page titles */
+.sv-heading {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+/* Section headings */
+.sv-subheading {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+/* Body copy */
+.sv-body {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
+  line-height: 1.65;
+  letter-spacing: 0.005em;
+}
+
+/* UI labels, nav items, card metadata */
+.sv-label {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* Price / number displays — use on spot prices, melt values, calculations */
+.sv-price {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 600;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}
+
+/* Ticker / live data — smaller monospace for the price ticker */
+.sv-ticker {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 500;
+  font-feature-settings: "tnum" 1;
+  letter-spacing: 0;
+}
+
+/* Brand name — Simpleton Vision™ wordmark */
+.sv-brand {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Capsule / badge labels */
+.sv-caps {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+/* font-heading alias — matches legacy usage in some components */
+.font-heading {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+/* CALCULATOR COMPONENTS - Enhanced Deep Premium Black Background */
+.simpleton-mode-calculator,
+.simpleton-mode-container,
+.simpleton-mode-scaler,
+.simpleton-mode-calculator-wrapper,
+[class*="simpleton-mode"] .authentic-simpleton-calculator,
+.authentic-simpleton-calculator,
+.simpleton-calculator,
+.calculator-interface,
+.widget-container {
+  background-color: #0B0B0B !important;
+  color: #E6E6E6 !important;
+  border: none !important;
+  outline: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Remove ALL borders from wrapper containers */
+.simpleton-mode-calculator-wrapper,
+.simpleton-mode-scaler,
+.simpleton-mode-container {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Target the actual calculator container specifically - highest priority */
+.calculator-main-container {
+  border: 12px solid #000000 !important;
+  border-radius: 8px !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure no other rules override the calculator border */
+.calculator-main-container,
+.calculator-main-container.relative,
+.calculator-main-container.bg-black {
+  border: 12px solid #000000 !important;
+}
+
+/* SIMPLETON'S ELECTRIC VOID - Premium Signature Color */
+.futuristic-gap-fill {
+  background-color: #0d1b2a !important; /* Electric Void Base */
+  background: linear-gradient(135deg, #0d1b2a 0%, #1e2937 50%, #0d1b2a 100%) !important; /* Electric Void Gradient */
+  border: 1px solid #2c4a7a !important; /* Electric Void Accent */
+  box-shadow: 0 0 10px rgba(44, 74, 122, 0.3) !important; /* Electric Void Glow */
+}
+
+/* Fill calculator interior spaces */
+.calculator-main-container > *:not(.futuristic-gap-fill) {
+  margin-bottom: 8px !important;
+}
+
+.calculator-main-container .space-y-2 > * + *,
+.calculator-main-container .space-y-3 > * + *,
+.calculator-main-container .space-y-4 > * + * {
+  margin-top: 8px !important;
+}
+
+/* Override any remaining gray backgrounds with Simpleton's Quantum Void */
+.calculator-main-container .bg-gray-800,
+.calculator-main-container .bg-gray-700,
+.calculator-main-container .bg-gray-600 {
+  background: linear-gradient(135deg, #1a0d3e 0%, #2d1b4e 50%, #1a0d3e 100%) !important; /* Quantum Void */
+  border: 1px solid #4a2c7a !important; /* Quantum Void Accent */
+}
+
+/* Ultimate border elimination - target all possible border sources */
+.simpleton-mode-calculator-wrapper > *,
+.simpleton-mode-scaler > *,
+.simpleton-mode-container > * {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Specific targeting for authentic calculator - exclude main container */
+.authentic-simpleton-calculator *:not(.calculator-main-container) {
+  border: none !important;
+  outline: none !important;
+}
+
+/* Red background behind calculator - REMOVED */
+
+/* Enhanced Calculator Content Areas */
+.simpleton-mode-calculator .space-y-4,
+.authentic-simpleton-calculator .space-y-4,
+.simpleton-calculator .space-y-4 {
+  background-color: #0B0B0B !important;
+  padding: 12px !important;
+  border-radius: 6px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Calculator Button Containers */
+.simpleton-mode-calculator .grid,
+.authentic-simpleton-calculator .grid,
+.simpleton-calculator .grid {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  gap: 8px !important;
+}
+
+/* Calculator Button Rows */
+.simpleton-mode-calculator .flex,
+.authentic-simpleton-calculator .flex,
+.simpleton-calculator .flex {
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Enhanced Calculator Buttons - Contained Within Border */
+.simpleton-mode-calculator button,
+.authentic-simpleton-calculator button,
+.simpleton-calculator button,
+.calculator-interface button {
+  background-color: #1A1A1A !important;
+  color: #FFFFFF !important;
+  border: 2px solid #333333 !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  padding: 12px 16px !important;
+  min-height: 48px !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  flex-shrink: 1 !important;
+  transition: all 0.2s ease !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Unit Selection Buttons - Remove borders and styling */
+.simpleton-mode-calculator .unit-selection-button,
+.authentic-simpleton-calculator .unit-selection-button,
+.simpleton-calculator .unit-selection-button {
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: auto !important;
+  text-shadow: none !important;
+}
+
+.simpleton-mode-calculator button:hover,
+.authentic-simpleton-calculator button:hover,
+.simpleton-calculator button:hover,
+.calculator-interface button:hover {
+  background-color: #2A2A2A !important;
+  border-color: #444444 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Enhanced Calculator Display */
+.simpleton-mode-calculator .text-4xl,
+.authentic-simpleton-calculator .text-4xl,
+.simpleton-calculator .text-4xl {
+  background-color: #000000 !important;
+  color: #00FF00 !important;
+  padding: 12px !important;
+  border-radius: 4px !important;
+  border: 1px solid #333333 !important;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+/* Enhanced Calculator Labels and Text */
+.simpleton-mode-calculator *,
+.simpleton-mode-container *,
+.simpleton-mode-scaler *,
+.simpleton-mode-calculator-wrapper *,
+[class*="simpleton-mode"] .authentic-simpleton-calculator *,
+.authentic-simpleton-calculator *,
+.simpleton-calculator *,
+.calculator-interface *,
+.widget-container * {
+  color: #E6E6E6 !important;
+}
+
+/* Enhanced Calculator Input Fields */
+.simpleton-mode-calculator input,
+.authentic-simpleton-calculator input,
+.simpleton-calculator input {
+  background-color: #1A1A1A !important;
+  color: #FFFFFF !important;
+  border: 2px solid #333333 !important;
+  border-radius: 4px !important;
+  padding: 8px !important;
+}
+
+/* Enhanced Calculator Cards and Sections */
+.simpleton-mode-calculator .bg-gray-50,
+.authentic-simpleton-calculator .bg-gray-50,
+.simpleton-calculator .bg-gray-50 {
+  background-color: #1A1A1A !important;
+  border: 1px solid #333333 !important;
+  border-radius: 6px !important;
+}
+
+/* THEME SYSTEM - CSS Variables Applied to Elements */
+/* Main containers with scrolling enabled */
+main, .container, .page, .content, section, article, aside {
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow: auto !important;
+}
+
+/* Ensure body and html allow scrolling */
+html, body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  max-width: 100vw !important;
+}
+
+/* Simpleton mode page scrolling fix */
+.simpleton-mode-page {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  max-width: 100vw !important;
+  box-sizing: border-box !important;
+}
+
+/* Cards and panels - exclude simplicity assistant */
+.card:not(.simplicity-assistant), .panel:not(.simplicity-assistant), .widget:not(.simplicity-assistant) {
+  background-color: var(--card);
+  color: var(--foreground);
+}
+
+/* Navigation and header */
+nav, header, footer {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Buttons and interactive elements - exclude simplicity assistant */
+button:not([class*="simpleton"]):not(.simplicity-assistant button):not(.simplicity-assistant *) {
+  color: var(--foreground);
+}
+
+/* Links */
+a:not([class*="simpleton"]) {
+  color: var(--primary);
+}
+
+/* Form elements - exclude simplicity assistant */
+input:not([class*="simpleton"]):not(.simplicity-assistant *), 
+textarea:not([class*="simpleton"]):not(.simplicity-assistant *), 
+select:not([class*="simpleton"]):not(.simplicity-assistant *) {
+  background-color: var(--card);
+  color: var(--foreground);
+  border-color: var(--primary);
+}
+
+/* Text elements - exclude simplicity assistant */
+h1:not(.simplicity-assistant *), h2:not(.simplicity-assistant *), h3:not(.simplicity-assistant *), h4:not(.simplicity-assistant *), h5:not(.simplicity-assistant *), h6:not(.simplicity-assistant *), p:not(.simplicity-assistant *), span:not(.simplicity-assistant *), div:not(.simplicity-assistant *) {
+  color: var(--foreground);
+}
+
+/* Exclude simpleton mode from theme system */
+[class*="simpleton-mode"], 
+[class*="simpleton-mode"] * {
+  background-color: initial !important;
+  color: initial !important;
+}
+
+/* FUTURISTIC TECH THEMES */
+.navy-bronze {
+  --background: #1A3F6A;
+  --foreground: #FFFFFF;
+  --card: rgba(26, 63, 106, 0.73);
+  --primary: #CD7F32;
+  --secondary: #102B4E;
+  --accent: #E8943A;
+  --border: #CD7F32;
+}
+
+.simpleton-blue {
+  --background: #2E5090;
+  --foreground: #FFFFFF;
+  --card: rgba(30, 58, 130, 0.60);
+  --primary: #F5A623;
+  --secondary: #1E3A70;
+  --accent: #F97316;
+  --border: #F5A623;
+}
+
+.electric-void {
+  --background: #0d1b2a;
+  --foreground: #e2e8f0;
+  --card: #1e2937;
+  --primary: #60a5fa;
+  --secondary: #334155;
+  --accent: #3b82f6;
+  --border: #2c4a7a;
+}
+
+.midnight-navy {
+  --background: #0a1625;
+  --foreground: #e2e8f0;
+  --card: #1a2332;
+  --primary: #60a5fa;
+  --secondary: #334155;
+  --accent: #3b82f6;
+  --border: #1e293b;
+}
+
+.cyber-blue {
+  --background: #0f1419;
+  --foreground: #e2e8f0;
+  --card: #1a2332;
+  --primary: #38bdf8;
+  --secondary: #334155;
+  --accent: #0ea5e9;
+  --border: #1e293b;
+}
+
+.digital-forest {
+  --background: #0d1a0d;
+  --foreground: #e2e8f0;
+  --card: #1a2e1a;
+  --primary: #4ade80;
+  --secondary: #334155;
+  --accent: #22c55e;
+  --border: #166534;
+}
+
+.cyber-emerald {
+  --background: #0a1a0f;
+  --foreground: #e2e8f0;
+  --card: #1a2d20;
+  --primary: #34d399;
+  --secondary: #334155;
+  --accent: #10b981;
+  --border: #166534;
+}
+
+.quantum-mint {
+  --background: #0d1a1a;
+  --foreground: #e2e8f0;
+  --card: #1a2d2d;
+  --primary: #2dd4bf;
+  --secondary: #334155;
+  --accent: #14b8a6;
+  --border: #155e75;
+}
+
+.gunmetal-void {
+  --background: #1a1a1a;
+  --foreground: #e2e8f0;
+  --card: #2d2d2d;
+  --primary: #94a3b8;
+  --secondary: #334155;
+  --accent: #64748b;
+  --border: #475569;
+}
+
+.steel-shadow {
+  --background: #1a1c1e;
+  --foreground: #e2e8f0;
+  --card: #2d2f32;
+  --primary: #94a3b8;
+  --secondary: #334155;
+  --accent: #64748b;
+  --border: #475569;
+}
+
+.obsidian-core {
+  --background: #0d0d0d;
+  --foreground: #e2e8f0;
+  --card: #1a1a1a;
+  --primary: #6b7280;
+  --secondary: #334155;
+  --accent: #4b5563;
+  --border: #374151;
+}
+
+.crimson-depth {
+  --background: #1a0d0d;
+  --foreground: #e2e8f0;
+  --card: #2d1a1a;
+  --primary: #f87171;
+  --secondary: #334155;
+  --accent: #ef4444;
+  --border: #991b1b;
+}
+
+.copper-circuit {
+  --background: #1a110d;
+  --foreground: #e2e8f0;
+  --card: #2d201a;
+  --primary: #fb923c;
+  --secondary: #334155;
+  --accent: #f97316;
+  --border: #c2410c;
+}
+
+.neon-teal {
+  --background: #0d1a1a;
+  --foreground: #e2e8f0;
+  --card: #1a2d2d;
+  --primary: #2dd4bf;
+  --secondary: #334155;
+  --accent: #14b8a6;
+  --border: #0f766e;
+}
+
+.carbon-fiber {
+  --background: #0d1014;
+  --foreground: #e2e8f0;
+  --card: #1a1f25;
+  --primary: #64748b;
+  --secondary: #334155;
+  --accent: #475569;
+  --border: #334155;
+}
+
+.titanium-void {
+  --background: #1a1a1c;
+  --foreground: #e2e8f0;
+  --card: #2d2d2f;
+  --primary: #94a3b8;
+  --secondary: #334155;
+  --accent: #64748b;
+  --border: #475569;
+}
+
+/* Custom scrollbar for modal content */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #facc15 #374151;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #facc15;
+  border-radius: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #fbbf24;
+}
+
+/* DROPDOWN / SELECT / POPOVER — Solid, less transparent */
+[data-radix-popper-content-wrapper] > *,
+[data-radix-select-viewport],
+.bg-popover {
+  background-color: color-mix(in srgb, var(--background, #111) 96%, transparent) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* SIMPLETON PROFESSIONAL PRINT STYLES */
+@media print {
+  body {
+    background: white !important;
+    color: #1a1a1a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  nav, footer, .no-print,
+  .simpleton-document-actions,
+  [data-radix-popper-content-wrapper] {
+    display: none !important;
+  }
+
+  .simpleton-document-body {
+    background: white !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .simpleton-letterhead {
+    border-bottom: 2px solid #c9a96e !important;
+    padding-bottom: 16px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .simpleton-letterhead h1 {
+    color: #c9a96e !important;
+    font-size: 20px !important;
+  }
+
+  .simpleton-letterhead p {
+    color: #666 !important;
+  }
+
+  .simpleton-document-content {
+    color: #1a1a1a !important;
+  }
+
+  .simpleton-document-content h2,
+  .simpleton-document-content h3,
+  .simpleton-document-content h4 {
+    color: #1a1a1a !important;
+    page-break-after: avoid !important;
+  }
+
+  .simpleton-document-content p,
+  .simpleton-document-content li {
+    color: #333 !important;
+    line-height: 1.7 !important;
+  }
+
+  .simpleton-footer {
+    border-top: 1px solid #e5e5e5 !important;
+    margin-top: 24px !important;
+    padding-top: 12px !important;
+  }
+
+  .simpleton-footer p {
+    color: #999 !important;
+  }
+
+  .simpleton-print-overlay {
+    position: static !important;
+    background: white !important;
+    overflow: visible !important;
+  }
+
+  @page {
+    margin: 0.75in;
+    size: letter;
+  }
+}
+

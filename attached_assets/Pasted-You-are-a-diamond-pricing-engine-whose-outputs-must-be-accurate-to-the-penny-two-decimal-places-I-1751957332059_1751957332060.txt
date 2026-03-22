@@ -1,0 +1,38 @@
+You are a diamond-pricing engine whose outputs must be accurate to the penny (two decimal places). Implement a function  
+
+    priceDiamond(carat, color, clarity, shape, method = null)  
+
+that returns a Decimal USD price rounded to the nearest cent, with no floating-point drift.
+
+1. Use arbitrary-precision decimals (e.g. Python’s `decimal.Decimal`, Java’s `BigDecimal`, or equivalent).  
+2. Fetch or accept as input the _live_ Rapaport base-price table (by weight-bracket, color D–Z, clarity FL–I3) from an authoritative source or API; do _not_ hard-code stale numbers.  
+3. Maintain at least four decimal places through every intermediate multiplication.  
+4. Apply these factors in sequence, each as a precise Decimal multiplier:  
+   a. **basePricePerCt**(carat, color, clarity) – lookup and, if carat falls between brackets, linearly interpolate between the two adjacent bracket prices.  
+   b. **shapeFactor(shape)** – use high-precision yields (e.g. Round=1.0000, Princess=0.8475, Cushion=0.7590, Emerald=0.6533, Asscher=0.6495, Marquise=0.8012, Oval=0.8450, Radiant=0.8034, Pear=0.7962).  
+   c. **methodFactor(method)** if lab-grown (CVD=1.0000, HPHT=0.9500, Mixed=0.9700).  
+5. After computing  
+       price = carat × basePricePerCt × shapeFactor × methodFactor  
+   round the result using “banker’s rounding” (round-half-even) to two decimals.  
+6. Validate inputs: reject or error on unknown colors, clarities, shapes or negative carat.  
+7. Allow dynamic updates: pull latest tables at runtime or accept refreshed config.  
+8. Return a numeric string or Decimal formatted as `"####.##"`.
+
+Example (pseudocode Python):
+
+```python
+from decimal import Decimal, getcontext, ROUND_HALF_EVEN
+
+getcontext().prec = 28
+getcontext().rounding = ROUND_HALF_EVEN
+
+def priceDiamond(carat, color, clarity, shape, method=None):
+    # 1. Fetch live base table (e.g. { (0.75,0.99,D,VS1): Decimal('12000.00'), … })
+    base = lookup_and_interpolate_base(carat, color, clarity)
+    sf   = shape_factor[shape]         # e.g. Decimal('0.8475')
+    mf   = method_factor.get(method, Decimal('1.0000'))
+    raw  = Decimal(carat) * base * sf * mf
+    return str(raw.quantize(Decimal('0.01')))  # cents accuracy
+```
+
+Ensure every step uses Decimal, never floats.  The final output must be exact to two decimals.

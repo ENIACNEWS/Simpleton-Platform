@@ -1,0 +1,228 @@
+// ==================== PARALLAX SIGNATURE THEMES ====================
+
+case 'parallax-absolute-void':
+  root.style.setProperty('--background', '#000000');
+  root.style.setProperty('--foreground', '#F0F0F0');
+  root.style.setProperty('--primary', '#AAAAAA');
+  root.style.setProperty('--card', '#1A1A1A');
+  root.style.setProperty('--accent', '#808080');
+  root.style.setProperty('--border', '#333333');
+  break;
+
+case 'parallax-singularity':
+  root.style.setProperty('--background', '#010101');
+  root.style.setProperty('--foreground', '#F0F0F0');
+  root.style.setProperty('--primary', '#CCCCCC');
+  root.style.setProperty('--card', '#1A1A1A');
+  root.style.setProperty('--accent', '#999999');
+  root.style.setProperty('--border', '#333333');
+  break;
+
+case 'parallax-black-light':
+  root.style.setProperty('--background', '#00001E');
+  root.style.setProperty('--foreground', '#B0D0FF');
+  root.style.setProperty('--primary', '#4080FF');
+  root.style.setProperty('--card', '#0A1A2A');
+  root.style.setProperty('--accent', '#70A0FF');
+  root.style.setProperty('--border', '#1A3A5A');
+  break;
+
+case 'parallax-retina-burn':
+  root.style.setProperty('--background', '#08084A');
+  root.style.setProperty('--foreground', '#C0D0FF');
+  root.style.setProperty('--primary', '#7A9EFF');
+  root.style.setProperty('--card', '#101A5A');
+  root.style.setProperty('--accent', '#9ABEFF');
+  root.style.setProperty('--border', '#2A3A7A');
+  break;
+
+case 'parallax-meltdown':
+  root.style.setProperty('--background', '#000028');
+  root.style.setProperty('--foreground', '#C0E0FF');
+  root.style.setProperty('--primary', '#6080FF');
+  root.style.setProperty('--card', '#0A1A38');
+  root.style.setProperty('--accent', '#80A0FF');
+  root.style.setProperty('--border', '#1A3A68');
+  break;
+
+case 'parallax-void-star':
+  root.style.setProperty('--background', '#000044');
+  root.style.setProperty('--foreground', '#C0D0FF');
+  root.style.setProperty('--primary', '#6688FF');
+  root.style.setProperty('--card', '#101A54');
+  root.style.setProperty('--accent', '#88AAFF');
+  root.style.setProperty('--border', '#2A3A74');
+  break;
+
+case 'parallax-eventide-abyss':
+  root.style.setProperty('--background', '#23152E');
+  root.style.setProperty('--foreground', '#E0D0E0');
+  root.style.setProperty('--primary', '#BFA3CF');
+  root.style.setProperty('--card', '#2A1D33');
+  root.style.setProperty('--accent', '#A78BFA');
+  root.style.setProperty('--border', '#3E2A4A');
+  break;
+
+case 'parallax-ash':
+  root.style.setProperty('--background', '#332B40');
+  root.style.setProperty('--foreground', '#E0D0E0');
+  root.style.setProperty('--primary', '#C0B0D0');
+  root.style.setProperty('--card', '#3A324A');
+  root.style.setProperty('--accent', '#B09AC0');
+  root.style.setProperty('--border', '#4A3A5A');
+  break;
+
+case 'parallax-martian-glass':
+  root.style.setProperty('--background', '#1A1022');
+  root.style.setProperty('--foreground', '#E0C0E0');
+  root.style.setProperty('--primary', '#C090C0');
+  root.style.setProperty('--card', '#221A2A');
+  root.style.setProperty('--accent', '#B080B0');
+  root.style.setProperty('--border', '#322A3A');
+  break;
+
+case 'parallax-neural-purple':
+  root.style.setProperty('--background', '#4A00B0');
+  root.style.setProperty('--foreground', '#F0E0FF');
+  root.style.setProperty('--primary', '#D0A0FF');
+  root.style.setProperty('--card', '#5A1AC0');
+  root.style.setProperty('--accent', '#E0B0FF');
+  root.style.setProperty('--border', '#7A3AD0');
+  break;
+
+case 'parallax-bloodline-glass':
+  root.style.setProperty('--background', '#7F242C');
+  root.style.setProperty('--foreground', '#FFD0D0');
+  root.style.setProperty('--primary', '#FF9999');
+  root.style.setProperty('--card', '#8F2A32');
+  root.style.setProperty('--accent', '#FFB0B0');
+  root.style.setProperty('--border', '#A03A42');
+  break;
+
+case 'parallax-english-walnut':
+  root.style.setProperty('--background', '#3F2A1F');
+  root.style.setProperty('--foreground', '#F0E0C0');
+  root.style.setProperty('--primary', '#D2B48C');
+  root.style.setProperty('--card', '#4F3A2F');
+  root.style.setProperty('--accent', '#E0C090');
+  root.style.setProperty('--border', '#5F4A3F');
+  break;
+
+case 'parallax-ember-walnut':
+  root.style.setProperty('--background', '#5F2A1F');
+  root.style.setProperty('--foreground', '#FFE0C0');
+  root.style.setProperty('--primary', '#FFB07C');
+  root.style.setProperty('--card', '#6F3A2F');
+  root.style.setProperty('--accent', '#FFC090');
+  root.style.setProperty('--border', '#7F4A3F');
+  break;
+
+case 'parallax-blood-oak':
+  root.style.setProperty('--background', '#1A0000');
+  root.style.setProperty('--foreground', '#FFC0C0');
+  root.style.setProperty('--primary', '#FF8080');
+  root.style.setProperty('--card', '#2A1010');
+  root.style.setProperty('--accent', '#FFA0A0');
+  root.style.setProperty('--border', '#3A2020');
+  break;
+
+case 'parallax-forged-cobalt':
+  root.style.setProperty('--background', '#1C2A3F');
+  root.style.setProperty('--foreground', '#C0D0F0');
+  root.style.setProperty('--primary', '#8090C0');
+  root.style.setProperty('--card', '#2A3A4F');
+  root.style.setProperty('--accent', '#A0B0E0');
+  root.style.setProperty('--border', '#3A4A6F');
+  break;
+
+case 'parallax-abyss-light':
+  root.style.setProperty('--background', '#0A1A46');
+  root.style.setProperty('--foreground', '#C0D0FF');
+  root.style.setProperty('--primary', '#7080FF');
+  root.style.setProperty('--card', '#1A2A56');
+  root.style.setProperty('--accent', '#90A0FF');
+  root.style.setProperty('--border', '#2A3A76');
+  break;
+
+case 'parallax-ocean-trench':
+  root.style.setProperty('--background', '#0A1A2A');
+  root.style.setProperty('--foreground', '#C0E0F0');
+  root.style.setProperty('--primary', '#70B0FF');
+  root.style.setProperty('--card', '#1A2A3A');
+  root.style.setProperty('--accent', '#90C0FF');
+  root.style.setProperty('--border', '#2A3A4A');
+  break;
+
+case 'parallax-living-white':
+  root.style.setProperty('--background', '#FAF7F0');
+  root.style.setProperty('--foreground', '#2A2A2A');
+  root.style.setProperty('--primary', '#6B4F7F');
+  root.style.setProperty('--card', '#FFFFFF');
+  root.style.setProperty('--accent', '#8A6B9A');
+  root.style.setProperty('--border', '#D0D0D0');
+  break;
+
+case 'parallax-dire-wolf':
+  root.style.setProperty('--background', '#282828');
+  root.style.setProperty('--foreground', '#F0F0F0');
+  root.style.setProperty('--primary', '#AAAAAA');
+  root.style.setProperty('--card', '#383838');
+  root.style.setProperty('--accent', '#C0C0C0');
+  root.style.setProperty('--border', '#505050');
+  break;
+
+case 'parallax-ghost-white':
+  root.style.setProperty('--background', '#F5F0FA');
+  root.style.setProperty('--foreground', '#2A2A2A');
+  root.style.setProperty('--primary', '#8A6B8A');
+  root.style.setProperty('--card', '#FFFFFF');
+  root.style.setProperty('--accent', '#A07FA0');
+  root.style.setProperty('--border', '#D0D0D0');
+  break;
+
+case 'parallax-void-sprunk':
+  root.style.setProperty('--background', '#0F5F19');
+  root.style.setProperty('--foreground', '#E0FFC0');
+  root.style.setProperty('--primary', '#B0FF70');
+  root.style.setProperty('--card', '#1F6F29');
+  root.style.setProperty('--accent', '#C0FF90');
+  root.style.setProperty('--border', '#2F7F39');
+  break;
+
+case 'parallax-chrome-sapphire':
+  root.style.setProperty('--background', '#00AAFF');
+  root.style.setProperty('--foreground', '#1A1A1A');
+  root.style.setProperty('--primary', '#0066CC');
+  root.style.setProperty('--card', '#20BAFF');
+  root.style.setProperty('--accent', '#0080FF');
+  root.style.setProperty('--border', '#1090E0');
+  break;
+
+case 'parallax-supernova':
+  root.style.setProperty('--background', '#010058');
+  root.style.setProperty('--foreground', '#C0D0FF');
+  root.style.setProperty('--primary', '#8090FF');
+  root.style.setProperty('--card', '#111A68');
+  root.style.setProperty('--accent', '#A0B0FF');
+  root.style.setProperty('--border', '#212A78');
+  break;
+
+case 'parallax-void-star-deep':
+  root.style.setProperty('--background', '#010044');
+  root.style.setProperty('--foreground', '#C0D0FF');
+  root.style.setProperty('--primary', '#6688FF');
+  root.style.setProperty('--card', '#111A54');
+  root.style.setProperty('--accent', '#88AAFF');
+  root.style.setProperty('--border', '#212A64');
+  break;
+
+case 'parallax-ember-burn':
+  root.style.setProperty('--background', '#03014C');
+  root.style.setProperty('--foreground', '#C0D0FF');
+  root.style.setProperty('--primary', '#7A8EFF');
+  root.style.setProperty('--card', '#131A5C');
+  root.style.setProperty('--accent', '#9AAEFF');
+  root.style.setProperty('--border', '#232A6C');
+  break;
+
+// Add these before the default case or wherever you keep other themes.

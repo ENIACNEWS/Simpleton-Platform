@@ -1,0 +1,81 @@
+Below is a proposed structure for your “API Documents” and “API Management” menus, organized exactly as you described. You can drop this into your docs site or admin UI and flesh out each endpoint’s details as needed.
+
+1) API DOCUMENTS (drop-down)  
+   ├─ Precious Metals API  
+   │   • Overview & Authentication  
+   │   • Endpoints  
+   │     – /metals/spot-price?symbol=GOLD  
+   │     – /metals/historical?symbol=SILVER&from=…&to=…  
+   │     – /metals/list (all supported symbols)  
+   │   • Sample Requests & Responses  
+   │   • Rate limits & quotas  
+   │   • Glossary (our “Precious Metal API” dictionary)  
+
+   ├─ Finance API  
+   │   • Overview & Authentication  
+   │   • Endpoints  
+   │     – /stocks/quote?symbol=AAPL  
+   │     – /forex/rates?base=USD  
+   │     – /crypto/price?symbol=BTC  
+   │     – /indices/list  
+   │   • Sample Requests & Responses  
+   │   • Rate limits & quotas  
+   │   • Finance-API Glossary  
+
+   ├─ AI API  
+   │   • Overview & Authentication  
+   │   • Endpoints  
+   │     – /chat  
+   │     – /embed  
+   │     – /vision/generate  
+   │   • AI Plus features  
+   │     – Simpleton Vision (image-to-text & reverse descriptions)  
+   │     – Expert Council (on-demand domain experts)  
+   │     – Universal AI Dictionary (common terms, model comparisons)  
+   │   • Sample Requests & Responses  
+   │   • Rate limits & quotas  
+   │   • AI-API Glossary  
+
+   └─ Other APIs  
+       • Any endpoints that aren’t Finance, Precious Metals or AI  
+       • Overview & Authentication  
+       • Endpoints list  
+       • Samples & quotas  
+       • Other-API Glossary  
+
+   ———————————————————————————————————  
+   SUBSCRIPTIONS & PRICING (at bottom of API Documents menu)  
+   • Free Tier  
+     – Up to 1,000 calls/month  
+     – Access to Finance & Precious Metals only  
+   • AI Plus  
+     – $29/mo  
+     – All Free features + Simpleton Vision  
+   • Expert Council  
+     – $99/mo  
+     – AI Plus + on-demand expert channels  
+   • Enterprise  
+     – Custom pricing  
+     – Unlimited usage, SLA, dedicated support  
+   • Add-ons: Historical Data Packs, Ultra-low-latency streams  
+
+2) API MANAGEMENT (drop-down)  
+   • API Keys  
+     – Create New Key  
+     – List & Revoke Keys  
+     – Key Permissions (Finance, Metals, AI, Other)  
+   • Usage Dashboard  
+     – Calls by API category  
+     – This month vs last month  
+     – Top endpoints  
+   • Billing & Invoices  
+     – Current plan & renewal date  
+     – Upgrade/downgrade plan  
+     – Payment methods  
+
+With this in place, users can  
+ • Browse all endpoints by category,  
+ • See pricing/subscription right in the docs,  
+ • And manage their keys & plan from the same UI.  
+
+Let me know if you’d like sample JSON schemas or code snippets for any section!

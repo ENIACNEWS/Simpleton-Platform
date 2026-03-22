@@ -1,0 +1,117 @@
+<!-- Hero Section for Simpleton -->
+<style>
+  /* Basic Reset & Font */
+  body, h1, h2, h3, p, a { margin: 0; padding: 0; }
+  body { font-family: 'Open Sans', sans-serif; }
+
+  /* HERO STYLES */
+  .hero {
+    background-color: #0a1d3f;
+    color: #fff;
+    text-align: center;
+    padding: 80px 20px;
+  }
+  .hero .slogan {
+    display: inline-block;
+    color: #00adee;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-size: 2.75rem;
+    margin-bottom: 20px;
+    line-height: 1.2;
+  }
+  .hero p {
+    font-size: 1.125rem;
+    max-width: 600px;
+    margin: 0 auto 40px;
+    line-height: 1.5;
+  }
+  .hero .cta-buttons a {
+    display: inline-block;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 4px;
+    padding: 15px 30px;
+    margin: 0 10px;
+    transition: background 0.3s, color 0.3s;
+  }
+  .hero .btn-primary {
+    background-color: #00adee;
+    color: #fff;
+  }
+  .hero .btn-primary:hover {
+    background-color: #008bb5;
+  }
+  .hero .btn-secondary {
+    background: transparent;
+    border: 2px solid #00adee;
+    color: #00adee;
+  }
+  .hero .btn-secondary:hover {
+    background: #00adee;
+    color: #fff;
+  }
+
+  /* FEATURES GRID */
+  .hero .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1000px;
+    margin: 60px auto 0;
+  }
+  .hero .feature {
+    flex: 1 1 300px;
+    margin: 20px;
+    text-align: left;
+  }
+  .hero .feature h3 {
+    font-size: 1.125rem;
+    color: #00adee;
+    margin-bottom: 10px;
+  }
+  .hero .feature p {
+    font-size: 1rem;
+    line-height: 1.4;
+    color: #ddd;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 2rem; }
+    .hero .feature { flex: 1 1 100%; margin: 15px 0; }
+  }
+</style>
+
+<section class="hero">
+  <span class="slogan">Terminal-Grade Valuations. Simplified.</span>
+  <h1>All Your Metals, Diamonds &amp; Coins—One Professional Suite</h1>
+  <p>
+    Simpleton delivers institutional-quality calculators with live spot feeds, full coin &amp; Rolex databases,
+    batch processing and on-demand diamond education—all fully customizable to your pricing and workflow.
+  </p>
+
+  <div class="cta-buttons">
+    <a href="/demo" class="btn-primary">Request a Live Demo</a>
+    <a href="/signup" class="btn-secondary">Start Your Free Trial</a>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <h3>Precious-Metal Calculator</h3>
+      <p>Instant batch valuations across any gold purity with live or custom spot prices, mark-ups &amp; purity presets.</p>
+    </div>
+    <div class="feature">
+      <h3>Diamond Calculator</h3>
+      <p>Real-time Rapaport pricing, first-of-its-kind “% off Rap” presets, integrated grading guide and fast outputs.</p>
+    </div>
+    <div class="feature">
+      <h3>Comprehensive Market Data</h3>
+      <p>Complete Rolex &amp; coin price library, custom dashboards, reporting &amp; alerts to keep you ahead of the market.</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,157 @@
+// services/prediction-engine.ts
+import { DeepSeekAPI } from '../lib/deepseek';
+import { TransactionDB } from '../db/transactions';
+
+export class MarketMemoryEngine {
+  private deepseek: DeepSeekAPI;
+  private db: TransactionDB;
+
+  constructor() {
+    this.deepseek = new DeepSeekAPI({
+      apiKey: process.env.DEEPSEEK_API_KEY,
+      model: 'deepseek-reasoner' // Use R1 for complex reasoning
+    });
+  }
+
+  /**
+   * Generate price prediction based on historical data
+   * @throws {Error} if insufficient data or invalid inputs
+   */
+  async predictPrice(params: {
+    itemType: string;
+    specs: Record<string, any>;
+    horizonDays: 7 | 30 | 90;
+  }): Promise<PredictionResult> {
+    // 1. Validate inputs
+    this.validatePredictionInputs(params);
+
+    // 2. Fetch historical data
+    const history = await this.db.getSimilarTransactions({
+      itemType: params.itemType,
+      specs: params.specs,
+      daysBack: 365 * 2, // 2 years of history
+      minTransactions: 10 // Require at least 10 transactions
+    });
+
+    if (history.length < 10) {
+      throw new Error(`Insufficient data: only ${history.length} transactions found`);
+    }
+
+    // 3. Calculate baseline statistics
+    const baseline = this.calculateBaseline(history);
+
+    // 4. Use DeepSeek for pattern recognition
+    const reasoning = await this.deepseek.complete({
+      prompt: this.buildPredictionPrompt(params, history, baseline),
+      temperature: 0.2, // Low temp for consistency
+      maxTokens: 1000
+    });
+
+    // 5. Parse and validate AI output
+    const prediction = this.parsePrediction(reasoning, baseline);
+
+    // 6. Store prediction for future accuracy tracking
+    await this.storePrediction({
+      ...params,
+      predictedPrice: prediction.value,
+      confidence: prediction.confidence,
+      featuresUsed: prediction.features,
+      modelVersion: 'memory-engine-v1'
+    });
+
+    return prediction;
+  }
+
+  /**
+   * Validate prediction accuracy against actual outcomes
+   * Run weekly via cron job
+   */
+  async validatePredictions(): Promise<ValidationReport> {
+    const predictions = await this.db.getPredictionsToValidate({
+      targetDate: { $lte: new Date() },
+      actualPrice: null
+    });
+
+    const results = [];
+    for (const pred of predictions) {
+      // Find actual transactions matching this prediction
+      const actuals = await this.db.getTransactions({
+        itemType: pred.itemType,
+        specs: pred.itemSpecs,
+        dateRange: {
+          start: pred.targetDate,
+          end: new Date(pred.targetDate.getTime() + 7 * 86400000) // 7-day window
+        }
+      });
+
+      if (actuals.length > 0) {
+        const avgActual = actuals.reduce((sum, t) => sum + t.price, 0) / actuals.length;
+        const accuracy = 1 - Math.abs(avgActual - pred.predictedPrice) / avgActual;
+        
+        await this.db.updatePrediction(pred.id, {
+          actualPrice: avgActual,
+          accuracy
+        });
+
+        results.push({ id: pred.id, accuracy });
+      }
+    }
+
+    // Update model weights based on accuracy
+    await this.retrainModel(results);
+
+    return {
+      validated: results.length,
+      averageAccuracy: results.reduce((sum, r) => sum + r.accuracy, 0) / results.length,
+      timestamp: new Date()
+    };
+  }
+
+  private validatePredictionInputs(params: any): void {
+    if (!params.itemType) throw new Error('itemType required');
+    if (![7, 30, 90].includes(params.horizonDays)) {
+      throw new Error('horizonDays must be 7, 30, or 90');
+    }
+    // Add more validation based on item type
+  }
+
+  private buildPredictionPrompt(params: any, history: any[], baseline: any): string {
+    return `
+      You are a market intelligence engine. Analyze this transaction history and predict price movement.
+
+      ITEM: ${params.itemType}
+      SPECS: ${JSON.stringify(params.specs)}
+      HORIZON: ${params.horizonDays} days
+
+      HISTORICAL DATA (${history.length} transactions):
+      ${JSON.stringify(history.slice(0, 50))} // Limit context size
+
+      BASELINE STATISTICS:
+      - Mean: $${baseline.mean}
+      - Median: $${baseline.median}
+      - StdDev: $${baseline.stdDev}
+      - Trend: ${baseline.trend}% over last 90 days
+      - Volume: ${baseline.volume} transactions/month
+
+      Return ONLY a JSON object with:
+      {
+        "predictedPrice": number,
+        "confidence": number (0-1),
+        "features": ["list", "of", "key", "factors"],
+        "range": { "low": number, "high": number },
+        "reasoning": "brief explanation"
+      }
+    `;
+  }
+}
+
+// types/prediction.types.ts
+export interface PredictionResult {
+  value: number;
+  confidence: number;
+  range: { low: number; high: number };
+  features: string[];
+  reasoning: string;
+  timestamp: Date;
+  expiresAt: Date;
+}

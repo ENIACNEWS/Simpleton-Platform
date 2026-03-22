@@ -1,0 +1,61 @@
+You are the chief architect of an autonomous, self-optimizing, ultra-low-latency data fabric that aggregates, validates and serves real-time pricing and reference data for every major asset class and data domain:
+
+  • Natural diamonds (Rapaport, exchanges, dealers)  
+  • Lab-grown diamonds (industry portals, certifiers)  
+  • Precious metals (LBMA, COMEX, LME)  
+  • Equities (NYSE, NASDAQ, LSE, regional exchanges)  
+  • Foreign exchange (ECBs, interbank feeds, FX spot & forward)  
+  • Commodity futures (CME, ICE, DCE)  
+  • Cryptocurrencies (CEX, DEX, blockchain oracles)  
+  • AI-model benchmarks & training-data pricing  
+  • Any new feed or API your users introduce  
+
+Your mission: deliver a production-ready mono-repo with code, infra as code, CI/CD and docs so that, from clone to global deployment, this stack is up in under 5 minutes—no human hand-coding connectors, no legacy API bottlenecks, zero trust gaps, end-to-end SLAs under 100 ms.  
+
+1. Connector-Builder LLM Agent  
+   • Given a new source URL, PDF spec or feed sample, auto-generate, compile and unit-test a new connector in <10 s.  
+   • Self-register in a service-discovery registry, health-checked and canaried automatically.  
+
+2. Hybrid Data Fabric  
+   • In-memory CRDT log (hot), tiered storage (warm: Cassandra/Timescale, cold: S3+Iceberg)  
+   • High-throughput bus (NATS JetStream or Pulsar) with exactly-once semantics, auto back-pressure  
+   • On-the-fly schema evolution (Protobuf/Avro + Schema Registry + semantic versioning)  
+
+3. Ultra-Low-Latency, High-Scale  
+   • Core services in Rust/Go (or optimized Python with C++ I/O engines), using async I/O and zero-GC pauses  
+   • Kubernetes Operators with HPA/VPA, global multi-cloud ingress, Pod-level chaos testing  
+   • End-to-end latency < 50 ms at sustained 50 K events/sec, with k6/Vegeta benchmarks in CI  
+
+4. Accuracy & Data Quality  
+   • Schema validation + dedupe + watermark tracking for exactly-once delivery  
+   • Streaming anomaly detection (IsolationForest + LLM explainability) to quarantine outliers  
+   • Real-time cross-source reconciliation (e.g. compare LME vs. COMEX gold)  
+
+5. Trust & Provenance  
+   • Permissioned blockchain ledger for every raw & normalized event (Hyperledger Fabric or Ethereum L2)  
+   • Merkle proofs on demand: clients verify integrity with one API call  
+   • Full mutual-TLS, OAuth2/OIDC, role-based access, signed payloads, audit logs  
+
+6. Analytics & Forecasting  
+   • Integrated sentiment ingestion (news, social, trade forums) stored in vector DB (Pinecone/Weaviate)  
+   • Time-series forecasting module (Prophet + Transformer ensemble) that auto-tunes base curves  
+   • AI Ops agent that analyzes metrics/logs and auto-tunes thresholds, resource requests, alert rules  
+
+7. Observability & Ops Automation  
+   • OpenTelemetry distributed tracing, Prometheus/Grafana dashboards, Loki log search  
+   • Health checks, readiness/liveness probes, on-call alerts with AI-generated incident reports  
+   • GitOps delivery (Argo CD + Flagger) with canary/blue-green deploys and metric-driven rollbacks  
+
+8. Developer-First UX  
+   • Monorepo scaffold (Rust/Go core + Python/Node “glue”)  
+   • Interactive CLI (`dataconnectorctl`) for spinning up, testing, deploying connectors and feature flags  
+   • Full GitHub Actions/GitLab CI: security scans (Snyk), lint, fuzz tests, benchmarks, auto-docs (OpenAPI + UML)  
+
+Deliverables:  
+  • Complete repository with folder layout, Dockerfiles, Helm charts, Terraform modules  
+  • One fully implemented connector per domain (e.g. Rapaport PDF, LBMA metal feed, FIX-based FX, REST stock API, on-chain crypto oracle)  
+  • CI pipelines running tests, benchmarks, deploy to staging & production  
+  • “Getting Started” guide: spin up entire stack locally in <5 minutes  
+  • Example notebooks: anomaly explainability, forecasting, blockchain proof validation  
+
+Output everything ready to clone, compile, test, and deploy—no further spec needed.  

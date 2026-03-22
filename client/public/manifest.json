@@ -1,0 +1,140 @@
+{
+  "name": "Simpleton - Precious Metals & Diamond Intelligence",
+  "short_name": "Simpleton",
+  "description": "Your all-in-one precious metals and diamond calculator app. Get live gold, silver, platinum pricing, diamond valuations, AI-powered appraisals, and scrap batch calculations — all in the palm of your hand.",
+  "start_url": "/simpleton-mode",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#d4af37",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["finance", "business", "productivity", "utilities"],
+  "id": "com.simpleton.vision",
+  "icons": [
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "72x72",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "96x96",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "128x128",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "144x144",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "152x152",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "384x384",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "/simpleton-logo.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Calc",
+      "short_name": "Quick Calc",
+      "description": "Precious metals calculator with live spot prices",
+      "url": "/simpleton-mode?tab=calc",
+      "icons": [
+        {
+          "src": "/simpleton-logo.jpeg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Diamond AI",
+      "short_name": "Diamond AI",
+      "description": "AI-powered diamond pricing and grading",
+      "url": "/simpleton-mode?tab=diamond",
+      "icons": [
+        {
+          "src": "/simpleton-logo.jpeg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ask AI",
+      "short_name": "Ask AI",
+      "description": "AI assistant for precious metals and jewelry questions",
+      "url": "/simpleton-mode?tab=chat",
+      "icons": [
+        {
+          "src": "/simpleton-logo.jpeg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Scrap Batch Calculator",
+      "short_name": "Scrap Batch",
+      "description": "Batch calculate scrap metal values",
+      "url": "/simpleton-mode?tab=scrap",
+      "icons": [
+        {
+          "src": "/simpleton-logo.jpeg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Reverse Calculator",
+      "short_name": "Reverse Calc",
+      "description": "Reverse-engineer pricing from target values",
+      "url": "/simpleton-mode?tab=reverse",
+      "icons": [
+        {
+          "src": "/simpleton-logo.jpeg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}

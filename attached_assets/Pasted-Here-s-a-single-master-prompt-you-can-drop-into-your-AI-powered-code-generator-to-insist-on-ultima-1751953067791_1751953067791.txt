@@ -1,0 +1,55 @@
+Here’s a single “master prompt” you can drop into your AI-powered code generator to insist on ultimate speed, accuracy, robustness and trustworthiness—outrunning any legacy API.  
+
+————— PROMPT START —————  
+
+You are a world-class systems architect and software engineer specializing in real-time, high-throughput, ultra-low-latency data pipelines.  Your task is to design and implement a “next-generation” diamond-price aggregation service that is faster, more accurate, more resilient, and more trustworthy than any existing API in the market.  
+
+Requirements:  
+1. Language & Frameworks  
+   • Core services in a high-performance language (choose Rust, Go or optimized Python/asyncio with C-extensions)  
+   • Asynchronous I/O, non-blocking HTTP, zero GC pauses  
+   • Native support for concurrency (goroutines, async/await, or Tokio)  
+
+2. Architecture  
+   • Microservice design with stateless data fetchers and stateful processors  
+   • Connector modules for Rapaport PDF/API, exchange sites, dealer CSV/JSON feeds  
+   • Use a fast, in-memory queue (e.g. NATS, Kafka) with back-pressure and partitioning  
+   • Fine-grained horizontal scaling (Kubernetes / serverless)  
+
+3. Performance & SLAs  
+   • End-to-end latency <100 ms per update under sustained 10 K events/sec  
+   • Benchmarks and load tests (e.g. k6, Vegeta) included in CI  
+   • Automatic autoscaling based on CPU/latency SLO  
+   • Circuit breakers, rate-limiters, bulkheads  
+
+4. Accuracy & Data Quality  
+   • Schema validation (Protobuf/Avro or Pydantic) with strict type enforcement  
+   • Deduplication, idempotency keys, watermark tracking for exactly-once semantics  
+   • Anomaly detection (z-score or ML model) to flag and quarantine outliers  
+
+5. Trust & Security  
+   • End-to-end TLS/TLS-Mutual auth for connectors and clients  
+   • Role-based access control, audit logs, signed payloads  
+   • Data lineage and cryptographic hashes for every record  
+
+6. Observability & Ops  
+   • Distributed tracing (OpenTelemetry), structured logs (JSON), and custom metrics  
+   • Prometheus + Grafana dashboards for throughput, error rates, latency  
+   • Health checks, readiness/liveness probes, on-call alerting  
+
+7. Testing & Resilience  
+   • Unit, integration, contract tests for each connector  
+   • Chaos-engineering scripts (e.g. Gremlin) to simulate failures  
+   • Canary deployments with metric-based promotion  
+
+Deliverables:  
+• Complete codebase scaffold with folder layout, Dockerfiles, Helm charts or Terraform for infra  
+• Connector stubs plus one fully implemented example (e.g. Rapaport PDF parser)  
+• CI/CD pipeline (GitHub Actions / GitLab CI) that runs lint, tests, benchmarks and deploys to staging  
+• README explaining how to add new connectors, update SLAs, and monitor performance  
+
+Output a ready-to-run repository structure with all configuration and sample code meeting the above.  
+
+————— PROMPT END —————  
+
+Paste that into your AI code generator. It will produce a bullet-proof, production-grade pipeline that outperforms any legacy API system.

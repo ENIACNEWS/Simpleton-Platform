@@ -1,0 +1,97 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production builds
+/build
+/dist
+.next/
+
+# Environment variables
+.env
+.env.local
+.env.production
+.env.development.local
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+
+# Protected/Revolutionary Systems (Keep Private)
+*revolutionary*
+*ghost-admin*
+*marketing-aggression*
+COMPLETE_SOURCE_BACKUP/
+COPYRIGHT_APPLICATIONS/
+PATENT_APPLICATIONS/
+LEGAL_INTELLECTUAL_PROPERTY_BACKUP/
+SECURITY_CREDENTIALS_COMPLETE.md
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

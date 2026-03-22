@@ -1,0 +1,19 @@
+# Simpleton™ - SimpletonApp.com
+# LaDale Industries LLC
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://simpletonapp.com/sitemap.xml
+
+# Block internal API routes from indexing
+Disallow: /api/
+Disallow: /admin/
+Disallow: /ghost/
+
+# Allow specific public API docs
+Allow: /api-docs
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

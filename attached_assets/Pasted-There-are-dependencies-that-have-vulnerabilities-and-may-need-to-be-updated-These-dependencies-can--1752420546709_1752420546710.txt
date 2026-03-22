@@ -1,0 +1,86 @@
+There are dependencies that have vulnerabilities and may need to be updated.
+These dependencies can be updated automatically.
+cheerio
+css-select
+extract-css
+inline-css
+list-stylesheets
+lodash.pick
+nth-check
+style-data
+These dependencies may cause issues if updated without making additional changes. You can have the Agent update them for you and make any necessary changes.
+html-pdf-node@1.0.8
+node-fetch
+puppeteer@24.12.1
+tar-fs
+ws@8.18.0
+xmldom
+Detected potential vulnerability in ASSET_BACKUP_ARCHIVE/Pasted-2025-07-02T03-47-39-677Z-ACTOR-Pulling-Docker-image-of-build-dg3hsFZBngJC43dM1-from-registry-2025--1751428170067_1751428170068.txt
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP/server_backup/api-auth.ts
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/client/src/components/calculator/diamond-calculator.tsx
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/client/src/components/calculator/diamond-calculator.tsx
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/replit.md
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/server/api-auth.ts
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/server/routes.ts
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/server/secure-api-manager.ts
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/standalone-apps/diamond-calculator/package.json
+Detected potential vulnerability in COMPLETE_SOURCE_BACKUP_20250711_115544/standalone-apps/precious-metals-calculator/package.json
+Detected potential vulnerability in DEPLOYMENT_FILES_BACKUP_20250711_115615/standalone-apps/diamond-calculator/package.json
+Detected potential vulnerability in DEPLOYMENT_FILES_BACKUP_20250711_115615/standalone-apps/precious-metals-calculator/package.json
+Detected potential vulnerability in STANDALONE_APPS_BACKUP_20250711_115550/diamond-calculator/package.json
+Detected potential vulnerability in STANDALONE_APPS_BACKUP_20250711_115550/precious-metals-calculator/package.json
+Detected potential vulnerability in UNUSED_CODE_BACKUP/development-assets/Pasted-2025-07-02T03-47-39-677Z-ACTOR-Pulling-Docker-image-of-build-dg3hsFZBngJC43dM1-from-registry-2025--1751428170067_1751428170068.txt
+Detected potential vulnerability in client/src/components/calculator/diamond-calculator.tsx
+Detected potential vulnerability in client/src/components/calculator/diamond-calculator.tsx
+Detected potential vulnerability in deploy/README.md
+Detected potential vulnerability in deploy/README.md
+Detected potential vulnerability in diamond-pricing-pipeline/README.md
+Detected potential vulnerability in diamond-pricing-pipeline/README.md
+Detected potential vulnerability in diamond-pricing-pipeline/connectors/dealer_connector.py
+Detected potential vulnerability in quantum-data-pipeline/managers/connector_builder.py
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in replit.md
+Detected potential vulnerability in server/api-auth.ts
+Detected potential vulnerability in server/routes.ts
+Detected potential vulnerability in server/secure-api-manager.ts
+Detected potential vulnerability in standalone-apps/diamond-calculator/package.json
+Detected potential vulnerability in standalone-apps/precious-metals-calculator/package.json

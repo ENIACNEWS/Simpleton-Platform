@@ -1,0 +1,98 @@
+
+Move everything that's NOT currently running in production into `/archive`. Keep the exact same folder structure inside archive so nothing is lost — just moved.
+
+**DO NOT DELETE ANYTHING.** Just relocate.
+
+---
+
+## STEP 2: CLEANUP ACTIVE CODE
+
+In the `/src` folder, make the code look like a professional human wrote it:
+
+### Code Style Rules:
+- Use consistent naming (camelCase for variables, PascalCase for components/classes)
+- Remove any obvious AI comments like "// This function does X"
+- Replace with meaningful comments that explain WHY, not WHAT
+- Add JSDoc comments for all public functions
+- Remove debug logs, console.logs, test code
+- Ensure error handling is present (no silent failures)
+
+### Structure Rules:
+- Group related files in feature folders (not all in one place)
+- Keep API routes organized by resource
+- Keep database logic in `/db` folder
+- Keep business logic in `/services` folder
+- Keep types/interfaces in `/types` folder
+
+### Make It Look Human:
+- Vary comment length and style slightly (humans aren't perfectly consistent)
+- Add occasional "TODO" comments for future improvements
+- Include a few minor imperfections (a real codebase always has them)
+
+---
+
+## STEP 3: CREATE EXPLAINER FOLDER (For Me)
+
+Create a separate folder: `/docs/for-demiris`
+
+Inside, create these files:
+
+### 1. ARCHITECTURE.md
+A high-level explanation of how the system works — written for ME (not engineers). Include:
+- Simple diagrams (ASCII is fine)
+- How data flows from user to response
+- What each major service does
+- Where key files are located
+
+### 2. FEATURES.md
+For each feature we built:
+- What it does (in plain English)
+- Why we built it
+- How it works (simple terms)
+- Which files to look at
+- What makes it better than competitors
+
+### 3. TECH_STACK.md
+Simple list of:
+- What technologies we use
+- Why we chose them
+- What they do for us
+- Any clever tricks we implemented
+
+### 4. GLOSSARY.md
+Define terms I might need to explain:
+- "Market Memory Engine" — what it actually is
+- "Invisible Appraiser" — how it works
+- "Autonomous Negotiator" — when it's ready
+- Any technical terms an investor might ask about
+
+### 5. PRESENTATION_NOTES.md
+For each major feature, give me:
+- 3 bullet points I can say to an investor
+- 1 potential question they might ask
+- 1 good answer I can give
+
+---
+
+## STEP 4: FINAL QUALITY CHECK
+
+Before you're done, verify:
+
+- [ ] No active code references archived files
+- [ ] App still runs exactly as before
+- [ ] All API keys and secrets are in `.env`, not in code
+- [ ] README.md is updated (brief, professional)
+- [ ] The code would pass a basic code review
+
+---
+
+## DELIVERABLES
+
+When you're done, tell me:
+
+1. Summary of what you moved to archive
+2. Any major changes you made to active code
+3. Where to find the explainer files
+4. Anything I should know before showing investors
+
+**Remember: The goal is to look like I (Demiris) built this with a small, competent team — not like an AI generated it. Make me proud.**

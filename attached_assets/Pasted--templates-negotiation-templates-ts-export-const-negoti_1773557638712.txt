@@ -1,0 +1,96 @@
+// templates/negotiation-templates.ts
+export const negotiationTemplates = {
+  initial: {
+    professional: (data: TemplateData) => `
+      Subject: Regarding your ${data.item} inquiry
+      
+      Thank you for your interest in the ${data.item}. 
+      
+      Based on current market conditions, our best price is $${data.yourPrice}. 
+      This reflects today's market value of $${data.marketValue} and our commitment to fair pricing.
+      
+      Please let me know if you'd like to proceed or if you have any questions.
+      
+      Best regards,
+      ${data.yourName}
+      SimpletonApp Market Intelligence
+    `,
+    
+    friendly: (data: TemplateData) => `
+      Subject: Quick follow-up on the ${data.item}
+      
+      Hey there! Saw you were looking at the ${data.item}. 
+      
+      We could do $${data.yourPrice} on this — that's already below market ($${data.marketValue}) 
+      because we'd rather move inventory than sit on it.
+      
+      Let me know what you think!
+      
+      Cheers,
+      ${data.yourName}
+    `,
+    
+    firm: (data: TemplateData) => `
+      Subject: ${data.item} — market-based offer
+      
+      Regarding the ${data.item}: our price is $${data.yourPrice}.
+      
+      Market data shows $${data.marketValue} as the current benchmark. 
+      Our offer is firm based on this data and our transaction history.
+      
+      This offer expires in 48 hours.
+      
+      Regards,
+      ${data.yourName}
+    `
+  },
+
+  counter: {
+    standard: (data: CounterData) => `
+      Subject: Revised offer on ${data.item}
+      
+      Thank you for your response. 
+      
+      We can meet at $${data.counterAmount}, which is our final adjustment.
+      This represents a ${data.concessionPercent}% move from our original offer.
+      
+      Please confirm by ${data.expiryDate} to lock this rate.
+      
+      Best,
+      ${data.yourName}
+    `
+  },
+
+  acceptance: {
+    standard: (data: AcceptanceData) => `
+      Subject: Deal confirmed — ${data.item}
+      
+      Great! We accept your offer of $${data.agreedPrice}.
+      
+      Next steps:
+      1. [Payment instructions]
+      2. [Shipping details]
+      3. [Authentication process]
+      
+      We'll handle the rest.
+      
+      Thanks for choosing SimpletonApp,
+      ${data.yourName}
+    `
+  },
+
+  walkAway: {
+    standard: (data: WalkAwayData) => `
+      Subject: Update on ${data.item}
+      
+      Unfortunately, we're unable to meet at $${data.theirLastOffer}.
+      
+      Our best offer remains $${data.yourLastOffer}, which is ${data.percentBelowMarket}% below current market.
+      
+      If your situation changes, feel free to reach out.
+      
+      Best regards,
+      ${data.yourName}
+    `
+  }
+};
