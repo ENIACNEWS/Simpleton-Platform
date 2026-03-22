@@ -784,20 +784,6 @@ class RevolutionaryMetalsAggregator {
     return Math.max(30000, baseCache * performanceMultiplier); // Minimum 30 seconds
   }
 
-  /** DEAD CODE REMOVED - ALL FALLBACK/SIMULATED PRICING DELETED **/
-  private calculateConsensusPricing(allPrices: MetalPrice[]): MetalPricingData {
-    // @deprecated — retained for API backwards compatibility
-    const result: Partial<MetalPricingData> = {
-      gold: 0,
-      silver: 0,
-      platinum: 0,
-      palladium: 0,
-      sources: [],
-      timestamp: new Date().toISOString(),
-      aggregationMethod: "Deprecated - now using GoldPrice.org direct"
-    };
-    return result as MetalPricingData;
-  }
 }
 
 // Export singleton instance
