@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import { simplicitySelfAwareness } from '../simplicity-self-awareness';
 
 export function registerAssistantRoutes(app: Express) {
   app.get("/api/chat/history", async (req, res) => {
@@ -230,12 +231,14 @@ export function registerAssistantRoutes(app: Express) {
             14000,
             'Fast provider'
           );
+        simplicitySelfAwareness.recordResponseTime(Date.now() - betaStart);
           responseText = fastResult.response;
           activeProviders = [`${fastResult.provider}/${fastResult.model}`];
           confidenceScore = 0.93;
           processingTime = Date.now() - betaStart;
           console.log(`✅ Fast provider (${fastResult.provider}): ${processingTime}ms`);
         } catch (fastErr: any) {
+        simplicitySelfAwareness.recordError('Claude API', fastErr?.message || 'Fast path failed');
           console.log(`⚠️ Fast provider failed (${fastErr?.message}), falling back to multi-AI provider`);
         }
       }
@@ -249,6 +252,7 @@ export function registerAssistantRoutes(app: Express) {
             20000,
             'Multi-AI consensus'
           );
+      simplicitySelfAwareness.recordResponseTime(Date.now() - betaStart);
 
           responseText = consensusResult.bestResponse;
           activeProviders = consensusResult.responses.map((r: any) => r.provider);
@@ -256,6 +260,7 @@ export function registerAssistantRoutes(app: Express) {
           processingTime = Date.now() - betaStart;
           console.log(`✅ Multi-AI (${activeProviders.join(', ')}): ${processingTime}ms [${consensusResult.confidence} confidence]`);
         } catch (multiErr: any) {
+      simplicitySelfAwareness.recordError('Claude API', multiErr?.message || 'Consensus query failed');
           console.log(`❌ Multi-AI failed (${multiErr?.message})`);
           return res.status(500).json({
             error: "Unable to generate response at this time",
