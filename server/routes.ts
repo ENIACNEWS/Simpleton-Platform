@@ -57,9 +57,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/assistant/appraise', express.json({ limit: '25mb' }));
 
   // CORS configuration - Enable credentials for authentication routes (locked to own domain)
-  const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['https://simpletonapp.com', 'https://simpleton-platform-production.up.railway.app', 'http://localhost:5000'];
+  // Always include Railway domain and localhost alongside any custom origins
+  const envOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+  const defaultOrigins = ['https://simpletonapp.com', 'https://simpleton-platform-production.up.railway.app', 'http://localhost:5000'];
+  const allowedOrigins = [...new Set([...defaultOrigins, ...envOrigins])];
 
   app.use('/api/auth', cors({
     origin: (origin, callback) => {
