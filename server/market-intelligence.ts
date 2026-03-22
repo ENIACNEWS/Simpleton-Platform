@@ -122,6 +122,8 @@ async function fetchCryptoData(): Promise<CryptoSnapshot | null> {
 async function fetchMetalsData(): Promise<MetalsSnapshot | null> {
   try {
     const { getKitcoPricing } = await import('./kitco-pricing');
+
+import { simplicitySelfAwareness } from './simplicity-self-awareness';
     const pricing = await getKitcoPricing();
     
     if (!pricing) return null;
@@ -226,8 +228,10 @@ async function trainLoop(): Promise<void> {
     lastError = null;
     const elapsed = Date.now() - start;
     console.log(`✅ Market Intelligence: Training cycle #${trainCount} complete (${elapsed}ms) - Crypto: ${crypto ? 'OK' : 'SKIP'}, Metals: ${metals ? 'OK' : 'SKIP'}`);
+    simplicitySelfAwareness.updateDataFreshness('Market Intelligence', true);
   } catch (err: any) {
     lastError = err.message;
+    simplicitySelfAwareness.updateDataFreshness('Market Intelligence', false, err?.message || 'Training loop error');
     console.error(`❌ Market Intelligence training error: ${err.message}`);
   } finally {
     isTraining = false;
