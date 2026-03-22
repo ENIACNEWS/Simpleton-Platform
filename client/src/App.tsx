@@ -60,6 +60,7 @@ import WhatIsThisWorth from "@/pages/what-is-this-worth";
 import S7Panel from "@/pages/s7-panel";
 import PriceBoard from "@/pages/price-board";
 import Cryptocurrency from "@/pages/cryptocurrency";
+import NewsHub from "@/pages/news-hub";
 
 function DesktopRouter() {
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -121,6 +122,8 @@ function DesktopRouter() {
         <Route path="/price-board" component={PriceBoard} />
         <Route path="/cryptocurrency" component={Cryptocurrency} />
         <Route path="/crypto" component={Cryptocurrency} />
+        <Route path="/news-hub" component={NewsHub} />
+        <Route path="/news" component={NewsHub} />
         <Route path="/terms-of-service" component={TermsOfService} />
         <Route path="/privacy-policy" component={PrivacyPolicy} />
         <Route path="/legal-disclosure" component={LegalDisclosure} />
