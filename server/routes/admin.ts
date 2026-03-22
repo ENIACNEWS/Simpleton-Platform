@@ -8,8 +8,10 @@ import { db } from "../db";
 import { eq, desc, sql } from "drizzle-orm";
 import { users, siteVisitors, ghostConversations, ghostMessages, globalDiamondPrices } from "@shared/schema";
 import { getKitcoPricing } from "../kitco-pricing";
+import { registerSelfAwarenessRoutes } from '../simplicity-self-awareness';
 
 export async function registerAdminRoutes(app: Express) {
+
   const ghostAdminSessionToken = crypto.randomBytes(32).toString('hex');
 
   const ghostOwnerCheck = (req: any, res: any, next: any) => {
@@ -17,6 +19,9 @@ export async function registerAdminRoutes(app: Express) {
     if (token && token === ghostAdminSessionToken) return next();
     return res.status(401).json({ error: 'Access denied' });
   };
+
+  // Register self-awareness diagnostic routes (owner-only)
+  registerSelfAwarenessRoutes(app, ghostOwnerCheck);
 
   app.post("/api/s7/v", isAuthenticated, async (req, res) => {
     try {
