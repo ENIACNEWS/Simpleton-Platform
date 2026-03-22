@@ -137,7 +137,7 @@ async function queryAnthropic(
   try {
     const response = await Promise.race([
       anthropicClient.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: options.maxTokens || DEFAULT_MAX_TOKENS,
         system: systemPrompt,
         messages: [
