@@ -16,7 +16,7 @@ interface ContactInfo {
   email: string;
 }
 
-const OPENING = `Hi! I'm Simplicity. Drop a photo of your item and describe it in plain language — like "a gold ring with a diamond" or "some old coins I found." I'll ask a couple quick questions, then tell you exactly what it's worth and what your options are.`;
+const OPENING = `Hi! I'm Simplicity. Drop a photo of your item and describe it in plain language â like "a gold ring with a diamond" or "some old coins I found." I'll ask a couple quick questions, then tell you exactly what it's worth and what your options are.`;
 
 export default function WhatIsThisWorth() {
   const [step, setStep] = useState<Step>('landing');
@@ -49,13 +49,13 @@ export default function WhatIsThisWorth() {
         message,
         image: imageData,
         pageContext: '/what-is-this-worth',
-        appContext: `CONSUMER APPRAISAL MODE — This is a regular person (not a dealer) who wants to know what their item is worth. 
+        appContext: `CONSUMER APPRAISAL MODE â This is a regular person (not a dealer) who wants to know what their item is worth. 
         
 Your ONLY job right now is to:
 1. Gather enough info to describe the item professionally (ask max 2 questions at a time)
 2. Once you have enough, generate the appraisal description and estimated value
 
-Keep language simple — no trade jargon. Be warm, curious, and encouraging.
+Keep language simple â no trade jargon. Be warm, curious, and encouraging.
 When you have enough information, output the appraisal blocks exactly:
 
 ---APPRAISAL_DESCRIPTION_START---
@@ -176,7 +176,7 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
         <div style={{ maxWidth: 680, margin: '0 auto', padding: '60px 24px 40px' }}>
 
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <img src="/simpleton-logo.jpeg" alt="Simpleton™" style={{ height: 52, objectFit: 'contain', marginBottom: 12 }} />
+            <img src="/simpleton-logo.jpeg" alt="Simpletonâ¢" style={{ height: 52, objectFit: 'contain', marginBottom: 12 }} />
             <div style={{ fontSize: 11, letterSpacing: '0.25em', color: '#94a3b8', textTransform: 'uppercase' }}>
               Professional Appraisals
             </div>
@@ -191,7 +191,7 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
               What is this worth?
             </h1>
             <p style={{ fontSize: 18, color: '#94a3b8', lineHeight: 1.6, marginBottom: 32, maxWidth: 480, margin: '0 auto 32px' }}>
-              Show us your jewelry, coins, or diamonds. We'll tell you exactly what you have — and what it's worth.
+              Show us your jewelry, coins, or diamonds. We'll tell you exactly what you have â and what it's worth.
             </p>
             <button
               onClick={() => setStep('chat')}
@@ -205,7 +205,7 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
               Find Out Now <ArrowRight size={20} />
             </button>
             <div style={{ fontSize: 12, color: '#64748b', marginTop: 12 }}>
-              Certified appraisal document · $15 · 24-48 hour turnaround
+              Certified appraisal document Â· $15 Â· 24-48 hour turnaround
             </div>
           </div>
 
@@ -213,7 +213,7 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
             {[
               { icon: <Shield size={22} color="#c9a84c" />, title: 'GIA Certified', desc: 'Reviewed by Demiris Brown, Graduate Gemologist' },
               { icon: <Clock size={22} color="#c9a84c" />, title: '24-48 Hours', desc: 'Fast turnaround on all appraisal requests' },
-              { icon: <Star size={22} color="#c9a84c" />, title: '12+ Years', desc: 'Industry experience at Motor City Pawn Brokers' },
+              { icon: <Star size={22} color="#c9a84c" />, title: '12+ Years', desc: 'Industry experience at Simpleton Technologies' },
             ].map((item, i) => (
               <div key={i} style={{
                 background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
@@ -260,11 +260,11 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
             <div style={{ fontSize: 14, fontWeight: 700, color: '#f1f5f9' }}>Simplicity</div>
             <div style={{ fontSize: 11, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 4 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
-              Online · Appraisal Assistant
+              Online Â· Appraisal Assistant
             </div>
           </div>
           <div style={{ marginLeft: 'auto', fontSize: 12, color: '#64748b' }}>
-            Step 1 of 2 — Tell me about your item
+            Step 1 of 2 â Tell me about your item
           </div>
         </div>
 
@@ -394,7 +394,7 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
               <img src="/simpleton-logo.jpeg" alt="" style={{ height: 40, marginBottom: 12 }} />
               <div style={{ fontSize: 18, fontWeight: 700, color: '#f1f5f9', marginBottom: 6 }}>
-                Almost done — where should we send it?
+                Almost done â where should we send it?
               </div>
               <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
                 Your certified appraisal document will be emailed to you after Demiris reviews it personally. Usually within 24-48 hours.
@@ -448,7 +448,7 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
                   width: '100%', marginTop: 4,
                 }}
               >
-                {submitMutation.isPending ? 'Submitting...' : 'Get My Certified Appraisal →'}
+                {submitMutation.isPending ? 'Submitting...' : 'Get My Certified Appraisal â'}
               </button>
 
               <div style={{ fontSize: 11, color: '#475569', textAlign: 'center', lineHeight: 1.5 }}>
@@ -506,7 +506,7 @@ After outputting those blocks, tell the user warmly: "I have everything I need. 
             borderRadius: 8, textDecoration: 'none', fontSize: 14, fontWeight: 700,
             display: 'inline-block',
           }}>
-            Back to Simpleton™
+            Back to Simpletonâ¢
           </a>
         </div>
       </div>
