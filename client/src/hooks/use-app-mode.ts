@@ -21,11 +21,11 @@ function isMobileOrTablet(): boolean {
 
 function getInitialMode(): AppMode {
   if (typeof window === "undefined") return "desktop";
-
   const saved = localStorage.getItem("simpleton-app-mode");
   if (saved === "mobile") return "mobile";
-
-  return "desktop";
+  if (saved === "desktop") return "desktop";
+  // No saved preference - auto-detect based on device
+  return isMobileOrTablet() ? "mobile" : "desktop";
 }
 
 export function useAppMode() {
@@ -36,6 +36,12 @@ export function useAppMode() {
   useEffect(() => {
     setIsStandalone(isPWAStandalone());
     setIsTouchDevice(isMobileOrTablet());
+    // Auto-set mobile mode on first visit from mobile device
+    const saved = localStorage.getItem("simpleton-app-mode");
+    if (!saved && isMobileOrTablet()) {
+      setModeState("mobile");
+      localStorage.setItem("simpleton-app-mode", "mobile");
+    }
   }, []);
 
   const setMode = useCallback((newMode: AppMode) => {
