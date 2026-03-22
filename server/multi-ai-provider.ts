@@ -183,17 +183,13 @@ async function queryGoogle(
   const startTime = Date.now();
 
   try {
-    const model = googleClient.getGenerativeModel({
-      model: 'gemini-1.5-pro',
-      systemInstruction: systemPrompt,
-    });
-
     const response = await Promise.race([
-      model.generateContent({
+      googleClient.models.generateContent({
+        model: 'gemini-2.0-flash',
         contents: [
           {
             role: 'user',
-            parts: [{ text: prompt }],
+            parts: [{ text: `${systemPrompt}\n\n${prompt}` }],
           },
         ],
       }),
@@ -201,7 +197,7 @@ async function queryGoogle(
     ]);
 
     const latencyMs = Date.now() - startTime;
-    const content = response.response.text();
+    const content = response.text || '';
 
     // Note: Google's response doesn't include token usage in the free API tier
     return {
