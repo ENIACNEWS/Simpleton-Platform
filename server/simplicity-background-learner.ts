@@ -338,7 +338,7 @@ Please provide:
 Format your response as a structured knowledge entry suitable for a learning system.`;
 
       const message = await this.anthropicClient.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-6",
         max_tokens: 1024,
         messages: [
           {
