@@ -114,6 +114,4 @@ export function serveStatic(app: Express) {
     html = html.replace("</head>", versionScript + "</head>");
     res.status(200).set({ "Content-Type": "text/html" }).end(html);
   });
-    res.sendFile(path.resolve(distPath, "index.html"));
-  });
 }
