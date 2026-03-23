@@ -336,4 +336,162 @@ export function registerAssistantRoutes(app: Express) {
       });
     }
   });
+
+
+  // ============================================
+  // CONVERSATION MANAGEMENT ROUTES
+  // ============================================
+
+  // Get list of past conversations for sidebar
+  app.get("/api/chat/conversations", async (req, res) => {
+    try {
+      const sessionToken = req.query.sessionToken as string;
+      const userId = (req as any).user?.id;
+      
+      const { getUserConversationSessions } = await import('../simplicity-collective-memory');
+      const sessions = await getUserConversationSessions(userId || undefined, sessionToken || undefined);
+      
+      res.json({ conversations: sessions });
+    } catch (error) {
+      console.error('Conversation list error:', error);
+      res.json({ conversations: [] });
+    }
+  });
+
+  // Start a new conversation (generates new session token)
+  app.post("/api/chat/new-conversation", async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      const newToken = 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10);
+      
+      const { db } = await import('../db');
+      const { assistantSessions } = await import('../../shared/schema');
+      
+      const [session] = await db.insert(assistantSessions).values({
+        sessionToken: newToken,
+        messageCount: 0,
+        userId: userId || null,
+      }).returning();
+      
+      res.json({ sessionToken: newToken, sessionId: session.id });
+    } catch (error) {
+      console.error('New conversation error:', error);
+      res.status(500).json({ error: 'Failed to create conversation' });
+    }
+  });
+
+  // Link anonymous session to user account (cross-device sync)
+  app.post("/api/chat/link-session", async (req, res) => {
+    try {
+      const { sessionToken } = req.body;
+      const userId = (req as any).user?.id;
+      
+      if (!userId || !sessionToken) {
+        return res.status(400).json({ error: 'Missing userId or sessionToken' });
+      }
+      
+      const { linkSessionToUser } = await import('../simplicity-collective-memory');
+      await linkSessionToUser(sessionToken, userId);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Link session error:', error);
+      res.json({ success: false });
+    }
+  });
+
+  // Generate conversation title
+  app.post("/api/chat/generate-title", async (req, res) => {
+    try {
+      const { message } = req.body;
+      if (!message) return res.json({ title: 'New Conversation' });
+      
+      const { generateConversationTitle } = await import('../simplicity-collective-memory');
+      const title = await generateConversationTitle(message);
+      
+      res.json({ title });
+    } catch (error) {
+      res.json({ title: 'New Conversation' });
+    }
+  });
+
+
+
+  // ============================================
+  // CONVERSATION MANAGEMENT ROUTES
+  // ============================================
+
+  // Get list of past conversations for sidebar
+  app.get("/api/chat/conversations", async (req, res) => {
+    try {
+      const sessionToken = req.query.sessionToken as string;
+      const userId = (req as any).user?.id;
+      
+      const { getUserConversationSessions } = await import('../simplicity-collective-memory');
+      const sessions = await getUserConversationSessions(userId || undefined, sessionToken || undefined);
+      
+      res.json({ conversations: sessions });
+    } catch (error) {
+      console.error('Conversation list error:', error);
+      res.json({ conversations: [] });
+    }
+  });
+
+  // Start a new conversation (generates new session token)
+  app.post("/api/chat/new-conversation", async (req, res) => {
+    try {
+      const userId = (req as any).user?.id;
+      const newToken = 'chat-' + Date.now() + '-' + Math.random().toString(36).substring(2, 10);
+      
+      const { db } = await import('../db');
+      const { assistantSessions } = await import('../../shared/schema');
+      
+      const [session] = await db.insert(assistantSessions).values({
+        sessionToken: newToken,
+        messageCount: 0,
+        userId: userId || null,
+      }).returning();
+      
+      res.json({ sessionToken: newToken, sessionId: session.id });
+    } catch (error) {
+      console.error('New conversation error:', error);
+      res.status(500).json({ error: 'Failed to create conversation' });
+    }
+  });
+
+  // Link anonymous session to user account (cross-device sync)
+  app.post("/api/chat/link-session", async (req, res) => {
+    try {
+      const { sessionToken } = req.body;
+      const userId = (req as any).user?.id;
+      
+      if (!userId || !sessionToken) {
+        return res.status(400).json({ error: 'Missing userId or sessionToken' });
+      }
+      
+      const { linkSessionToUser } = await import('../simplicity-collective-memory');
+      await linkSessionToUser(sessionToken, userId);
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Link session error:', error);
+      res.json({ success: false });
+    }
+  });
+
+  // Generate conversation title
+  app.post("/api/chat/generate-title", async (req, res) => {
+    try {
+      const { message } = req.body;
+      if (!message) return res.json({ title: 'New Conversation' });
+      
+      const { generateConversationTitle } = await import('../simplicity-collective-memory');
+      const title = await generateConversationTitle(message);
+      
+      res.json({ title });
+    } catch (error) {
+      res.json({ title: 'New Conversation' });
+    }
+  });
+
 }
