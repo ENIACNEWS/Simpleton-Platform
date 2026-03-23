@@ -174,8 +174,6 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       <Navigation onAIToggle={() => setIsAIOpen(true)} />
 
-      <AIAssistant isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
-
       {/* ═══════════════════════ HERO SECTION ═══════════════════════ */}
       <section className="flex-1 text-center pt-20 sm:pt-28 md:pt-36 pb-8 sm:pb-12 px-4 sm:px-6 relative overflow-hidden">
 
@@ -224,14 +222,14 @@ export default function Home() {
               <span>Diamond Calculator</span>
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
             </Link>
-            <button
-              onClick={() => setIsAIOpen(true)}
+            <Link
+              href="/ai-chat"
               className="group flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-xl font-medium text-sm sm:text-base transition-all duration-300 active:scale-[0.98] bg-gradient-to-r from-rose-500/20 to-pink-600/10 border border-rose-500/30 hover:border-rose-400/50 text-rose-300 hover:text-rose-200"
             >
               <Sparkles className="w-5 h-5" />
               <span>Talk to Simplicity</span>
               <ArrowRight className="w-4 h-4 opacity-0 -ml-2 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
-            </button>
+            </Link>
           </div>
 
           {/* ═══════════════ FEATURE CAROUSEL ═══════════════ */}
