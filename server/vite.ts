@@ -76,7 +76,7 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath))
+  app.use(express.static(distPath, { index: false }))
 
   // fall through to index.html if the file doesn't exist
   // No-cache headers ensure browsers always get the latest build
@@ -86,6 +86,34 @@ export function serveStatic(app: Express) {
       "Pragma": "no-cache",
       "Expires": "0"
     });
+    // Read HTML and inject auto-update version check script
+    const htmlPath = path.resolve(distPath, "index.html");
+    let html = fs.readFileSync(htmlPath, "utf-8");
+    const buildId = html.match(/\/assets\/index-([\w]+)\.js/)?.[1] || Date.now().toString();
+    const versionScript = `<script>
+(function(){
+  var bid = "${buildId}";
+  var stored = sessionStorage.getItem("_sv");
+  if (stored && stored !== bid) {
+    sessionStorage.setItem("_sv", bid);
+    location.reload();
+  } else {
+    sessionStorage.setItem("_sv", bid);
+  }
+  // Check for updates every 5 minutes
+  setInterval(function(){
+    fetch(location.href, {cache:"no-store",headers:{"Accept":"text/html"}})
+      .then(function(r){return r.text()})
+      .then(function(t){
+        var m = t.match(/\\/assets\\/index-([\\w]+)\\.js/);
+        if(m && m[1] !== bid) location.reload();
+      }).catch(function(){});
+  }, 300000);
+})();
+</script>`;
+    html = html.replace("</head>", versionScript + "</head>");
+    res.status(200).set({ "Content-Type": "text/html" }).end(html);
+  });
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
