@@ -76,10 +76,16 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  app.use(express.static(distPath))
 
   // fall through to index.html if the file doesn't exist
+  // No-cache headers ensure browsers always get the latest build
   app.use("*", (_req, res) => {
+    res.set({
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    });
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
