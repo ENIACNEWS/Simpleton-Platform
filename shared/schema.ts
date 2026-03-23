@@ -2089,3 +2089,40 @@ export const appraisalCounter = pgTable("appraisal_counter", {
 });
 
 export * from "./models/chat";
+
+
+// ============================================
+// SIMPLICITY COLLECTIVE INTELLIGENCE
+// Anonymized knowledge learned from ALL user interactions
+// Private details stay in userMemories; only problem/solution knowledge lives here
+// ============================================
+
+export const collectiveInsights = pgTable("collective_insights", {
+  id: serial("id").primaryKey(),
+  category: text("category").notNull(), // e.g. "diamond_grading", "gold_testing", "rolex_auth", "coin_grading", "troubleshooting"
+  topic: text("topic").notNull(), // e.g. "fake_rolex_serial_detection"
+  problem: text("problem").notNull(), // The question/problem pattern (anonymized)
+  solution: text("solution").notNull(), // The answer/solution that worked
+  tags: text("tags").array().default([]),
+  timesHelpful: integer("times_helpful").notNull().default(1),
+  totalInteractions: integer("total_interactions").notNull().default(1),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }).default("0.80"),
+  regionsSeen: text("regions_seen").array().default([]), // anonymized geographic spread
+  verificationStatus: text("verification_status").notNull().default("learned"), // learned, verified, expert_confirmed
+  sourceConversationCount: integer("source_conversation_count").notNull().default(1),
+  lastReinforced: timestamp("last_reinforced").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const conversationSessions = pgTable("conversation_sessions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id), // null for anonymous
+  sessionToken: text("session_token").notNull(),
+  title: text("title"), // auto-generated conversation title
+  summary: text("summary"), // brief summary of conversation
+  messageCount: integer("message_count").notNull().default(0),
+  lastActiveAt: timestamp("last_active_at").notNull().defaultNow(),
+  isArchived: boolean("is_archived").notNull().default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
