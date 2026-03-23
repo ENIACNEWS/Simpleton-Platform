@@ -377,13 +377,12 @@ export async function buildSimplicityPrompt(
 
   const resolvedUserId = userId || session.userId || undefined;
 
-  const [history, knowledge, persistentMemories, livePrices] = await Promise.all([
+  const [history, knowledge, persistentMemories, livePrices, collectiveKnowledge] = await Promise.all([
     storage.getAssistantMessages(session.id, 20),
     userMessage ? retrieveRelevantKnowledge(userMessage) : Promise.resolve({ entries: [], category: undefined }),
-    resolvedUserId
-      ? import('./simplicity-memory').then(m => m.getUserMemories(resolvedUserId)).catch(() => [])
-      : Promise.resolve([]),
+    resolvedUserId ? import('./simplicity-memory').then(m => m.getUserMemories(resolvedUserId)).catch(() => []) : Promise.resolve([]),
     getKitcoPricing().catch(() => null),
+    userMessage ? import('./simplicity-collective-memory').then(m => m.searchCollectiveKnowledge(userMessage, detectCategory(userMessage))).catch(() => []) : Promise.resolve([]),
   ]);
 
   const personalityPrompt = buildPersonalityPrompt(session, pageContext);
@@ -430,8 +429,15 @@ CRITICAL: Always use the prices above. Never use memorized or training-data pric
     return briefing ? "\n\n" + briefing : "";
   })();
 
+  // Build collective intelligence context from shared knowledge
+  let collectiveContext = '';
+  if (collectiveKnowledge && collectiveKnowledge.length > 0) {
+    const { formatCollectiveKnowledgeForPrompt } = await import('./simplicity-collective-memory');
+    collectiveContext = formatCollectiveKnowledgeForPrompt(collectiveKnowledge);
+  }
+
   return {
-    systemPrompt: personalityPrompt + livePriceContext + marketIntelligenceContext + memoryContext + knowledgeContext + simplicitySelfAwareness.buildSelfAwarenessContext() + conversationHistory,
+    systemPrompt: personalityPrompt + livePriceContext + marketIntelligenceContext + memoryContext + collectiveContext + knowledgeContext + simplicitySelfAwareness.buildSelfAwarenessContext() + conversationHistory,
     session,
     history,
     knowledgeUsed: knowledge.entries.length,
@@ -472,6 +478,11 @@ export async function saveInteraction(
   await storage.updateAssistantSession(session.id, {
     userProfile: updatedProfile,
   });
+
+  // Extract collective knowledge (anonymized, non-blocking)
+  import('./simplicity-collective-memory').then(({ extractCollectiveKnowledge }) => {
+    extractCollectiveKnowledge(userMessage, assistantResponse).catch(() => {});
+  }).catch(() => {});
 }
 
 export { getPageContext, PAGE_CONTEXT_MAP };
