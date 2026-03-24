@@ -67,9 +67,9 @@ I can analyze photos for visual identification, provide preliminary valuations, 
 
 My specialties include: ${expertPersona.expertise.slice(0, 5).join(', ')}${expertPersona.expertise.length > 5 ? ', and many others' : ''}. 
 
-Whether you're looking to buy, sell, collect, or simply learn, I'm here to help. Note: All assessments are for informational purposes only — professional authentication is recommended for all transactions. What would you like me to examine or discuss today?`;
+Whether you're looking to buy, sell, collect, or simply learn, I'm here to help. Note: All assessments are for informational purposes only â professional authentication is recommended for all transactions. What would you like me to examine or discuss today?`;
     }
-    return "Hello! I'm Simplicity, your AI assistant. I can help with precious metals, diamonds, luxury watches, coins, and much more. Upload photos for visual analysis and preliminary assessments, or ask me anything you'd like to learn about. Note: All assessments are for informational purposes only — professional authentication is recommended for all transactions. What would you like to explore today?";
+    return "Hello! I'm Simplicity, your AI assistant. I can help with precious metals, diamonds, luxury watches, coins, and much more. Upload photos for visual analysis and preliminary assessments, or ask me anything you'd like to learn about. Note: All assessments are for informational purposes only â professional authentication is recommended for all transactions. What would you like to explore today?";
   };
 
   const [messages, setMessages] = useState<Message[]>([
@@ -154,7 +154,7 @@ Whether you're looking to buy, sell, collect, or simply learn, I'm here to help.
       const imageData = await compressImage(file);
       setImagePreview(imageData);
       
-      // Auto-analyze image with Simpleton™
+      // Auto-analyze image with Simpletonâ¢
       if (isConfigured && isVisionMode) {
         // Create user message showing image was uploaded
         const userMessage: Message = {
@@ -243,42 +243,10 @@ Whether you're looking to buy, sell, collect, or simply learn, I'm here to help.
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!input.trim() && !selectedImage) || sendMessage.isPending) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input.trim() || (selectedImage ? "Requesting Simpleton Vision™ analysis..." : ""),
-      timestamp: new Date(),
-      image: imagePreview || undefined,
-      imageFile: selectedImage || undefined
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput("");
-    
-    if (isConfigured) {
-      sendMessage.mutate({
-        message: input.trim() || (selectedImage ? "What can you tell me about this image?" : ""),
-        image: imagePreview?.split(',')[1] // Extract base64 without data:image/jpeg;base64, prefix
-      });
-      
-      // Clear image after sending
-      setSelectedImage(null);
-      setImagePreview(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    } else {
-      // Show setup instructions
-      const setupMessage: Message = {
-        id: Date.now().toString() + "-setup",
-        role: "assistant",
-        content: "The AI assistant is not configured yet. To enable this feature, an Anthropic API key is needed. Please contact the site administrator to set this up, or if you're the owner, add your ANTHROPIC_API_KEY to enable this feature.",
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, setupMessage]);
-    }
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    // Redirect to the full Simplicity AI chat experience with the message
+    window.location.href = '/ai-chat?q=' + encodeURIComponent(trimmed);
   };
 
   // Auto-scroll to bottom when new messages arrive
@@ -307,7 +275,7 @@ Whether you're looking to buy, sell, collect, or simply learn, I'm here to help.
             </div>
             <div>
               <h3 className="font-semibold text-lg text-white">Simplicity AI</h3>
-              <p className="text-sm text-white/80">Your AI Assistant • Powered by Simplicity</p>
+              <p className="text-sm text-white/80">Your AI Assistant â¢ Powered by Simplicity</p>
             </div>
           </div>
         <div className="flex items-center gap-1">
@@ -341,7 +309,7 @@ Whether you're looking to buy, sell, collect, or simply learn, I'm here to help.
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Simpleton Vision™ - Image Analysis System</p>
+                <p>Simpleton Visionâ¢ - Image Analysis System</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -454,7 +422,7 @@ Whether you're looking to buy, sell, collect, or simply learn, I'm here to help.
               <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <Camera className="h-5 w-5" />
-                  <span className="font-semibold">Simpleton Vision™ Active</span>
+                  <span className="font-semibold">Simpleton Visionâ¢ Active</span>
                   <span className="text-sm opacity-90">Upload any image for AI-powered visual analysis and preliminary assessment</span>
                 </div>
                 {imagePreview && (
