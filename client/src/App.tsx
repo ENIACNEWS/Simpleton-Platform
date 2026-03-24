@@ -59,6 +59,7 @@ import S7Panel from "@/pages/s7-panel";
 import PriceBoard from "@/pages/price-board";
 import Cryptocurrency from "@/pages/cryptocurrency";
 import NewsHub from "@/pages/news-hub";
+import { PageGlow } from "@/components/page-glow";
 
 function DesktopRouter() {
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -77,6 +78,7 @@ function DesktopRouter() {
   return (
     <div className="min-h-screen bg-primary-950 text-white">
       <WelcomeNotification />
+      <PageGlow />
       <AIAssistant isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
       <Switch>
         <Route path="/" component={Home} />
