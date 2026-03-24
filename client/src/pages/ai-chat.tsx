@@ -463,7 +463,20 @@ export default function AIChat() {
     }
   };
 
-  const handleCopy = (text: string, id: string) => {
+  // Auto-send message from URL query parameter (e.g., from landing page redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) {
+      // Clean up the URL without reloading
+      window.history.replaceState({}, '', '/ai-chat');
+      // Send the message after a brief delay to ensure component is ready
+      const timer = setTimeout(() => handleSend(q), 500);
+      return () => clearTimeout(timer);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -1304,7 +1317,7 @@ export default function AIChat() {
 
           <div className="text-center mt-2 mb-2">
             <p className="text-xs opacity-30">
-              Simplicity · Responses may not be 100% accurate
+              Simplicity Â· Responses may not be 100% accurate
             </p>
           </div>
         </div>
