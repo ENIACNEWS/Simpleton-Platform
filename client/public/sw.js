@@ -3,7 +3,7 @@
  * Provides offline functionality and app-like performance
  */
 
-const CACHE_NAME = 'simpleton-v1.4.0-diamond-prices';
+const CACHE_NAME = 'simpleton-v1.5.0-diamond-prices';
 const OFFLINE_URL = '/';
 
 // Files to cache for offline functionality
@@ -32,7 +32,7 @@ self.addEventListener('install', (event) => {
       .catch((error) => {
         // Only log errors in development
         if (self.location.hostname === 'localhost') {
-          console.error('❌ Simpleton PWA: Installation failed:', error);
+          console.error('â Simpleton PWA: Installation failed:', error);
         }
       })
   );
@@ -111,12 +111,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Handle navigation requests with network-first strategy
-  // This ensures users always get the latest version of the app
+  // Handle navigation requests with network-first strategy + timeout
+  // Prevents page hang on refresh by racing fetch against a timeout
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
+      Promise.race([
+        fetch(event.request).then((response) => {
           if (response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then((cache) => {
@@ -124,15 +124,19 @@ self.addEventListener('fetch', (event) => {
             });
           }
           return response;
+        }),
+        new Promise((resolve, reject) => {
+          setTimeout(() => reject(new Error('Navigation fetch timeout')), 4000);
         })
-        .catch(() => {
-          // Serve cached version only when truly offline
-          return caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || caches.match(OFFLINE_URL);
-          });
-        })
+      ]).catch(() => {
+        // Network failed or timed out - serve cached version or offline page
+        return caches.match(event.request).then((cachedResponse) => {
+          return cachedResponse || caches.match(OFFLINE_URL);
+        });
+      })
     );
     return;
+  }
   }
   
   // Handle other requests with cache-first strategy
@@ -163,15 +167,15 @@ self.addEventListener('fetch', (event) => {
 // Background sync for data updates
 self.addEventListener('sync', (event) => {
   if (event.tag === 'pricing-sync') {
-    console.log('✅ Simpleton PWA: Background sync - updating pricing data');
+    console.log('â Simpleton PWA: Background sync - updating pricing data');
     event.waitUntil(
       fetch('/api/pricing/latest')
         .then((response) => response.json())
         .then((data) => {
-          console.log('✅ Simpleton PWA: Pricing data updated in background');
+          console.log('â Simpleton PWA: Pricing data updated in background');
         })
         .catch((error) => {
-          console.log('⚠️ Simpleton PWA: Background sync failed:', error);
+          console.log('â ï¸ Simpleton PWA: Background sync failed:', error);
         })
     );
   }
@@ -179,7 +183,7 @@ self.addEventListener('sync', (event) => {
 
 // Push notifications (for future features)
 self.addEventListener('push', (event) => {
-  console.log('✅ Simpleton PWA: Push notification received');
+  console.log('â Simpleton PWA: Push notification received');
   
   const options = {
     body: event.data ? event.data.text() : 'Simpleton has new updates!',
@@ -211,7 +215,7 @@ self.addEventListener('push', (event) => {
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
-  console.log('✅ Simpleton PWA: Notification clicked');
+  console.log('â Simpleton PWA: Notification clicked');
   
   event.notification.close();
   
