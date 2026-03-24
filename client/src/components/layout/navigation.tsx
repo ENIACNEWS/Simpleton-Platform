@@ -108,7 +108,7 @@ export function Navigation(
                 <div className="flex items-center space-x-2">
                   <SimpletonLogo className="w-8 h-8" />
                   <span className="sv-brand text-xl">
-                    <span className="simpleton-brand">Simpleton</span>™
+                    <span className="simpleton-brand">Simpleton</span>â¢
                   </span>
                 </div>
                 <span className="sv-caps ml-10" style={{ color: 'var(--primary)' }}>
@@ -303,7 +303,7 @@ export function Navigation(
                     ${prices.silver.toFixed(2)}
                   </span>
                 </div>
-                <span className="text-xs text-white/60 ml-2" title={`Updates every 5 seconds`}>●LIVE</span>
+                <span className="text-xs text-white/60 ml-2" title={`Updates every 5 seconds`}>âLIVE</span>
               </div>
             )}
 
@@ -428,14 +428,15 @@ export function Navigation(
                 </DropdownMenu>
               )}
 
-              {/* Simpleton Mode - visible on mobile */}
+              {/* Simpleton Mode - icon on small mobile, text on medium */}
               <Link
                 href="/simpleton-mode"
-                className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95"
+                className="lg:hidden flex items-center justify-center w-9 h-9 sm:w-auto sm:h-auto sm:gap-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-semibold transition-all active:scale-95"
                 style={{ background: 'var(--primary)', color: 'var(--background)' }}
+                title="Simpleton Mode"
               >
-                <Zap className="w-3.5 h-3.5" />
-                <span><span className="simpleton-brand">Simpleton</span> Mode</span>
+                <Zap className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                <span className="hidden sm:inline"><span className="simpleton-brand">Simpleton</span> Mode</span>
               </Link>
 
               {/* Menu Button */}
@@ -488,7 +489,7 @@ export function Navigation(
                       <SimpletonLogo className="w-8 h-8" />
                       <div>
                         <h3 className="text-base font-semibold tracking-wide" style={{ color: 'var(--foreground)' }}>
-                          <span className="simpleton-brand">Simpleton</span>™
+                          <span className="simpleton-brand">Simpleton</span>â¢
                         </h3>
                         <p className="text-[10px] font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--muted-foreground)' }}>
                           Precision Pricing, Simplified
@@ -796,7 +797,7 @@ export function Navigation(
                         </Link>
                       </div>
                       <p className="text-center text-[10px] tracking-wider" style={{ color: 'var(--muted-foreground)', opacity: 0.6 }}>
-                        <span className="simpleton-brand">Simpleton</span> Vision™ {new Date().getFullYear()}
+                        <span className="simpleton-brand">Simpleton</span> Visionâ¢ {new Date().getFullYear()}
                       </p>
                     </div>
 
