@@ -143,7 +143,8 @@ export function WelcomeNotification() {
     };
   }, [unlockAndPlay]);
 
-  if (phase === "idle" || phase === "done") return null;
+  // Visual banner disabled — sound-only mode
+  return null;
 
   return (
     <>
