@@ -5,7 +5,7 @@ nixPkgs = ["nodejs_20", "npm-9_x"]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["rm -rf node_modules/.cache && npm run build"]
+cmds = ["rm -rf node_modules/.cache && npm run build && npx drizzle-kit push --force"]
 
 [start]
 cmd = "npm run start"
