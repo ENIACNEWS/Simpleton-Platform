@@ -15,7 +15,6 @@ export function log(message: string, source = "express") {
     second: "2-digit",
     hour12: true,
   });
-
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
@@ -76,6 +75,23 @@ export function serveStatic(app: Express) {
     );
   }
 
+  // Serve sw.js with no-cache headers so browsers always get the latest service worker
+  app.get("/sw.js", (_req, res) => {
+    const swPath = path.resolve(distPath, "sw.js");
+    if (fs.existsSync(swPath)) {
+      res.set({
+        "Content-Type": "application/javascript",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache",
+        "Expires": "0",
+        "Service-Worker-Allowed": "/"
+      });
+      res.sendFile(swPath);
+    } else {
+      res.status(404).send("Service worker not found");
+    }
+  });
+
   app.use(express.static(distPath, { index: false }))
 
   // fall through to index.html if the file doesn't exist
@@ -86,10 +102,13 @@ export function serveStatic(app: Express) {
       "Pragma": "no-cache",
       "Expires": "0"
     });
+
     // Read HTML and inject auto-update version check script
     const htmlPath = path.resolve(distPath, "index.html");
     let html = fs.readFileSync(htmlPath, "utf-8");
+
     const buildId = html.match(/\/assets\/index-([\w]+)\.js/)?.[1] || Date.now().toString();
+
     const versionScript = `<script>
 (function(){
   var bid = "${buildId}";
@@ -111,7 +130,9 @@ export function serveStatic(app: Express) {
   }, 300000);
 })();
 </script>`;
+
     html = html.replace("</head>", versionScript + "</head>");
+
     res.status(200).set({ "Content-Type": "text/html" }).end(html);
   });
 }
