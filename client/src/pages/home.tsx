@@ -324,7 +324,7 @@ export default function Home() {
             Meet <span className="bg-gradient-to-r from-rose-400 to-pink-400 bg-clip-text text-transparent">Simplicity</span>
           </h2>
           <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>
-            Your personal AI market analyst. She handles real-time market intelligence, professional appraisals, price analysis, and even manages your inbox through the <span className="font-medium" style={{ color: 'var(--foreground)' }}>Email Command Center</span> — all with institutional-grade accuracy and full source transparency.
+            Your personal AI market analyst — delivering real-time precious metals pricing, professional diamond appraisals, Rolex valuations, and coin market intelligence with institutional-grade accuracy and full source transparency.
           </p>
 
           <button
