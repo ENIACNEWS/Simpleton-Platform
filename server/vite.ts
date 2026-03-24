@@ -107,7 +107,8 @@ export function serveStatic(app: Express) {
     const htmlPath = path.resolve(distPath, "index.html");
     let html = fs.readFileSync(htmlPath, "utf-8");
 
-    const buildId = html.match(/\/assets\/index-([\w]+)\.js/)?.[1] || Date.now().toString();
+    // Match Vite asset hash - use [\w-]+ to handle hyphens in hash (e.g. index-BwB-AK9m.js)
+    const buildId = html.match(/\/assets\/index-([\w-]+)\.js/)?.[1] || "static";
 
     const versionScript = `<script>
 (function(){
@@ -124,7 +125,7 @@ export function serveStatic(app: Express) {
     fetch(location.href, {cache:"no-store",headers:{"Accept":"text/html"}})
       .then(function(r){return r.text()})
       .then(function(t){
-        var m = t.match(/\\/assets\\/index-([\\w]+)\\.js/);
+        var m = t.match(/\\/assets\\/index-([\\w-]+)\\.js/);
         if(m && m[1] !== bid) location.reload();
       }).catch(function(){});
   }, 300000);
