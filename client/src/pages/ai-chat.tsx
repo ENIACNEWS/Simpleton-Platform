@@ -1096,7 +1096,7 @@ export default function AIChat() {
                                     }
                                     className="opacity-30 hover:opacity-70 transition-opacity"
                                     title="Copy response"
-                                >
+                                  >
                                     {copiedId === msg.id ? (
                                       <Check className="w-3 h-3" />
                                     ) : (
@@ -1110,96 +1110,75 @@ export default function AIChat() {
                                   >
                                     <Printer className="w-3 h-3" />
                                   </button>
-                       />
-                        </div>
-                        <span className="text-xs opacity-40 ml-1">
-                          Thinking...
-                        </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          {msg.role === "user" && (
+                            <div
+                              className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1"
+                              style={{
+                                backgroundColor:
+                                  "color-mix(in srgb, var(--primary) 25%, var(--card))",
+                                border:
+                                  "1px solid color-mix(in srgb, var(--primary) 40%, transparent)",
+                              }}
+                            >
+                              <User
+                                className="w-4 h-4"
+                                style={{ color: "var(--primary)" }}
+                              />
+                            </div>
+                          )}
+                        </motion.div>
                       </div>
+                    );
+                  })}
+                </AnimatePresence>
+
+                {isTyping && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex gap-3"
+                  >
+                    <div className="w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden">
+                      <img
+                        src="/simpleton-logo.jpeg"
+                        alt="Simplicity"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                  </motion.div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            )}
-          </div>
-
-          {/* Image Preview Bar */}
-          {imagePreview && (
-            <div
-              className="flex items-center gap-3 mb-2 p-2 rounded-xl border"
-              style={{
-                backgroundColor:
-                  "color-mix(in srgb, var(--primary) 8%, var(--card))",
-                borderColor:
-                  "color-mix(in srgb, var(--primary) 30%, transparent)",
-              }}
-            >
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="h-14 w-14 object-cover rounded-lg"
-              />
-              <div className="flex-1">
-                <p className="text-xs font-medium" style={{ color: "var(--primary)" }}>
-                  <Camera className="w-3 h-3 inline mr-1" />
-                  Image ready for analysis
-                </p>
-                <p className="text-[10px] opacity-50">
-                  {selectedImage?.name}
-                </p>
-              </div>
-              <button
-                onClick={clearImage}
-                className="p-1.5 rounded-lg hover:opacity-80 transition-opacity"
-                style={{
-                  backgroundColor:
-                    "color-mix(in srgb, var(--destructive, #ef4444) 15%, transparent)",
-                }}
-              >
-                <X className="w-4 h-4 opacity-60" />
-              </button>
-            </div>
-          )}
-
-          {/* Input Area */}
-          <div className="flex gap-2 items-end">
-            {/* Hidden file input */}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageSelect}
-              className="hidden"
-            />
-
-            {/* Image upload button */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              className="h-11 w-11 rounded-xl flex-shrink-0"
-              style={{
-                borderColor: imagePreview
-                  ? "var(--primary)"
-                  : "var(--border)",
-                backgroundColor: imagePreview
-                  ? "color-mix(in srgb, var(--primary) 15%, var(--card))"
-                  : undefined,
-              }}
-              title="Upload image for analysis"
-            >
-              <Camera
-                className="w-4 h-4"
-                style={{
-                  color: imagePreview
-                    ? "var(--primary)"
-                    : "var(--muted-foreground)",
-                }}
-              />
-            </Button>
-
-                       />
+                    <div
+                      className="rounded-2xl px-4 py-3 border"
+                      style={{
+                        backgroundColor: "var(--background)",
+                        borderColor: "var(--border)",
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1.5">
+                          <span
+                            className="w-2 h-2 rounded-full animate-bounce"
+                            style={{
+                              backgroundColor: "var(--primary)",
+                              animationDelay: "0ms",
+                            }}
+                          />
+                          <span
+                            className="w-2 h-2 rounded-full animate-bounce"
+                            style={{
+                              backgroundColor: "var(--primary)",
+                              animationDelay: "150ms",
+                            }}
+                          />
+                          <span
+                            className="w-2 h-2 rounded-full animate-bounce"
+                            style={{
+                              backgroundColor: "var(--primary)",
+                              animationDelay: "300ms",
+                            }}
+                          />
                         </div>
                         <span className="text-xs opacity-40 ml-1">
                           Thinking...
@@ -1325,7 +1304,7 @@ export default function AIChat() {
 
           <div className="text-center mt-2 mb-2">
             <p className="text-xs opacity-30">
-              Simplicity Â· Responses may not be 100% accurate
+              Simplicity · Responses may not be 100% accurate
             </p>
           </div>
         </div>
