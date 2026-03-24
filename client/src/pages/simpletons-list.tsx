@@ -751,7 +751,7 @@ export default function SimpletonsListPage() {
                   </div>
                 ) : (
                   <>
-                    <Locate className="w-4 h-4 mr-1.5" />
+                    <Navigation2 className="w-4 h-4 mr-1.5" />
                     <span className="hidden sm:inline">{locationDetected ? "Located" : "Near Me"}</span>
                   </>
                 )}
