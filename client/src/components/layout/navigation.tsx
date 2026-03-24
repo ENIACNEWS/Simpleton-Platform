@@ -108,7 +108,7 @@ export function Navigation(
                 <div className="flex items-center space-x-2">
                   <SimpletonLogo className="w-8 h-8" />
                   <span className="sv-brand text-xl">
-                    <span className="simpleton-brand">Simpleton</span>â¢
+                    <span className="simpleton-brand">Simpleton</span>™
                   </span>
                 </div>
                 <span className="sv-caps ml-10" style={{ color: 'var(--primary)' }}>
@@ -489,7 +489,7 @@ export function Navigation(
                       <SimpletonLogo className="w-8 h-8" />
                       <div>
                         <h3 className="text-base font-semibold tracking-wide" style={{ color: 'var(--foreground)' }}>
-                          <span className="simpleton-brand">Simpleton</span>â¢
+                          <span className="simpleton-brand">Simpleton</span>™
                         </h3>
                         <p className="text-[10px] font-medium uppercase tracking-[0.2em]" style={{ color: 'var(--muted-foreground)' }}>
                           Precision Pricing, Simplified
@@ -797,7 +797,7 @@ export function Navigation(
                         </Link>
                       </div>
                       <p className="text-center text-[10px] tracking-wider" style={{ color: 'var(--muted-foreground)', opacity: 0.6 }}>
-                        <span className="simpleton-brand">Simpleton</span> Visionâ¢ {new Date().getFullYear()}
+                        <span className="simpleton-brand">Simpleton</span> Vision™ {new Date().getFullYear()}
                       </p>
                     </div>
 
