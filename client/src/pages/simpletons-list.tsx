@@ -561,8 +561,50 @@ export default function SimpletonsListPage() {
   const [sortOrder, setSortOrder] = useState<string>("highest");
   const [selectedBusinessId, setSelectedBusinessId] = useState<number | null>(null);
   const [showSearchPanel, setShowSearchPanel] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationDetected, setLocationDetected] = useState(false);
   const [onlineSearchQuery, setOnlineSearchQuery] = useState("");
   const [onlineResults, setOnlineResults] = useState<any[]>([]);
+
+  const detectLocation = async () => {
+    if (!navigator.geolocation) {
+      toast({ title: "Geolocation not supported", description: "Your browser does not support location detection.", variant: "destructive" });
+      return;
+    }
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const geoRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+          const geoData = await geoRes.json();
+          const city = geoData.city || geoData.locality || "";
+          const state = geoData.principalSubdivisionCode?.replace("US-", "") || "";
+          if (city) setSearchCity(city);
+          if (state) setSearchState(state);
+          setSearchZip("");
+          setLocationDetected(true);
+          setLocationLoading(false);
+          toast({ title: "Location detected", description: `Showing pawn shops near ${city}${state ? ", " + state : ""}` });
+          setTimeout(() => {
+            queryClient.invalidateQueries({ predicate: (query) => String(query.queryKey[0]).startsWith("/api/simpletons-list") });
+          }, 100);
+        } catch (err) {
+          setLocationLoading(false);
+          toast({ title: "Location error", description: "Could not determine your city. Please search manually.", variant: "destructive" });
+        }
+      },
+      (error) => {
+        setLocationLoading(false);
+        let msg = "Could not detect your location.";
+        if (error.code === 1) msg = "Location access denied. Please allow location in your browser settings.";
+        else if (error.code === 2) msg = "Location unavailable. Please try again or search manually.";
+        else if (error.code === 3) msg = "Location request timed out. Please try again.";
+        toast({ title: "Location error", description: msg, variant: "destructive" });
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    );
+  };
 
   const searchParams = new URLSearchParams();
   if (searchCity) searchParams.set("city", searchCity);
@@ -673,7 +715,7 @@ export default function SimpletonsListPage() {
 
         <Card className="bg-slate-900/40 border-slate-700/50 mb-8">
           <CardContent className="p-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 mb-3">
               <Input
                 placeholder="City"
                 value={searchCity}
@@ -694,6 +736,26 @@ export default function SimpletonsListPage() {
                 className="bg-slate-800/50 border-slate-600 text-white"
                 maxLength={5}
               />
+              <Button
+                onClick={detectLocation}
+                disabled={locationLoading}
+                variant="outline"
+                className={locationDetected 
+                  ? "border-green-500/50 text-green-400 hover:bg-green-500/10 hover:text-green-300" 
+                  : "border-amber-500/40 text-amber-400 hover:bg-amber-500/10 hover:text-amber-300"}
+              >
+                {locationLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+                    <span className="hidden sm:inline">Locating...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Locate className="w-4 h-4 mr-1.5" />
+                    <span className="hidden sm:inline">{locationDetected ? "Located" : "Near Me"}</span>
+                  </>
+                )}
+              </Button>
               <Select value={filterCategory} onValueChange={setFilterCategory}>
                 <SelectTrigger className="bg-slate-800/50 border-slate-600 text-white">
                   <SelectValue placeholder="All Categories" />
