@@ -18,6 +18,8 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        maven: "bg-gradient-to-br from-maven-blue to-maven-blue-hover text-white font-semibold hover:shadow-maven-btn hover:-translate-y-0.5 transition-all duration-300",
+        "maven-secondary": "bg-white/5 border border-maven-border text-maven-text-secondary hover:bg-maven-blue/10 hover:border-maven-blue/30 hover:text-maven-text-primary transition-all duration-300",
       },
       size: {
         default: "h-10 px-4 py-2",

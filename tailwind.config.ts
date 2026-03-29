@@ -7,8 +7,9 @@ export default {
     extend: {
       fontFamily: {
         sans:    ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'Inter', 'system-ui', 'sans-serif'],
         mono:    ['"JetBrains Mono"', '"Courier New"', 'monospace'],
+        brand:   ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -16,6 +17,16 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       colors: {
+        maven: {
+          blue: '#4A7BC7',
+          'blue-hover': '#3a6ab5',
+          navy: '#0A1D3F',
+          'bg-primary': '#0A0A0F',
+          'bg-secondary': '#111118',
+          border: '#1E1E2A',
+          'text-primary': '#E8E8ED',
+          'text-secondary': '#8888A0',
+        },
         background: "var(--background)",
         foreground: "var(--foreground)",
         card: {
@@ -67,6 +78,12 @@ export default {
           ring: "var(--sidebar-ring)",
         },
       },
+      boxShadow: {
+        'maven': '0 20px 50px rgba(74, 123, 199, 0.1)',
+        'maven-lg': '0 12px 30px rgba(74, 123, 199, 0.4)',
+        'maven-btn': '0 8px 20px rgba(74, 123, 199, 0.3)',
+        'maven-input': '0 0 20px rgba(74, 123, 199, 0.2)',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -76,11 +93,20 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "maven-float": {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '33%': { transform: 'translate(30px, -30px)' },
+          '66%': { transform: 'translate(-20px, 20px)' },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-
+        "maven-float": "maven-float 20s ease-in-out infinite",
+      },
+      transitionTimingFunction: {
+        'maven-menu': 'cubic-bezier(0.16, 1, 0.3, 1)',
+        'maven-bounce': 'cubic-bezier(0.68, -0.55, 0.27, 1.55)',
       },
     },
   },

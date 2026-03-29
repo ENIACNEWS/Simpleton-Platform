@@ -175,15 +175,15 @@ export default function Home() {
       <Navigation onAIToggle={() => setIsAIOpen(true)} />
 
       {/* ═══════════════════════ HERO SECTION ═══════════════════════ */}
-      <section className="flex-1 text-center pt-20 sm:pt-28 md:pt-36 pb-8 sm:pb-12 px-4 sm:px-6 relative overflow-hidden">
+      <section className="maven-hero-bg flex-1 text-center pt-20 sm:pt-28 md:pt-36 pb-8 sm:pb-12 px-4 sm:px-6 relative overflow-hidden">
 
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-amber-500/[0.03] rounded-full blur-3xl"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/[0.03] rounded-full blur-3xl"></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-maven-blue/[0.05] rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-maven-navy/[0.08] rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative z-10">
-          <h1 className="sv-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-3 sm:mb-4 tracking-tight">
+          <h1 className="sv-heading font-display font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-3 sm:mb-4 tracking-tight">
             <span className="simpleton-brand">Simpleton</span>™
           </h1>
 
@@ -251,11 +251,10 @@ export default function Home() {
                     className="group snap-center flex-shrink-0 w-[82%] sm:w-[55%] md:w-[45%]"
                   >
                     <div
-                      className={`relative p-4 sm:p-5 rounded-xl border transition-all duration-500 ${index === activeCard ? 'scale-100 opacity-100' : 'scale-[0.97] opacity-60'}`}
+                      className={`relative p-4 sm:p-5 rounded-xl border maven-card-hover maven-accent-bar maven-blur transition-all duration-500 ${index === activeCard ? 'scale-100 opacity-100' : 'scale-[0.97] opacity-60'}`}
                       style={{
                         background: 'rgba(255,255,255,0.02)',
                         borderColor: index === activeCard ? feature.borderColor : 'rgba(255,255,255,0.04)',
-                        backdropFilter: 'blur(8px)',
                       }}
                     >
                       <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${feature.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
@@ -267,7 +266,7 @@ export default function Home() {
                         >
                           <Icon className="w-5 h-5" />
                         </div>
-                        <h3 className="font-semibold text-sm mb-1.5" style={{ color: 'var(--foreground)' }}>
+                        <h3 className="font-display font-semibold text-sm mb-1.5" style={{ color: 'var(--foreground)' }}>
                           {renderTitle(feature.title)}
                         </h3>
                         <p className="text-xs leading-relaxed mb-2.5" style={{ color: 'var(--muted-foreground)' }}>
@@ -320,7 +319,7 @@ export default function Home() {
             AI-Powered Intelligence
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 tracking-tight" style={{ color: 'var(--foreground)' }}>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-4 tracking-tight" style={{ color: 'var(--foreground)' }}>
             Meet <span className="bg-gradient-to-r from-rose-400 to-pink-400 bg-clip-text text-transparent">Simplicity</span>
           </h2>
           <p className="text-base sm:text-lg max-w-2xl mx-auto mb-8 leading-relaxed" style={{ color: 'var(--muted-foreground)' }}>

@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ══════════════════════════════════════════
+   MAVEN DESIGN SYSTEM TOKENS
+   Source: SimpliFaxs.com Maven UI
+   ══════════════════════════════════════════ */
+
+:root {
+  --maven-brand-blue: #4A7BC7;
+  --maven-brand-blue-hover: #3a6ab5;
+  --maven-navy: #0A1D3F;
+  --maven-bg-primary: #0A0A0F;
+  --maven-bg-secondary: #111118;
+  --maven-border: #1E1E2A;
+  --maven-border-hover: rgba(74, 123, 199, 0.3);
+  --maven-border-subtle: rgba(74, 123, 199, 0.08);
+  --maven-text-primary: #E8E8ED;
+  --maven-text-secondary: #8888A0;
+  --maven-shadow-card: 0 20px 50px rgba(74, 123, 199, 0.1);
+  --maven-shadow-button: 0 8px 20px rgba(74, 123, 199, 0.3);
+  --maven-shadow-button-lg: 0 12px 30px rgba(74, 123, 199, 0.4);
+  --maven-shadow-input-focus: 0 0 20px rgba(74, 123, 199, 0.2);
+  --maven-gradient-primary: linear-gradient(135deg, #4A7BC7, #3a6ab5);
+  --maven-gradient-navy: linear-gradient(90deg, #4A7BC7, #0A1D3F);
+  --maven-gradient-hero: linear-gradient(135deg, rgba(10, 29, 63, 0.1), rgba(74, 123, 199, 0.05));
+  --maven-radius-input: 6px;
+  --maven-radius-card: 12px;
+  --maven-blur: 10px;
+  --maven-transition: all 0.3s ease;
+}
+
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -19,12 +48,12 @@
 
 /* ── SIMPLETON VISION™ TYPOGRAPHY SYSTEM ───────────────────────────────────
  *
- *  Display / Headings  → Poppins    (warm, premium, brand authority)
- *  Body / UI           → Inter      (clean, readable, professional)
- *  Numbers / Prices    → JetBrains Mono  (crisp financial data)
+ *  Display / Headings  → Space Grotesk  (Maven design system)
+ *  Body / UI           → Inter          (clean, readable, professional)
+ *  Numbers / Prices    → JetBrains Mono (crisp financial data)
  *
  *  Tailwind tokens:
- *    font-display  → Poppins
+ *    font-display  → Space Grotesk
  *    font-sans     → Inter  (default for all body text)
  *    font-mono     → JetBrains Mono
  * ─────────────────────────────────────────────────────────────────────────── */
@@ -47,9 +76,9 @@ body {
   color: var(--foreground);
 }
 
-/* Poppins for all heading levels — applied globally */
+/* Space Grotesk for all heading levels — Maven design system */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Poppins', 'Inter', system-ui, sans-serif;
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.01em;
@@ -67,7 +96,7 @@ code, pre, kbd, samp {
 
 /* Hero / page titles */
 .sv-heading {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -75,7 +104,7 @@ code, pre, kbd, samp {
 
 /* Section headings */
 .sv-subheading {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 600;
   letter-spacing: -0.01em;
   line-height: 1.3;
@@ -114,7 +143,7 @@ code, pre, kbd, samp {
 
 /* Brand name — Simpleton Vision™ wordmark */
 .sv-brand {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -130,7 +159,7 @@ code, pre, kbd, samp {
 
 /* font-heading alias — matches legacy usage in some components */
 .font-heading {
-  font-family: 'Poppins', 'Inter', sans-serif;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 600;
 }
 
@@ -427,13 +456,14 @@ h1:not(.simplicity-assistant *), h2:not(.simplicity-assistant *), h3:not(.simpli
 }
 
 .simpleton-blue {
-  --background: #2E5090;
-  --foreground: #FFFFFF;
-  --card: rgba(30, 58, 130, 0.60);
-  --primary: #F5A623;
-  --secondary: #1E3A70;
-  --accent: #F97316;
-  --border: #F5A623;
+  --background: #0A0A0F;
+  --foreground: #E8E8ED;
+  --card: #111118;
+  --primary: #4A7BC7;
+  --secondary: #0A1D3F;
+  --accent: #4A7BC7;
+  --border: #1E1E2A;
+  --muted-foreground: #8888A0;
 }
 
 .electric-void {
@@ -607,6 +637,115 @@ h1:not(.simplicity-assistant *), h2:not(.simplicity-assistant *), h3:not(.simpli
   background-color: color-mix(in srgb, var(--background, #111) 96%, transparent) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* ══════════════════════════════════════════
+   MAVEN UTILITY CLASSES
+   ══════════════════════════════════════════ */
+
+/* Backdrop blur for cards and overlays */
+.maven-blur {
+  backdrop-filter: blur(var(--maven-blur));
+  -webkit-backdrop-filter: blur(var(--maven-blur));
+}
+
+/* Card hover effect */
+.maven-card-hover {
+  transition: var(--maven-transition);
+}
+.maven-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--maven-shadow-card);
+  border-color: var(--maven-border-hover);
+}
+
+/* Button gradient */
+.maven-btn-primary {
+  background: var(--maven-gradient-primary);
+  color: white;
+  font-weight: 600;
+  border-radius: var(--maven-radius-input);
+  transition: var(--maven-transition);
+}
+.maven-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--maven-shadow-button);
+}
+
+/* Secondary button */
+.maven-btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--maven-border);
+  color: var(--maven-text-secondary);
+  border-radius: 8px;
+  transition: var(--maven-transition);
+}
+.maven-btn-secondary:hover {
+  background: rgba(74, 123, 199, 0.1);
+  border-color: var(--maven-border-hover);
+  color: var(--maven-text-primary);
+}
+
+/* Input focus glow */
+.maven-input-focus:focus {
+  border-color: var(--maven-brand-blue);
+  box-shadow: var(--maven-shadow-input-focus);
+  outline: none;
+}
+
+/* Accent bar on top of cards */
+.maven-accent-bar {
+  position: relative;
+}
+.maven-accent-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--maven-gradient-navy);
+  border-radius: var(--maven-radius-card) var(--maven-radius-card) 0 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.maven-accent-bar:hover::before {
+  opacity: 1;
+}
+
+/* Hero floating orbs background */
+.maven-hero-bg {
+  position: relative;
+  background: var(--maven-gradient-hero);
+}
+.maven-hero-bg::before,
+.maven-hero-bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.maven-hero-bg::before {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(74, 123, 199, 0.08) 0%, transparent 70%);
+  top: -200px;
+  right: -100px;
+  animation: maven-float 20s ease-in-out infinite;
+}
+.maven-hero-bg::after {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(10, 29, 63, 0.15) 0%, transparent 70%);
+  bottom: -100px;
+  left: -100px;
+  animation: maven-float 15s ease-in-out infinite reverse;
+}
+
+@keyframes maven-float {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(30px, -30px); }
+  66% { transform: translate(-20px, 20px); }
 }
 
 /* SIMPLETON PROFESSIONAL PRINT STYLES */

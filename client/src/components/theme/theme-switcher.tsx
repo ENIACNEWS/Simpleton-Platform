@@ -19,8 +19,8 @@ import {
 
 const themeCategories = {
   'Brand': [
-    { value: 'navy-bronze', label: 'Simpleton Blue', icon: Palette, color: '#1A3F6A' },
-    { value: 'simpleton-blue', label: 'Simpleton Blue Classic', icon: Palette, color: '#2E5090' },
+    { value: 'simpleton-blue', label: 'Simpleton Maven', icon: Palette, color: '#4A7BC7' },
+    { value: 'navy-bronze', label: 'Simpleton Blue Classic', icon: Palette, color: '#1A3F6A' },
   ],
   'Signature': [
     { value: 'midnight-pulse', label: 'Midnight Pulse', icon: Palette, color: '#010137' },

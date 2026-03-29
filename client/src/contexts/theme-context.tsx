@@ -188,8 +188,8 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const savedTheme = localStorage.getItem('simpleton-theme');
-    // Migrate old defaults to current brand default
-    if (!savedTheme || savedTheme === 'deep-navy' || savedTheme === 'simpleton-blue') return 'navy-bronze';
+    // Migrate old defaults to Maven brand default
+    if (!savedTheme || savedTheme === 'deep-navy' || savedTheme === 'navy-bronze') return 'simpleton-blue';
     return savedTheme as ThemeMode;
   });
 
@@ -208,7 +208,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     root.classList.add(theme);
     body.classList.add(theme);
     
-    root.style.setProperty('--simpleton-brand', theme === 'simpleton-blue' ? '#FFFFFF' : '#2E5090');
+    root.style.setProperty('--simpleton-brand', theme === 'simpleton-blue' ? '#4A7BC7' : '#2E5090');
 
     switch (theme) {
       case 'light':
@@ -278,12 +278,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         root.style.setProperty('--border', '#CD7F32');
         break;
       case 'simpleton-blue':
-        root.style.setProperty('--background', '#2E5090');
-        root.style.setProperty('--foreground', '#FFFFFF');
-        root.style.setProperty('--primary', '#F5A623');
-        root.style.setProperty('--card', 'rgba(30, 58, 130, 0.60)');
-        root.style.setProperty('--accent', '#F97316');
-        root.style.setProperty('--border', '#F5A623');
+        root.style.setProperty('--background', '#0A0A0F');
+        root.style.setProperty('--foreground', '#E8E8ED');
+        root.style.setProperty('--primary', '#4A7BC7');
+        root.style.setProperty('--card', '#111118');
+        root.style.setProperty('--secondary', '#0A1D3F');
+        root.style.setProperty('--accent', '#4A7BC7');
+        root.style.setProperty('--border', '#1E1E2A');
+        root.style.setProperty('--muted-foreground', '#8888A0');
         break;
       case 'deep-navy':
         root.style.setProperty('--background', '#0B1F3B');

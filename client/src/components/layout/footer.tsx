@@ -27,7 +27,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
               <div className="flex items-center space-x-3">
                 <SimpletonLogo size="sm" />
                 <div className="text-center sm:text-left">
-                  <h3 className="sv-brand text-sm"><span className="simpleton-brand">Simpleton</span>™</h3>
+                  <h3 className="sv-brand font-display font-bold text-sm"><span className="simpleton-brand">Simpleton</span>™</h3>
                   <p className="sv-caps text-yellow-400 -mt-1">Precision, Pricing, Simplified</p>
                 </div>
               </div>
@@ -42,12 +42,12 @@ export function Footer({ variant = 'default' }: FooterProps) {
   }
 
   return (
-    <footer className="footer relative" style={{ backgroundColor: 'var(--background)' }}>
+    <footer className="footer relative bg-maven-bg-secondary border-t border-maven-border">
       {/* Real Data Ticker - Show on larger screens */}
       <div className="sticky top-0 z-40 hidden md:block">
         <DataTicker />
       </div>
-      
+
       <div className="py-2 md:py-3">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8">
           {/* Ultra-minimal mobile layout: Just logo + horizontal navigation */}
@@ -55,7 +55,7 @@ export function Footer({ variant = 'default' }: FooterProps) {
             {/* Mobile Header - Just logo and name */}
             <div className="flex items-center justify-center space-x-2 mb-1">
               <SimpletonLogo size="sm" />
-              <h3 className="sv-brand text-sm"><span className="simpleton-brand">Simpleton</span>™</h3>
+              <h3 className="sv-brand font-display font-bold text-sm"><span className="simpleton-brand">Simpleton</span>™</h3>
             </div>
             
             {/* Mobile Navigation - Single horizontal row */}
@@ -79,18 +79,18 @@ export function Footer({ variant = 'default' }: FooterProps) {
             <div className="flex items-center space-x-2">
               <SimpletonLogo size="sm" />
               <div>
-                <h3 className="sv-brand text-sm"><span className="simpleton-brand">Simpleton</span>™</h3>
+                <h3 className="sv-brand font-display font-bold text-sm"><span className="simpleton-brand">Simpleton</span>™</h3>
                 <p className="sv-caps text-yellow-400 -mt-1">Precision, Pricing, Simplified</p>
               </div>
             </div>
 
             {/* Quick Links */}
             <div className="flex items-center space-x-4">
-              <Link href="/database" className="text-yellow-400 hover:text-gold transition-colors">Coins</Link>
-              <Link href="/diamonds" className="text-yellow-400 hover:text-gold transition-colors">Diamonds</Link>
-              <Link href="/watches" className="text-yellow-400 hover:text-gold transition-colors">Watches</Link>
-              <Link href="/about" className="text-yellow-400 hover:text-gold transition-colors">About</Link>
-              <Link href="/terms-of-service" className="text-yellow-400 hover:text-gold transition-colors">Terms</Link>
+              <Link href="/database" className="text-maven-text-secondary hover:text-maven-blue transition-colors">Coins</Link>
+              <Link href="/diamonds" className="text-maven-text-secondary hover:text-maven-blue transition-colors">Diamonds</Link>
+              <Link href="/watches" className="text-maven-text-secondary hover:text-maven-blue transition-colors">Watches</Link>
+              <Link href="/about" className="text-maven-text-secondary hover:text-maven-blue transition-colors">About</Link>
+              <Link href="/terms-of-service" className="text-maven-text-secondary hover:text-maven-blue transition-colors">Terms</Link>
             </div>
 
             {/* Copyright & Status */}

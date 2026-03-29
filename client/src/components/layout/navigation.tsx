@@ -99,7 +99,7 @@ export function Navigation(
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-[100] navigation" style={{ backgroundColor: 'var(--background)', backdropFilter: 'blur(8px)', opacity: '0.95' }}>
+      <nav className="fixed top-0 w-full z-[100] navigation border-b border-maven-border" style={{ backgroundColor: 'var(--background)', backdropFilter: 'blur(10px)', opacity: '0.95' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -107,7 +107,7 @@ export function Navigation(
               <Link href="/" className="flex flex-col items-start">
                 <div className="flex items-center space-x-2">
                   <SimpletonLogo className="w-8 h-8" />
-                  <span className="sv-brand text-xl">
+                  <span className="sv-brand font-display font-bold text-xl">
                     <span className="simpleton-brand">Simpleton</span>™
                   </span>
                 </div>
@@ -461,7 +461,7 @@ export function Navigation(
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-[8px]"
               onClick={() => setIsMenuOpen(false)}
               aria-hidden="true"
             />
@@ -471,7 +471,7 @@ export function Navigation(
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 40 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed inset-0 sm:inset-auto sm:top-0 sm:right-0 sm:bottom-0 sm:w-[85vw] sm:max-w-[420px] z-[201]"
+              className="fixed inset-0 sm:inset-auto sm:top-0 sm:right-0 sm:bottom-0 w-[420px] max-w-[85vw] z-[201]"
               >
                 <div className="relative h-full shadow-2xl overflow-y-auto" style={{ background: 'var(--background)', borderLeft: '1px solid var(--primary)' }}>
                   <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 30% 20%, var(--primary) 0%, transparent 50%), radial-gradient(circle at 70% 80%, var(--primary) 0%, transparent 50%)' }} />
