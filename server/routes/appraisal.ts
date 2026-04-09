@@ -314,6 +314,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         appraisalDate,
         templateStyle,
         itemSpecs,
+        appraisalReport,
       } = req.body;
 
       if (!customerName || !customerEmail) {
@@ -340,6 +341,35 @@ FORMAT: Write professionally with clear section labels on their own lines follow
 
       const sanitizedSpecs = sanitizeItemSpecs(itemSpecs);
 
+      // Accept structured AI-generated report (condition grade, tiered values,
+      // key factors, sources, etc.) — stored as-is but only after light
+      // shape validation so we don't persist arbitrary client payloads.
+      let sanitizedReport: any = null;
+      if (appraisalReport && typeof appraisalReport === 'object' && !Array.isArray(appraisalReport)) {
+        const r = appraisalReport as Record<string, unknown>;
+        const pickStr = (k: string) => typeof r[k] === 'string' ? String(r[k]).slice(0, 4000) : undefined;
+        const pickNum = (k: string) => typeof r[k] === 'number' && isFinite(r[k] as number) ? (r[k] as number) : undefined;
+        const pickStrArr = (k: string) => Array.isArray(r[k])
+          ? (r[k] as unknown[]).filter(x => typeof x === 'string').slice(0, 10).map(x => String(x).slice(0, 500))
+          : undefined;
+        sanitizedReport = {
+          materialAnalysis: pickStr('materialAnalysis'),
+          conditionGrade: pickStr('conditionGrade'),
+          conditionNotes: pickStr('conditionNotes'),
+          meltValue: pickNum('meltValue'),
+          fairMarketLow: pickNum('fairMarketLow'),
+          fairMarketHigh: pickNum('fairMarketHigh'),
+          retailReplacement: pickNum('retailReplacement'),
+          estateValue: pickNum('estateValue'),
+          liquidationValue: pickNum('liquidationValue'),
+          valuationMath: pickStr('valuationMath'),
+          keyFactors: pickStrArr('keyFactors'),
+          sources: pickStrArr('sources'),
+          recommendations: pickStrArr('recommendations'),
+          certificationAdvice: pickStr('certificationAdvice'),
+        };
+      }
+
       const [saved] = await db.insert(appraisals).values({
         appraisalNumber: appraisalNumber || `S${Date.now()}`,
         shareToken,
@@ -354,6 +384,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         customerCityStateZip: customerCityStateZip || null,
         appraisalDate: appraisalDate || new Date().toISOString().split("T")[0],
         itemSpecs: sanitizedSpecs,
+        appraisalReport: sanitizedReport,
         templateStyle: chosenTemplate,
         zoomRequested: zoomRequested || false,
       }).returning();
@@ -549,6 +580,8 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         certifiedAt: appraisal.certifiedAt,
         templateStyle: appraisal.templateStyle || 'classic',
         itemSpecs: appraisal.itemSpecs || {},
+        appraisalReport: (appraisal as any).appraisalReport || null,
+        shareToken: appraisal.shareToken,
         createdAt: appraisal.createdAt,
       });
     } catch (error: any) {

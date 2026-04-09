@@ -2063,6 +2063,7 @@ export const appraisals = pgTable("appraisals", {
   certifiedAt: timestamp("certified_at"),
   aiAssessment: text("ai_assessment"),
   itemSpecs: jsonb("item_specs").default({}),
+  appraisalReport: jsonb("appraisal_report").default(null),
   templateStyle: text("template_style").default("classic"),
   zoomRequested: boolean("zoom_requested").default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),

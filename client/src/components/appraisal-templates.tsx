@@ -14,6 +14,26 @@ export interface ItemSpecs {
   hallmarks?: string;
 }
 
+// Structured report returned by /api/appraisal/generate-description.
+// Optional on every template — legacy saved appraisals without a report
+// still render exactly as before.
+export interface AppraisalReport {
+  materialAnalysis?: string;
+  conditionGrade?: string;
+  conditionNotes?: string;
+  meltValue?: number;
+  fairMarketLow?: number;
+  fairMarketHigh?: number;
+  retailReplacement?: number;
+  estateValue?: number;
+  liquidationValue?: number;
+  valuationMath?: string;
+  keyFactors?: string[];
+  sources?: string[];
+  recommendations?: string[];
+  certificationAdvice?: string;
+}
+
 interface TemplateProps {
   appraisalNumber: string;
   customerName: string;
@@ -28,6 +48,8 @@ interface TemplateProps {
   certifiedBy?: string | null;
   certifiedAt?: string | null;
   itemSpecs?: ItemSpecs | null;
+  report?: AppraisalReport | null;
+  shareToken?: string | null;
 }
 
 function fmtDate(s: string | null) {
@@ -179,11 +201,202 @@ function SpecsGrid({ specs, style }: { specs?: ItemSpecs | null; style?: 'classi
   );
 }
 
+function money0(n?: number) {
+  if (n == null || isNaN(n) || n <= 0) return null;
+  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+}
+
+function money2(n?: number) {
+  if (n == null || isNaN(n) || n <= 0) return null;
+  return n.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Instappraise-style side-by-side tier table. Renders only the tiers that
+// have non-zero values so incomplete reports degrade gracefully. The Retail
+// Replacement tier is visually emphasized (gold border, larger type) as it
+// is the headline insurance value on every professional appraisal.
+function TieredValueTable({ report, accent = '#c9a84c', dark = '#1a1a1a' }: { report?: AppraisalReport | null; accent?: string; dark?: string }) {
+  if (!report) return null;
+  const fmLow = money0(report.fairMarketLow);
+  const fmHigh = money0(report.fairMarketHigh);
+  const tiers: Array<{ label: string; value: string | null; emphasized?: boolean }> = [
+    { label: 'Retail Replacement', value: money0(report.retailReplacement), emphasized: true },
+    { label: 'Fair Market', value: fmLow && fmHigh ? `${fmLow} – ${fmHigh}` : fmLow },
+    { label: 'Estate', value: money0(report.estateValue) },
+    { label: 'Liquidation', value: money0(report.liquidationValue) },
+    { label: 'Melt / Intrinsic', value: money2(report.meltValue) },
+  ].filter(t => t.value);
+
+  if (tiers.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{
+        fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em',
+        color: accent, marginBottom: 6, textAlign: 'center',
+      }}>
+        Valuation Summary
+      </div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: `repeat(${tiers.length}, 1fr)`,
+        border: `1px solid ${accent}`,
+        borderRadius: 3,
+        overflow: 'hidden',
+        fontFamily: '"Palatino Linotype", Palatino, Georgia, serif',
+      }}>
+        {tiers.map((t, i) => (
+          <div key={i} style={{
+            padding: '10px 8px',
+            textAlign: 'center',
+            borderRight: i < tiers.length - 1 ? `1px solid ${accent}` : 'none',
+            background: t.emphasized ? '#fffef5' : '#fff',
+          }}>
+            <div style={{
+              fontSize: 8.5,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              color: t.emphasized ? accent : '#666',
+              marginBottom: 4,
+            }}>
+              {t.label}
+            </div>
+            <div style={{
+              fontSize: t.emphasized ? 15 : 12.5,
+              fontWeight: 700,
+              color: dark,
+              lineHeight: 1.2,
+            }}>
+              {t.value}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Compact report detail block: material analysis, key factors, recommendations,
+// sources. Rendered below the description so the main narrative leads and the
+// supporting analysis supports. Each section only renders if populated.
+function ReportDetailBlock({ report, accent = '#8a7340', dark = '#1a1a1a' }: { report?: AppraisalReport | null; accent?: string; dark?: string }) {
+  if (!report) return null;
+  const hasAny = report.materialAnalysis || report.conditionGrade || report.valuationMath ||
+    (report.keyFactors && report.keyFactors.length > 0) ||
+    (report.recommendations && report.recommendations.length > 0) ||
+    (report.sources && report.sources.length > 0) ||
+    report.certificationAdvice;
+  if (!hasAny) return null;
+
+  const sectionHeader = {
+    fontSize: 9, fontWeight: 700, textTransform: 'uppercase' as const,
+    letterSpacing: '0.1em', color: accent, marginBottom: 4,
+  };
+  const body = { fontSize: 10.5, lineHeight: 1.6, color: dark, marginBottom: 10 };
+  const list = { margin: '0 0 10px 0', paddingLeft: 16, fontSize: 10.5, lineHeight: 1.6, color: dark };
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      {report.conditionGrade && (
+        <div style={{ display: 'flex', gap: 14, alignItems: 'baseline', marginBottom: 10 }}>
+          <div style={sectionHeader}>Condition</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: dark }}>{report.conditionGrade}</div>
+          {report.conditionNotes && <div style={{ fontSize: 10.5, color: '#555', fontStyle: 'italic', flex: 1 }}>— {report.conditionNotes}</div>}
+        </div>
+      )}
+      {report.materialAnalysis && (
+        <div>
+          <div style={sectionHeader}>Material Analysis</div>
+          <div style={body}>{report.materialAnalysis}</div>
+        </div>
+      )}
+      {report.valuationMath && (
+        <div>
+          <div style={sectionHeader}>Valuation Methodology</div>
+          <div style={body}>{report.valuationMath}</div>
+        </div>
+      )}
+      {Array.isArray(report.keyFactors) && report.keyFactors.length > 0 && (
+        <div>
+          <div style={sectionHeader}>Key Factors Affecting Value</div>
+          <ul style={list}>
+            {report.keyFactors.map((f, i) => <li key={i}>{f}</li>)}
+          </ul>
+        </div>
+      )}
+      {Array.isArray(report.recommendations) && report.recommendations.length > 0 && (
+        <div>
+          <div style={sectionHeader}>Recommendations</div>
+          <ul style={list}>
+            {report.recommendations.map((r, i) => <li key={i}>{r}</li>)}
+          </ul>
+        </div>
+      )}
+      {report.certificationAdvice && (
+        <div>
+          <div style={sectionHeader}>Certification Advice</div>
+          <div style={body}>{report.certificationAdvice}</div>
+        </div>
+      )}
+      {Array.isArray(report.sources) && report.sources.length > 0 && (
+        <div>
+          <div style={sectionHeader}>Data Sources</div>
+          <ul style={{ ...list, fontSize: 9.5, color: '#555' }}>
+            {report.sources.map((s, i) => <li key={i}>{s}</li>)}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// QR code via Google Charts (no new dependency). Encodes the public
+// verification URL for this appraisal's shareToken so anyone scanning the
+// printed document can verify it against the live record.
+function QRVerificationCode({ shareToken, appraisalNumber, size = 68 }: { shareToken?: string | null; appraisalNumber: string; size?: number }) {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://simpletonapp.com';
+  const url = shareToken ? `${origin}/appraisal/${shareToken}` : `${origin}/appraisal-verify?num=${encodeURIComponent(appraisalNumber)}`;
+  const src = `https://api.qrserver.com/v1/create-qr-code/?size=${size * 2}x${size * 2}&data=${encodeURIComponent(url)}&margin=0`;
+  return (
+    <div style={{ textAlign: 'center', fontSize: 7.5, color: '#666', letterSpacing: '0.04em' }}>
+      <img src={src} alt="Verification QR" style={{ width: size, height: size, display: 'block', marginBottom: 3 }} />
+      <div style={{ textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.08em' }}>Scan to Verify</div>
+      <div>Ref {appraisalNumber}</div>
+    </div>
+  );
+}
+
+// Certificate number watermark — a subtle diagonal repeat of the appraisal
+// number across the document body, adding tamper-evidence like GIA's paper.
+function CertificateWatermark({ appraisalNumber }: { appraisalNumber: string }) {
+  const text = `SIMPLETON · CERT ${appraisalNumber} · `;
+  return (
+    <div style={{
+      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+      pointerEvents: 'none', overflow: 'hidden', zIndex: 0, opacity: 0.035,
+      transform: 'rotate(-24deg)', transformOrigin: 'center',
+    }} aria-hidden>
+      <div style={{
+        fontFamily: '"Playfair Display", Georgia, serif',
+        fontSize: 44, fontWeight: 700, letterSpacing: '0.3em',
+        whiteSpace: 'nowrap', lineHeight: 2.5, color: '#1a1a1a',
+        paddingTop: '10%',
+      }}>
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i}>{text.repeat(6)}</div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function ClassicTemplate(p: TemplateProps) {
   const money = fmtMoney(p.retailValue);
   return (
     <div style={{ position: 'relative', zIndex: 1 }}>
       <Watermark />
+      <CertificateWatermark appraisalNumber={p.appraisalNumber} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
           <BrandHeader />
@@ -230,7 +443,7 @@ export function ClassicTemplate(p: TemplateProps) {
           )}
         </div>
 
-        {money && (
+        {money && !p.report && (
           <div style={{ textAlign: 'right', marginBottom: 20 }}>
             <div style={{ display: 'inline-block', fontSize: 20, fontWeight: 700, borderTop: '1.5px solid #1a1a1a', borderBottom: '1.5px solid #1a1a1a', padding: '5px 0', minWidth: 160, textAlign: 'right' }}>
               {money}
@@ -238,13 +451,19 @@ export function ClassicTemplate(p: TemplateProps) {
           </div>
         )}
 
+        <TieredValueTable report={p.report} accent="#1a1a1a" />
+        <ReportDetailBlock report={p.report} accent="#666" />
+
         <div style={{ borderTop: '1px solid #bbb', paddingTop: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 700 }}>Simpleton</div>
             <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Appraisal Department</div>
             <img src="/simpleton-logo.jpeg" alt="Simpleton" style={{ height: 44, objectFit: 'contain' }} />
           </div>
-          <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
+            <QRVerificationCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} />
+            <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          </div>
         </div>
 
         <Disclaimer isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} appraisalNumber={p.appraisalNumber} />
@@ -258,6 +477,7 @@ export function ElegantTemplate(p: TemplateProps) {
   return (
     <div style={{ position: 'relative', zIndex: 1 }}>
       <Watermark />
+      <CertificateWatermark appraisalNumber={p.appraisalNumber} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
@@ -334,7 +554,7 @@ export function ElegantTemplate(p: TemplateProps) {
           )}
         </div>
 
-        {money && (
+        {money && !p.report && (
           <div style={{
             background: '#fffef5', border: '2px solid #c9a84c', borderRadius: 4,
             padding: '12px 20px', textAlign: 'center', marginBottom: 24,
@@ -348,12 +568,18 @@ export function ElegantTemplate(p: TemplateProps) {
           </div>
         )}
 
+        <TieredValueTable report={p.report} accent="#c9a84c" />
+        <ReportDetailBlock report={p.report} accent="#8a7340" />
+
         <div style={{ borderTop: '2px solid #c9a84c', paddingTop: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
           <div>
             <img src="/simpleton-logo.jpeg" alt="Simpleton" style={{ height: 40, objectFit: 'contain', marginBottom: 4 }} />
             <div style={{ fontSize: 10, color: '#8a7340', fontWeight: 600 }}>Simpleton Appraisals</div>
           </div>
-          <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
+            <QRVerificationCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} />
+            <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          </div>
         </div>
 
         <Disclaimer isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} appraisalNumber={p.appraisalNumber} />
@@ -415,15 +641,19 @@ export function ModernTemplate(p: TemplateProps) {
             {p.description || <span style={{ color: '#aaa', fontStyle: 'italic' }}>Description will appear here...</span>}
           </div>
 
-          {money && (
+          {money && !p.report && (
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #ddd', borderBottom: '1px solid #ddd', padding: '14px 0', marginBottom: 24 }}>
               <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#444' }}>Estimated Retail Value</div>
               <div style={{ fontSize: 22, fontWeight: 700, color: '#1a1a1a' }}>{money}</div>
             </div>
           )}
+
+          <TieredValueTable report={p.report} accent="#1a1a1a" />
+          <ReportDetailBlock report={p.report} accent="#444" />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16, paddingTop: 10 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16, paddingTop: 10 }}>
+          <QRVerificationCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} />
           <div>
             <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#444', marginBottom: 8 }}>Certified By</div>
             <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
@@ -441,6 +671,7 @@ export function ProfessionalTemplate(p: TemplateProps) {
   return (
     <div style={{ position: 'relative', zIndex: 1 }}>
       <Watermark />
+      <CertificateWatermark appraisalNumber={p.appraisalNumber} />
       <div style={{ position: 'relative', zIndex: 1, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
           <BrandHeader />
@@ -487,7 +718,7 @@ export function ProfessionalTemplate(p: TemplateProps) {
 
         <div style={{ clear: 'both' }} />
 
-        {money && (
+        {money && !p.report && (
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 30, marginTop: 10 }}>
             <div style={{ textAlign: 'right' }}>
               <div style={{ fontSize: 12, fontStyle: 'italic', marginBottom: 4 }}>Estimated Retail Replacement Value</div>
@@ -498,6 +729,9 @@ export function ProfessionalTemplate(p: TemplateProps) {
           </div>
         )}
 
+        <TieredValueTable report={p.report} accent="#1a1a1a" />
+        <ReportDetailBlock report={p.report} accent="#555" />
+
         <div style={{ borderTop: '1px solid #ccc', paddingTop: 12, marginBottom: 20, fontSize: 11, color: '#555' }}>
           <div><span style={{ fontWeight: 700 }}>Date: </span>{fmtDate(p.date)}</div>
         </div>
@@ -507,7 +741,10 @@ export function ProfessionalTemplate(p: TemplateProps) {
             <img src="/simpleton-logo.jpeg" alt="Simpleton" style={{ height: 36, objectFit: 'contain', marginBottom: 4 }} />
             <div style={{ fontSize: 10, color: '#555' }}>simpletonapp.com</div>
           </div>
-          <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
+            <QRVerificationCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} />
+            <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          </div>
         </div>
 
         <Disclaimer isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} appraisalNumber={p.appraisalNumber} />
@@ -521,6 +758,7 @@ export function DetailedTemplate(p: TemplateProps) {
   return (
     <div style={{ position: 'relative', zIndex: 1 }}>
       <Watermark />
+      <CertificateWatermark appraisalNumber={p.appraisalNumber} />
       <div style={{ position: 'relative', zIndex: 1, fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif' }}>
         <BrandHeader centered />
         <div style={{ textAlign: 'center', fontSize: 10, color: '#666', marginTop: 2, marginBottom: 10 }}>
@@ -580,7 +818,7 @@ export function DetailedTemplate(p: TemplateProps) {
             </div>
           </div>
 
-          {money && (
+          {money && !p.report && (
             <div style={{
               display: 'flex', justifyContent: 'flex-end', borderTop: '1.5px solid #c9a84c',
               padding: '10px 12px', background: '#fffef5',
@@ -597,6 +835,9 @@ export function DetailedTemplate(p: TemplateProps) {
           )}
         </div>
 
+        <TieredValueTable report={p.report} accent="#c9a84c" />
+        <ReportDetailBlock report={p.report} accent="#8a7340" />
+
         <div style={{
           background: '#f8f7f4', border: '1px solid #e0d5c0', borderRadius: 4,
           padding: '10px 14px', marginBottom: 20, fontSize: 9.5, lineHeight: 1.6, color: '#555',
@@ -609,7 +850,10 @@ export function DetailedTemplate(p: TemplateProps) {
             <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 4 }}>Appraiser Signature:</div>
             <img src="/simpleton-logo.jpeg" alt="Simpleton" style={{ height: 32, objectFit: 'contain' }} />
           </div>
-          <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
+            <QRVerificationCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} />
+            <SignatureBlock isCertified={!!p.isCertified} certifiedAt={p.certifiedAt} />
+          </div>
         </div>
 
         <div style={{

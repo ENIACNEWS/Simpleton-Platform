@@ -200,6 +200,7 @@ export default function JewelryAppraisal() {
         appraisalDate: data.date,
         templateStyle: data.templateStyle,
         itemSpecs: data.specs,
+        appraisalReport: report,
       });
       const result = await res.json();
       setSubmitted(true);
@@ -945,6 +946,8 @@ export default function JewelryAppraisal() {
           retailValue={data.retailValue}
           images={data.itemImages}
           itemSpecs={data.specs}
+          report={report}
+          shareToken={null}
         />
       </div>
     </div>

@@ -23,6 +23,8 @@ interface AppraisalData {
   certifiedAt: string | null;
   templateStyle: string;
   itemSpecs: ItemSpecs | null;
+  appraisalReport?: any | null;
+  shareToken?: string | null;
   createdAt: string;
 }
 
@@ -387,6 +389,8 @@ export default function AppraisalView() {
           certifiedBy={appraisal.certifiedBy}
           certifiedAt={appraisal.certifiedAt}
           itemSpecs={appraisal.itemSpecs}
+          report={appraisal.appraisalReport || null}
+          shareToken={appraisal.shareToken || token}
         />
       </div>
 
