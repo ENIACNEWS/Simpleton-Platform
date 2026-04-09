@@ -104,38 +104,67 @@ export default function JewelryAppraisal() {
     }
 
     setGenerating(true);
-    try {
-      const res = await apiRequest('POST', '/api/appraisal/generate-description', {
-        images: data.itemImages,
-        itemCategory: data.itemCategory,
-        specs: data.specs,
-      });
-      const result = await res.json();
+    // 2-minute hard ceiling so the UI can never hang on a stalled request.
+    // Sonnet 4.6 image appraisals normally complete in 8-30s; anything past
+    // 120s is a dead request and we should fail loudly instead of spinning.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120_000);
 
-      if (result.description) {
-        set('description', result.description);
-        setDescriptionGenerated(true);
-        setReport(result.report || null);
-        if (result.estimatedValue && result.estimatedValue !== '0') {
-          set('retailValue', result.estimatedValue);
-        }
-        if (result.specs) {
-          setData(p => {
-            const merged = { ...p.specs };
-            for (const [k, v] of Object.entries(result.specs)) {
-              if (v && String(v).trim() && !merged[k as keyof typeof merged]?.trim()) {
-                (merged as any)[k] = String(v).trim();
-              }
-            }
-            return { ...p, specs: merged };
-          });
-        }
-        toast({ title: "Description generated", description: "Simplicity analyzed your photos and created a professional description. Review the specs and description below." });
-        setTimeout(() => descRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    try {
+      const res = await fetch('/api/appraisal/generate-description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        signal: controller.signal,
+        body: JSON.stringify({
+          images: data.itemImages,
+          itemCategory: data.itemCategory,
+          specs: data.specs,
+        }),
+      });
+
+      // Try to parse JSON regardless of status so we can surface the
+      // server's actual error field (e.g. "Description generator is
+      // temporarily unavailable" when ANTHROPIC_API_KEY is missing).
+      let body: any = null;
+      try { body = await res.json(); } catch { /* non-JSON body */ }
+
+      if (!res.ok) {
+        const serverMsg = body?.error || body?.response || `HTTP ${res.status}`;
+        throw new Error(serverMsg);
       }
+
+      if (!body || !body.description) {
+        throw new Error('Server returned no description. Try again, or try a different photo.');
+      }
+
+      const result = body;
+      set('description', result.description);
+      setDescriptionGenerated(true);
+      setReport(result.report || null);
+      if (result.estimatedValue && result.estimatedValue !== '0') {
+        set('retailValue', result.estimatedValue);
+      }
+      if (result.specs) {
+        setData(p => {
+          const merged = { ...p.specs };
+          for (const [k, v] of Object.entries(result.specs)) {
+            if (v && String(v).trim() && !merged[k as keyof typeof merged]?.trim()) {
+              (merged as any)[k] = String(v).trim();
+            }
+          }
+          return { ...p, specs: merged };
+        });
+      }
+      toast({ title: "Description generated", description: "Simplicity analyzed your photos and created a professional description. Review the specs and description below." });
+      setTimeout(() => descRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
     } catch (err: any) {
-      toast({ title: "Generation failed", description: err.message || "Could not generate description. Please try again.", variant: "destructive" });
+      const msg = err?.name === 'AbortError'
+        ? 'Request timed out after 2 minutes. Please try again with a smaller or clearer photo.'
+        : (err?.message || "Could not generate description. Please try again.");
+      toast({ title: "Generation failed", description: msg, variant: "destructive" });
     } finally {
+      clearTimeout(timeoutId);
       setGenerating(false);
     }
   };
