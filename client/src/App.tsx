@@ -1,10 +1,9 @@
 import { Switch, Route } from "wouter";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AIAssistant } from "@/components/ai-assistant";
 import { WelcomeNotification } from "@/components/welcome-notification";
 import { BrainProvider } from "@/lib/brain-context";
 import { BrainPanel } from "@/components/brain/BrainPanel";
@@ -26,9 +25,8 @@ import Watches from "@/pages/watches";
 import QuantumTickerPage from "@/pages/quantum-ticker";
 import TickersPage from "@/pages/tickers";
 import SimpletonMarkets from "@/pages/simpleton-markets";
-import AIChat from "@/pages/ai-chat";
+// TEMPORARILY REMOVED: AIChat (Simplicity Chat), AIPriceAdvisor (SimpleDocs+)
 import AIMarketAnalysis from "@/pages/ai-market-analysis";
-import AIPriceAdvisor from "@/pages/ai-price-advisor";
 import MarketSignals from "@/pages/market-signals";
 import About from "@/pages/about";
 import NotFound from "@/pages/not-found";
@@ -50,7 +48,7 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import EmailCommandCenter from "@/pages/email-command-center";
 import GmailOrganizer from "@/pages/gmail-organizer";
 import JewelryAppraisal from "@/pages/jewelry-appraisal";
-import SimpletonsList from "@/pages/simpletons-list";
+// TEMPORARILY REMOVED: SimpletonsList
 import GhostAdmin from "@/pages/GhostAdmin";
 import GhostAdminDashboard from "@/pages/GhostAdminDashboard";
 import AppraisalView from "@/pages/appraisal-view";
@@ -62,8 +60,6 @@ import NewsHub from "@/pages/news-hub";
 import { PageGlow } from "@/components/page-glow";
 
 function DesktopRouter() {
-  const [isAIOpen, setIsAIOpen] = useState(false);
-
   useEffect(() => {
     const highContrast = localStorage.getItem('highContrast');
     if (highContrast === 'true') {
@@ -79,7 +75,6 @@ function DesktopRouter() {
     <div className="min-h-screen bg-primary-950 text-white">
       <WelcomeNotification />
       <PageGlow />
-      <AIAssistant isOpen={isAIOpen} onClose={() => setIsAIOpen(false)} />
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/calculator" component={Calculator} />
@@ -95,9 +90,8 @@ function DesktopRouter() {
         <Route path="/quantum-ticker-2057" component={SimpletonMarkets} />
         <Route path="/tickers" component={TickersPage} />
         <Route path="/markets" component={SimpletonMarkets} />
-        <Route path="/ai-chat" component={AIChat} />
+        {/* TEMPORARILY REMOVED: /ai-chat, /ai-price-advisor */}
         <Route path="/ai-market-analysis" component={AIMarketAnalysis} />
-        <Route path="/ai-price-advisor" component={AIPriceAdvisor} />
         <Route path="/market-signals" component={MarketSignals} />
         <Route path="/standalone-precious-metals" component={StandalonePreciousMetals} />
         <Route path="/standalone-diamond-calculator" component={StandaloneDiamondCalculator} />
@@ -115,7 +109,7 @@ function DesktopRouter() {
         <Route path="/jewelry-appraisal" component={JewelryAppraisal} />
         <Route path="/appraisal/:token" component={AppraisalView} />
         <Route path="/what-is-this-worth" component={WhatIsThisWorth} />
-        <Route path="/simpletons-list" component={SimpletonsList} />
+        {/* TEMPORARILY REMOVED: /simpletons-list */}
         <Route path="/ghost-admin" component={GhostAdmin} />
         <Route path="/ghost-admin-dashboard" component={GhostAdminDashboard} />
         <Route path="/s7" component={S7Panel} />

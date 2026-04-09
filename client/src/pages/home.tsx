@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Navigation } from "@/components/layout/navigation";
-import { AIAssistant } from "@/components/ai-assistant";
 
 import { Footer } from "@/components/layout/footer";
 import { InstallPrompt } from "@/components/pwa/install-prompt";

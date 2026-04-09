@@ -67,11 +67,15 @@ app.use((req, res, next) => {
 
   // Use PORT env var (required by Railway/cloud hosts) with fallback to 5000 for local dev
   const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen({
+  // reusePort is unsupported on macOS (ENOTSUP) — only enable on Linux/Railway.
+  const listenOpts: { port: number; host: string; reusePort?: boolean } = {
     port,
     host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
+  };
+  if (process.platform === "linux") {
+    listenOpts.reusePort = true;
+  }
+  server.listen(listenOpts, () => {
     log(`serving on port ${port}`);
 
     // Register health monitoring routes

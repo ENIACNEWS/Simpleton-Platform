@@ -37,8 +37,23 @@ export function registerAppraisalRoutes(app: Express) {
   app.post("/api/assistant/appraise", async (req, res) => {
     try {
       console.log('📸 Simplicity Image Appraisal Request received');
+
+      // Hard guard: appraisal cannot run without an Anthropic API key.
+      // Without this check, missing env vars produced a generic "Appraisal service error"
+      // with no signal to the operator. Fail fast and clearly.
+      if (!process.env.ANTHROPIC_API_KEY) {
+        console.error('❌ Appraisal aborted: ANTHROPIC_API_KEY is not set');
+        return res.status(503).json({
+          error: "Appraisal service unavailable",
+          response: "Simplicity's appraisal engine is temporarily offline (missing API credentials). Please contact support.",
+          activeProviders: [],
+          confidenceScore: 0,
+          processingTime: 0
+        });
+      }
+
       const { image, message, itemDetails, sessionToken, pageContext } = req.body;
-      
+
       if (!image || typeof image !== 'string') {
         return res.status(400).json({ error: "Image is required (base64 format)" });
       }
@@ -55,19 +70,27 @@ export function registerAppraisalRoutes(app: Express) {
         return res.status(400).json({ error: "Image too large. Maximum size is 20MB." });
       }
 
-      let livePricing = { gold: 0, silver: 0, platinum: 0, palladium: 0 };
+      // Fallback prices used if the live feed is unavailable. Without these,
+      // a failed Kitco fetch produced "$0.00/troy oz" in the prompt and the
+      // model would compute melt values against zero. Updated 2026-04 baseline.
+      const FALLBACK_PRICING = { gold: 2340, silver: 31, platinum: 1000, palladium: 900 };
+      let livePricing = { ...FALLBACK_PRICING };
+      let pricingSource: 'live' | 'fallback' = 'fallback';
       try {
         const prices = await getKitcoPricing();
-        if (prices) {
+        if (prices && (prices.gold || prices.silver)) {
           livePricing = {
-            gold: prices.gold || 0,
-            silver: prices.silver || 0,
-            platinum: prices.platinum || 0,
-            palladium: prices.palladium || 0
+            gold: prices.gold || FALLBACK_PRICING.gold,
+            silver: prices.silver || FALLBACK_PRICING.silver,
+            platinum: prices.platinum || FALLBACK_PRICING.platinum,
+            palladium: prices.palladium || FALLBACK_PRICING.palladium,
           };
+          pricingSource = 'live';
+        } else {
+          console.warn('⚠️ Live pricing returned empty — using fallback baseline');
         }
       } catch (e) {
-        console.log('⚠️ Could not fetch live pricing for appraisal, using fallback');
+        console.warn('⚠️ Live pricing fetch failed — using fallback baseline:', e);
       }
 
       const detailsText = itemDetails ? `
@@ -210,6 +233,9 @@ FORMAT: Write professionally with clear section labels on their own lines follow
 
       console.log('✅ Simplicity Appraisal completed in', processingTime, 'ms');
 
+      if (!sessionToken) {
+        console.warn('⚠️ Appraisal completed without sessionToken — interaction NOT saved to user memory');
+      }
       if (sessionToken) {
         try {
           const { buildSimplicityPrompt, saveInteraction } = await import('../simplicity-brain');
@@ -234,14 +260,17 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         processingTime,
         appraisalType: 'visual_ai',
         livePricing,
+        pricingSource,
         disclaimer: 'This is an estimated appraisal based on visual AI analysis and current market data. For insurance, sale, or legal purposes, please obtain an in-person professional appraisal.'
       });
 
     } catch (error: any) {
       console.error('❌ Simplicity Appraisal Error:', error);
+      const detail = error?.message || String(error);
       res.status(500).json({
         error: "Appraisal service error",
-        response: "I apologize, but I'm having trouble analyzing your image right now. Please try again or ensure the image is clear and well-lit.",
+        errorDetail: detail,
+        response: `I'm having trouble analyzing your image right now. (${detail}). Please try again, or ensure the image is clear, well-lit, and under 20MB.`,
         activeProviders: [],
         confidenceScore: 0,
         processingTime: 0

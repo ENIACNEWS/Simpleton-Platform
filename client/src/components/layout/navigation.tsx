@@ -171,22 +171,7 @@ export function Navigation(
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-64 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[110] dropdown" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--primary)', border: '1px solid' }}>
                   <div className="p-2 space-y-1">
-                    <Link
-                      href="/ai-chat"
-                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
-                      style={{ color: 'var(--foreground)' }}
-                    >
-                      <MessageCircle className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                      <span className="font-medium">Simplicity Chat</span>
-                    </Link>
-                    <Link
-                      href="/ai-price-advisor"
-                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
-                      style={{ color: 'var(--foreground)' }}
-                    >
-                      <Diamond className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                      <span className="font-medium">SimpleDocs +</span>
-                    </Link>
+                    {/* TEMPORARILY REMOVED: Simplicity Chat, SimpleDocs+, Simpleton's List */}
                     <Link
                       href="/markets"
                       className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
@@ -194,14 +179,6 @@ export function Navigation(
                     >
                       <BarChart3 className="w-4 h-4" style={{ color: 'var(--primary)' }} />
                       <span className="font-medium"><span className="simpleton-brand">Simpleton</span> Markets</span>
-                    </Link>
-                    <Link
-                      href="/simpletons-list"
-                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
-                      style={{ color: 'var(--foreground)' }}
-                    >
-                      <Store className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                      <span className="font-medium"><span className="simpleton-brand">Simpleton's</span> List</span>
                     </Link>
                   </div>
                 </div>
@@ -583,36 +560,7 @@ export function Navigation(
                         </span>
                       </div>
                       <div className="space-y-0.5">
-                        <Link
-                          href="/ai-chat"
-                          className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
-                          style={{ color: 'var(--foreground)' }}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
-                            <Brain className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}>Simplicity Chat</span>
-                            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>Intelligent conversations</span>
-                          </div>
-                          <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
-                        </Link>
-                        <Link
-                          href="/ai-price-advisor"
-                          className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
-                          style={{ color: 'var(--foreground)' }}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
-                            <DollarSign className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}>SimpleDocs +</span>
-                            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>Instant valuations</span>
-                          </div>
-                          <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
-                        </Link>
+                        {/* TEMPORARILY REMOVED: Simplicity Chat, SimpleDocs+ */}
                         <Link
                           href="/markets"
                           className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
@@ -628,21 +576,7 @@ export function Navigation(
                           </div>
                           <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
                         </Link>
-                        <Link
-                          href="/simpletons-list"
-                          className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
-                          style={{ color: 'var(--foreground)' }}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
-                            <Store className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}><span className="simpleton-brand">Simpleton's</span> List</span>
-                            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>Vetted dealers & pawn shops</span>
-                          </div>
-                          <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
-                        </Link>
+                        {/* TEMPORARILY REMOVED: Simpleton's List */}
                       </div>
                     </div>
 

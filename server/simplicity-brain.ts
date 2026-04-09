@@ -3,6 +3,23 @@ import type { AssistantSession, AssistantMessage, SimplicityKnowledge } from '@s
 import { getKitcoPricing } from './kitco-pricing';
 import { getMarketBriefing } from './market-intelligence';
 import { simplicitySelfAwareness } from './simplicity-self-awareness';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// Cache the organic voice prompt at module load. This file defines Simplicity's
+// "how you think / how you speak" architecture and was previously sitting on disk
+// without being injected into any system prompt — causing inconsistent personality
+// across the site. We load it once and prepend it to every assembled prompt.
+let ORGANIC_VOICE_PROMPT = '';
+try {
+  ORGANIC_VOICE_PROMPT = readFileSync(
+    join(process.cwd(), 'simplicity-organic-prompt.txt'),
+    'utf-8'
+  ).trim();
+  console.log(`✅ Loaded Simplicity organic voice prompt (${ORGANIC_VOICE_PROMPT.length} chars)`);
+} catch (e) {
+  console.warn('⚠️ Could not load simplicity-organic-prompt.txt — Simplicity will use base personality only');
+}
 
 const PAGE_CONTEXT_MAP: Record<string, { name: string; description: string; expertise: string }> = {
   '/': { name: 'Home', description: 'the main dashboard with live pricing tickers and platform overview', expertise: 'Introduce yourself warmly and offer to help with anything - pricing, appraisals, education, or navigation.' },
@@ -436,8 +453,12 @@ CRITICAL: Always use the prices above. Never use memorized or training-data pric
     collectiveContext = formatCollectiveKnowledgeForPrompt(collectiveKnowledge);
   }
 
+  const voicePrefix = ORGANIC_VOICE_PROMPT
+    ? `${ORGANIC_VOICE_PROMPT}\n\n---\n\n`
+    : '';
+
   return {
-    systemPrompt: personalityPrompt + livePriceContext + marketIntelligenceContext + memoryContext + collectiveContext + knowledgeContext + simplicitySelfAwareness.buildSelfAwarenessContext() + conversationHistory,
+    systemPrompt: voicePrefix + personalityPrompt + livePriceContext + marketIntelligenceContext + memoryContext + collectiveContext + knowledgeContext + simplicitySelfAwareness.buildSelfAwarenessContext() + conversationHistory,
     session,
     history,
     knowledgeUsed: knowledge.entries.length,
