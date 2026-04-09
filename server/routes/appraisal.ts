@@ -111,8 +111,10 @@ ${itemDetails.other ? `- Additional Info: ${itemDetails.other}` : ''}
 
       const userNote = message ? `\nUSER'S NOTE: ${message}` : '';
 
+      // Upgraded to Sonnet 4.6 for substantially better long-form professional
+      // appraisal writing and image analysis.
       // <important_do_not_delete>
-      const APPRAISAL_MODEL = "claude-sonnet-4-20250514";
+      const APPRAISAL_MODEL = "claude-sonnet-4-6";
       // </important_do_not_delete>
 
       const appraisalPrompt = `You are Simplicity, the AI appraisal engine powering Simpleton™ by LaDale Industries LLC. You analyze items using current market data and provide accurate assessments of precious metals, diamonds, gemstones, coins, watches, and jewelry. Your appraisals will be reviewed and certified by Demiris Brown, GIA Graduate Gemologist and Accredited Jewelry Professional.
@@ -211,7 +213,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
       const startTime = Date.now();
       const visionResponse = await anthropic.messages.create({
         model: APPRAISAL_MODEL,
-        max_tokens: 3000,
+        max_tokens: 6000,
         messages: [{
           role: "user",
           content: [
@@ -729,11 +731,24 @@ FORMAT: Write professionally with clear section labels on their own lines follow
 
       const anthropicClient = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-      let livePricing = { gold: 0, silver: 0, platinum: 0, palladium: 0 };
+      // Fallback baseline (April 2026) — ensures valuations never run against $0
+      // when the live feed is unreachable. Updated in lockstep with the image
+      // appraisal route above.
+      const FALLBACK_BASELINE = { gold: 2340, silver: 31, platinum: 1000, palladium: 900 };
+      let livePricing = { ...FALLBACK_BASELINE };
+      let livePricingSource: 'live' | 'fallback' = 'fallback';
       try {
         const prices = await getKitcoPricing();
-        if (prices) livePricing = { gold: prices.gold || 0, silver: prices.silver || 0, platinum: prices.platinum || 0, palladium: prices.palladium || 0 };
-      } catch (e) { /* fallback */ }
+        if (prices && (prices.gold || prices.silver)) {
+          livePricing = {
+            gold: prices.gold || FALLBACK_BASELINE.gold,
+            silver: prices.silver || FALLBACK_BASELINE.silver,
+            platinum: prices.platinum || FALLBACK_BASELINE.platinum,
+            palladium: prices.palladium || FALLBACK_BASELINE.palladium,
+          };
+          livePricingSource = 'live';
+        }
+      } catch (e) { /* fallback already set */ }
 
       const userSpecs = specs && typeof specs === 'object' ? specs : {};
       const specsLines: string[] = [];
@@ -753,41 +768,72 @@ FORMAT: Write professionally with clear section labels on their own lines follow
       if (itemCategory) specsLines.push(`Item Category: ${itemCategory}`);
       const specsText = specsLines.length > 0 ? `\n\nUSER-PROVIDED SPECIFICATIONS:\n${specsLines.join('\n')}` : '';
 
-      const systemPrompt = `You are Simplicity, the AI appraisal engine for Simpleton by LaDale Industries LLC. You are generating a professional appraisal description from photos and specifications provided by the user.
+      const systemPrompt = `You are Simplicity, the AI appraisal engine powering Simpleton™ by LaDale Industries LLC. Your output is reviewed and certified by Demiris Brown, GIA Graduate Gemologist and Accredited Jewelry Professional. You are writing USPAP-influenced appraisal language for a formal document — this is not a chat reply, it is a professional deliverable.
 
-CURRENT LIVE MARKET PRICES:
-Gold: $${livePricing.gold.toFixed(2)}/troy oz | Silver: $${livePricing.silver.toFixed(2)}/troy oz | Platinum: $${livePricing.platinum.toFixed(2)}/troy oz | Palladium: $${livePricing.palladium.toFixed(2)}/troy oz
+═══════════════════════════════════════════════════
+LIVE MARKET DATA (use these for all valuation math)
+═══════════════════════════════════════════════════
+Gold: $${livePricing.gold.toFixed(2)}/troy oz
+Silver: $${livePricing.silver.toFixed(2)}/troy oz
+Platinum: $${livePricing.platinum.toFixed(2)}/troy oz
+Palladium: $${livePricing.palladium.toFixed(2)}/troy oz
+Source: ${livePricingSource === 'live' ? 'Live Swissquote feed via Simpleton proprietary aggregator' : 'Simpleton baseline reference (live feed temporarily unavailable)'}
 ${specsText}
 
-YOUR TASK:
-Analyze the photos carefully. Combined with any specs the user provided, write a COMPLETE professional appraisal description AND extract/determine structured specifications for this item. This goes directly into a formal appraisal document.
+═══════════════════════════════════════════════════
+YOUR TASK
+═══════════════════════════════════════════════════
+Analyze every photo carefully. Combine what you can see with the user-provided specs to produce a COMPLETE professional appraisal — the kind that would appear on an Instappraise or GIA lab-style deliverable. Your output feeds directly into a formal trifold appraisal document that the customer will use for insurance, estate, or resale purposes.
 
-WHAT TO INCLUDE IN YOUR DESCRIPTION:
-1. Item identification (what it is — ring, chain, bracelet, watch, coin, etc.)
-2. Metal type and purity based on visible hallmarks, color, and user-provided karat
-3. Physical characteristics you can see (dimensions, style, craftsmanship, link type for chains, setting type for rings, etc.)
-4. Stone details if visible (type, approximate size, shape, setting style, count)
-5. Condition assessment based on visible wear, scratches, damage
-6. Any brand markings, hallmarks, or stamps visible
-7. Construction notes (solid vs hollow for gold, cast vs handmade, etc.)
+Do NOT produce a generic checklist. Produce a jeweler's-eye CATALOG DESCRIPTION followed by analytical sections, written in industry-standard language.
 
-VALUATION (include if you have enough data):
-If the user provided weight and karat, calculate the melt value:
-- Convert grams to troy ounces (divide by 31.1035)
-- Multiply by purity factor (10K=0.4167, 14K=0.5833, 18K=0.750, 22K=0.9167, 24K=0.999)
-- Multiply by current spot price
-- Show the math naturally in the description
-If there are stones, note their estimated contribution separately.
-Provide an estimated retail replacement value range.
+═══════════════════════════════════════════════════
+PROFESSIONAL DESCRIPTION STYLE GUIDE
+═══════════════════════════════════════════════════
+The main description MUST read like an appraisal catalog entry. Open with the item-count convention "One (1) [gender] [metal/karat] [item type]," then flow into construction, mounting, stones, hallmarks, and condition. Use precise trade terminology.
 
-YOUR RESPONSE FORMAT:
-Return THREE sections with these exact markers:
+STUDY THESE EXAMPLES — match this caliber of language:
+
+EXAMPLE 1 — Diamond Solitaire Ring
+"One (1) ladies' 14K (585) white gold diamond solitaire engagement ring. The cathedral-style mounting features a four-prong head supporting one (1) round brilliant cut diamond measuring approximately 6.45-6.48 x 4.00 mm, weight estimated at 1.00 carat. The center stone displays characteristics consistent with G-H color range and SI1-SI2 clarity (plotted off the stone; formal grading requires removal from mounting). The tapered shank measures 2.1 mm at the base rising to 4.3 mm at the head. Interior shank bears the hallmark '14K' and an illegible maker's mark. The mounting is cast, polished to a mirror finish with no visible porosity. Finger size 6.5. Total gross weight: 3.8 grams. Condition: Very Good — light surface wear commensurate with normal use, prongs tight and intact, no visible damage or repairs. No certification presented at time of examination."
+
+EXAMPLE 2 — 14K Gold Cuban Link Chain
+"One (1) 14K (585) yellow gold solid Cuban link chain. The chain measures 22 inches (55.9 cm) in length, 6.2 mm in width, with a lobster-claw clasp stamped '14K' and a figure-8 safety jump ring. Links are cast, diamond-cut on the faces for enhanced brilliance, and polished on the sides. Construction is verified solid (not hollow) based on weight-to-length ratio. Total weight: 42.3 grams. Clasp operates smoothly with positive spring tension. Condition: Excellent — minimal surface wear, no stretched or repaired links, all facets sharp and reflective. Melt value calculation: 42.3 g ÷ 31.1035 = 1.360 troy oz × 0.5833 (14K purity) × $${livePricing.gold.toFixed(2)}/oz = $${(42.3 / 31.1035 * 0.5833 * livePricing.gold).toFixed(2)} intrinsic metal value."
+
+EXAMPLE 3 — Rolex Datejust 36
+"One (1) gentleman's Rolex Datejust 36 wristwatch, reference 126234, stainless steel and 18K white gold case and bracelet. Case measures 36 mm in diameter with a fluted white gold bezel. Silver sunburst dial with applied white gold Roman numeral hour markers, white gold hands with Chromalight luminescent inserts, 3 o'clock date aperture with Cyclops lens. Powered by the caliber 3235 automatic movement (chronometer certified, 70-hour power reserve). Fitted to a stainless steel Jubilee bracelet with Oysterclasp and Easylink 5mm comfort extension. Serial number visible on rehaut at 6 o'clock position; reference number visible between lugs at 12 o'clock. Presented with original box and card (dated 2021). Condition: Very Good — light scratches to bracelet and case consistent with normal wear, dial and crystal unblemished, movement runs within chronometer tolerance. Current Simpleton secondary market data places this reference at $${(livePricing.gold * 3.7).toFixed(0)}-$${(livePricing.gold * 4.1).toFixed(0)} retail replacement range."
+
+═══════════════════════════════════════════════════
+VALUATION METHODOLOGY (SHOW YOUR MATH)
+═══════════════════════════════════════════════════
+For precious metal content:
+  weight(g) ÷ 31.1035 = troy oz
+  troy oz × purity factor × spot price = melt value
+  Purity factors: 10K=0.4167 · 14K=0.5833 · 18K=0.750 · 22K=0.9167 · 24K=0.999
+  Silver: 925 sterling=0.925 · coin 900=0.900 · fine=0.999
+  Platinum 950=0.950 · Palladium 950=0.950
+
+For diamonds/colored stones (without cert):
+  State clearly that grading without lab examination is an estimate
+  Reference Rapaport-style per-carat benchmarks only as an approximation
+  Note that mounted stones cannot be accurately weighed — use mm measurements
+
+Provide FOUR value tiers (industry standard):
+  1. Melt / Intrinsic Value — raw material only, no labor or design premium
+  2. Fair Market Value (range: low - high) — realistic private-party sale
+  3. Retail Replacement Value — cost to purchase equivalent new at retail (highest)
+  4. Estate / Liquidation Value — quick-sale wholesale tier (lowest)
+
+═══════════════════════════════════════════════════
+REQUIRED OUTPUT FORMAT — STRUCTURED JSON BLOCKS
+═══════════════════════════════════════════════════
+Return EXACTLY the following blocks in order. No other text outside the markers. No markdown symbols (no **, ##, backticks, dashes as bullets) inside any field.
 
 ---APPRAISAL_DESCRIPTION_START---
-[Write the full professional description here. Use formal appraisal language but keep it readable. Write in flowing paragraphs, not bullet points. Include all identification, analysis, and valuation. This goes directly into the appraisal document.]
+[The catalog-style professional description, 3-6 flowing paragraphs matching the EXAMPLES above. Open with "One (1) ..." and include identification, construction, measurements, stones, hallmarks, weight, condition, and a valuation sentence showing the math. This is the main deliverable and goes directly into the formal document. DO NOT use bullet lists.]
 ---APPRAISAL_DESCRIPTION_END---
 ---APPRAISAL_VALUE_START---
-[Estimated retail value as a number only, e.g. 2850.00 — if you cannot estimate, write 0]
+[Retail Replacement Value only, as a plain number with no commas or currency symbols, e.g. 2850.00 — if you genuinely cannot estimate, write 0]
 ---APPRAISAL_VALUE_END---
 ---APPRAISAL_SPECS_START---
 {
@@ -806,21 +852,54 @@ Return THREE sections with these exact markers:
   "hallmarks": "14K, 585"
 }
 ---APPRAISAL_SPECS_END---
+---APPRAISAL_REPORT_START---
+{
+  "materialAnalysis": "One-paragraph analysis of metal type, purity verification from hallmarks, construction method (cast/handmade, solid/hollow), and notable workmanship observations.",
+  "conditionGrade": "Poor | Fair | Good | Very Good | Excellent | Mint",
+  "conditionNotes": "Specific observations about wear, damage, repairs, or restoration visible in the photos.",
+  "meltValue": 1245.67,
+  "fairMarketLow": 1800.00,
+  "fairMarketHigh": 2400.00,
+  "retailReplacement": 2850.00,
+  "estateValue": 1400.00,
+  "liquidationValue": 1100.00,
+  "valuationMath": "Step-by-step calculation string showing weight conversion, purity factor, spot price multiplication, and stone contribution if applicable. Plain text, one paragraph.",
+  "keyFactors": [
+    "Factor 1 affecting value (e.g. solid construction, designer mounting, stone quality)",
+    "Factor 2",
+    "Factor 3"
+  ],
+  "sources": [
+    "Live spot pricing: Simpleton proprietary aggregator",
+    "Diamond pricing benchmark: Rapaport Diamond Report style per-carat reference",
+    "Watch market data: Simpleton Rolex Market Intelligence Database"
+  ],
+  "recommendations": [
+    "Specific action the owner should take (cleaning, certification, insurance, appraisal update schedule)",
+    "Second recommendation"
+  ],
+  "certificationAdvice": "One sentence on whether this item warrants GIA/IGI/AGS lab certification and why."
+}
+---APPRAISAL_REPORT_END---
 
-SPECS JSON RULES:
-- Only include fields you can determine from the photos or user-provided specs
-- Use empty string "" for fields you cannot determine
-- For weight, give number only (no units) in grams
-- For stoneWeight, give number only (no units) in carats
-- Keep user-provided values unchanged — only fill in what they left blank
-- If the user already provided a spec value, use their value exactly
+═══════════════════════════════════════════════════
+JSON RULES
+═══════════════════════════════════════════════════
+- All numeric fields are numbers, not strings. No commas, no $ signs, no units.
+- If a value tier genuinely cannot be determined, use 0 and explain in valuationMath.
+- meltValue applies only to precious metal content; if the item has no metal value, use 0.
+- keyFactors, sources, recommendations: arrays of strings, 2-5 items each.
+- conditionGrade must be one of the six listed grades exactly.
+- Preserve any user-provided spec values in APPRAISAL_SPECS exactly — only fill blanks.
 
-RULES:
-- No markdown symbols (no **, ##, backticks, dashes as bullets)
-- Be specific about what you CAN see vs what you're estimating
-- If you cannot determine something from the photos, note it as "to be verified in person"
-- If weight or karat is missing and you can't determine it from photos, estimate based on typical items of this type and clearly label it as an estimate
-- Always recommend in-person verification for insurance or legal purposes`;
+═══════════════════════════════════════════════════
+HONESTY PROTOCOL
+═══════════════════════════════════════════════════
+- If weight or karat is unknown AND cannot be determined visually, estimate against typical pieces of this type and EXPLICITLY label it as an estimate in the description.
+- If the item has mounted stones, state clearly that accurate grading requires unmounting and lab examination.
+- Do NOT invent certifications, serial numbers, or hallmarks. If you cannot read a stamp, say so.
+- Do NOT inflate or deflate values. Stay within realistic market ranges.
+- Always recommend in-person verification for insurance, estate, or legal use.`;
 
       const imageContent: any[] = [];
       for (const img of images.slice(0, 5)) {
@@ -835,11 +914,18 @@ RULES:
 
       imageContent.push({ type: 'text', text: 'Analyze these photos and generate a professional appraisal description.' });
 
+      // Upgraded from claude-sonnet-4-20250514 to claude-sonnet-4-6 for
+      // significantly better long-form professional writing and few-shot
+      // calibration to the example descriptions in the system prompt.
+      // <important_do_not_delete>
+      const APPRAISAL_MODEL = 'claude-sonnet-4-6';
+      // </important_do_not_delete>
+
       const startTime = Date.now();
       const response = await anthropicClient.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 3000,
-        temperature: 0.7,
+        model: APPRAISAL_MODEL,
+        max_tokens: 6000,
+        temperature: 0.4,
         system: systemPrompt,
         messages: [{ role: 'user', content: imageContent }],
       });
@@ -850,6 +936,7 @@ RULES:
       const descMatch = responseText.match(/---APPRAISAL_DESCRIPTION_START---([\s\S]*?)---APPRAISAL_DESCRIPTION_END---/);
       const valueMatch = responseText.match(/---APPRAISAL_VALUE_START---([\s\S]*?)---APPRAISAL_VALUE_END---/);
       const specsMatch = responseText.match(/---APPRAISAL_SPECS_START---([\s\S]*?)---APPRAISAL_SPECS_END---/);
+      const reportMatch = responseText.match(/---APPRAISAL_REPORT_START---([\s\S]*?)---APPRAISAL_REPORT_END---/);
 
       const description = descMatch ? descMatch[1].trim() : responseText;
       const estimatedValue = valueMatch ? valueMatch[1].trim() : '';
@@ -866,13 +953,27 @@ RULES:
         } catch { /* ignore parse errors */ }
       }
 
-      console.log(`✅ Appraisal description generated in ${processingTime}ms (specs: ${Object.keys(parsedSpecs).length} fields)`);
+      // Parse the new structured report block. Non-fatal if missing —
+      // description + estimatedValue remain the primary contract.
+      let report: any = null;
+      if (reportMatch) {
+        try {
+          report = JSON.parse(reportMatch[1].trim());
+        } catch (e) {
+          console.warn('⚠️ Could not parse APPRAISAL_REPORT JSON block:', e);
+        }
+      }
+
+      console.log(`✅ Appraisal description generated in ${processingTime}ms (${APPRAISAL_MODEL}, specs: ${Object.keys(parsedSpecs).length} fields, report: ${report ? 'yes' : 'no'}, pricing: ${livePricingSource})`);
 
       res.json({
         success: true,
         description,
         estimatedValue,
         specs: parsedSpecs,
+        report,
+        livePricing,
+        pricingSource: livePricingSource,
         processingTime,
       });
     } catch (error: any) {

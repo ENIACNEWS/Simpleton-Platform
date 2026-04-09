@@ -48,6 +48,12 @@ export default function JewelryAppraisal() {
   const [submitted, setSubmitted] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [descriptionGenerated, setDescriptionGenerated] = useState(false);
+  // Structured trifold report returned by /api/appraisal/generate-description.
+  // Rendered in a collapsible panel under the main description so insurers,
+  // pawn shops, and estate customers see tiered values, key factors, sources,
+  // and recommendations — not just a paragraph.
+  const [report, setReport] = useState<any | null>(null);
+  const [reportOpen, setReportOpen] = useState(true);
   const { toast } = useToast();
   const [data, setData] = useState<AppraisalData>({
     propertyOwner: '',
@@ -109,6 +115,7 @@ export default function JewelryAppraisal() {
       if (result.description) {
         set('description', result.description);
         setDescriptionGenerated(true);
+        setReport(result.report || null);
         if (result.estimatedValue && result.estimatedValue !== '0') {
           set('retailValue', result.estimatedValue);
         }
@@ -622,6 +629,136 @@ export default function JewelryAppraisal() {
             <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Appraised Retail Value</Label>
             <Input style={{ marginTop: 4 }} placeholder="Auto-estimated or enter manually" value={data.retailValue} onChange={e => set('retailValue', e.target.value)} />
           </div>
+
+          {report && (
+            <div style={{
+              marginBottom: 24,
+              border: '1px solid #cbd5e1',
+              borderRadius: 10,
+              background: '#f8fafc',
+              overflow: 'hidden',
+            }}>
+              <button
+                type="button"
+                onClick={() => setReportOpen(o => !o)}
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '14px 18px',
+                  background: '#2E5090',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                <span>Full Appraisal Report (AI Generated)</span>
+                <span style={{ fontSize: 18 }}>{reportOpen ? '−' : '+'}</span>
+              </button>
+              {reportOpen && (
+                <div style={{ padding: 18, fontSize: 13, color: '#1a1a1a' }}>
+                  {report.conditionGrade && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Condition Grade</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#2E5090' }}>{report.conditionGrade}</div>
+                      {report.conditionNotes && <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{report.conditionNotes}</div>}
+                    </div>
+                  )}
+
+                  {(report.meltValue || report.fairMarketLow || report.retailReplacement || report.estateValue || report.liquidationValue) && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 6 }}>Tiered Valuation</div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
+                        {typeof report.retailReplacement === 'number' && report.retailReplacement > 0 && (
+                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Retail Replacement</div>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: '#2E5090' }}>${Number(report.retailReplacement).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                          </div>
+                        )}
+                        {typeof report.fairMarketLow === 'number' && report.fairMarketLow > 0 && (
+                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Fair Market</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.fairMarketLow).toLocaleString(undefined, { maximumFractionDigits: 0 })} – ${Number(report.fairMarketHigh || report.fairMarketLow).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                          </div>
+                        )}
+                        {typeof report.estateValue === 'number' && report.estateValue > 0 && (
+                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Estate</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.estateValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                          </div>
+                        )}
+                        {typeof report.liquidationValue === 'number' && report.liquidationValue > 0 && (
+                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Liquidation</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.liquidationValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                          </div>
+                        )}
+                        {typeof report.meltValue === 'number' && report.meltValue > 0 && (
+                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
+                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Melt / Intrinsic</div>
+                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.meltValue).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {report.valuationMath && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Valuation Math</div>
+                      <div style={{ fontSize: 12, color: '#1a1a1a', background: '#fff', padding: 10, borderRadius: 6, border: '1px solid #e2e8f0', lineHeight: 1.6 }}>{report.valuationMath}</div>
+                    </div>
+                  )}
+
+                  {report.materialAnalysis && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Material Analysis</div>
+                      <div style={{ fontSize: 12, color: '#1a1a1a', lineHeight: 1.6 }}>{report.materialAnalysis}</div>
+                    </div>
+                  )}
+
+                  {Array.isArray(report.keyFactors) && report.keyFactors.length > 0 && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Key Factors Affecting Value</div>
+                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#1a1a1a', lineHeight: 1.7 }}>
+                        {report.keyFactors.map((f: string, i: number) => <li key={i}>{f}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {Array.isArray(report.recommendations) && report.recommendations.length > 0 && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Recommendations</div>
+                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#1a1a1a', lineHeight: 1.7 }}>
+                        {report.recommendations.map((r: string, i: number) => <li key={i}>{r}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {report.certificationAdvice && (
+                    <div style={{ marginBottom: 14 }}>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Certification Advice</div>
+                      <div style={{ fontSize: 12, color: '#1a1a1a', lineHeight: 1.6 }}>{report.certificationAdvice}</div>
+                    </div>
+                  )}
+
+                  {Array.isArray(report.sources) && report.sources.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Data Sources</div>
+                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
+                        {report.sources.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           <div style={{ marginBottom: 24 }}>
             <Label style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12, display: 'block' }}>Choose Your Appraisal Template</Label>
