@@ -1,12 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Printer, Edit2, X, Plus, FileText, Send, CheckCircle, Video, AlertTriangle, Sparkles, Camera, Loader2 } from 'lucide-react';
+import { Printer, Edit2, X, FileText, Send, CheckCircle, AlertTriangle, Sparkles, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
 import { AppraisalTemplate } from '@/components/appraisal-templates';
 import type { ItemSpecs } from '@/components/appraisal-templates';
 
@@ -26,21 +23,46 @@ interface AppraisalData {
   specs: ItemSpecs;
 }
 
+// Premium template catalogue. Each entry is a distinct visual universe —
+// see /client/src/components/appraisal-templates.tsx for the render logic.
+// Legacy keys (classic/elegant/modern/professional/detailed) remain valid
+// so saved appraisals from before the rebrand still render.
 const TEMPLATE_OPTIONS = [
-  { id: 'classic', name: 'Classic', desc: 'Traditional layout with watermark and serif typography' },
-  { id: 'elegant', name: 'Elegant', desc: 'Gold accents with structured gemstone detail fields' },
-  { id: 'modern', name: 'Modern', desc: 'Clean minimal design with prominent photo display' },
-  { id: 'professional', name: 'Professional', desc: 'Formal insurance-style with detailed paragraph format' },
-  { id: 'detailed', name: 'Detailed', desc: 'Tabular format with inline item images and specifications' },
+  { id: 'heritage',  name: 'Heritage',  tagline: 'GIA-inspired laboratory dossier',    accent: '#b8935a' },
+  { id: 'atelier',   name: 'Atelier',   tagline: 'Sotheby’s editorial minimalism',     accent: '#1a1a1a' },
+  { id: 'boutique',  name: 'Boutique',  tagline: 'Tiffany & Co. refined restraint',    accent: '#81d8d0' },
+  { id: 'vault',     name: 'Vault',     tagline: 'Christie’s auction catalogue',       accent: '#b8935a' },
+  { id: 'ledger',    name: 'Ledger',    tagline: 'Instappraise trifold brochure',      accent: '#2e5090' },
 ];
 
 const CONDITION_OPTIONS = [
-  { value: 'Excellent', desc: 'Like new, no visible wear' },
-  { value: 'Very Good', desc: 'Minor wear, well maintained' },
-  { value: 'Good', desc: 'Normal wear consistent with age' },
-  { value: 'Fair', desc: 'Noticeable wear or minor damage' },
-  { value: 'Poor', desc: 'Significant wear or damage' },
+  { value: 'Excellent',  desc: 'Like new, no visible wear' },
+  { value: 'Very Good',  desc: 'Minor wear, well maintained' },
+  { value: 'Good',       desc: 'Normal wear consistent with age' },
+  { value: 'Fair',       desc: 'Noticeable wear or minor damage' },
+  { value: 'Poor',       desc: 'Significant wear or damage' },
 ];
+
+// Design tokens — one place to change the whole page palette.
+const T = {
+  bg: '#0b0b12',
+  bgGradient: 'radial-gradient(ellipse at top, #181827 0%, #0b0b12 65%)',
+  surface: '#faf7f0',          // cream paper
+  surfaceInk: '#111018',       // body ink on cream
+  ink: '#f4efe2',              // body ink on dark
+  inkMuted: '#9a937f',         // labels on dark
+  hairline: 'rgba(244,239,226,0.12)',
+  gold: '#c9a84c',
+  goldDeep: '#a8873a',
+  goldGlow: 'rgba(201,168,76,0.32)',
+  rose: '#d4a574',
+  danger: '#d96d5e',
+  success: '#6ec29a',
+  serif: '"Playfair Display", "EB Garamond", Georgia, serif',
+  display: '"Playfair Display", Georgia, serif',
+  body: '"Inter", -apple-system, system-ui, sans-serif',
+  mono: '"JetBrains Mono", "SF Mono", Menlo, monospace',
+};
 
 export default function JewelryAppraisal() {
   const [editing, setEditing] = useState(true);
@@ -48,12 +70,9 @@ export default function JewelryAppraisal() {
   const [submitted, setSubmitted] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [descriptionGenerated, setDescriptionGenerated] = useState(false);
-  // Structured trifold report returned by /api/appraisal/generate-description.
-  // Rendered in a collapsible panel under the main description so insurers,
-  // pawn shops, and estate customers see tiered values, key factors, sources,
-  // and recommendations — not just a paragraph.
   const [report, setReport] = useState<any | null>(null);
   const [reportOpen, setReportOpen] = useState(true);
+  const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
   const [data, setData] = useState<AppraisalData>({
     propertyOwner: '',
@@ -67,7 +86,7 @@ export default function JewelryAppraisal() {
     retailValue: '',
     itemImages: [],
     zoomRequested: false,
-    templateStyle: 'classic',
+    templateStyle: 'heritage',
     specs: {},
   });
   const imgRef = useRef<HTMLInputElement>(null);
@@ -83,13 +102,24 @@ export default function JewelryAppraisal() {
   const set = (k: keyof AppraisalData, v: any) => setData(p => ({ ...p, [k]: v }));
   const setSpec = (k: keyof ItemSpecs, v: string) => setData(p => ({ ...p, specs: { ...p.specs, [k]: v } }));
 
-  const addImages = (e: React.ChangeEvent<HTMLInputElement>) => {
-    Array.from(e.target.files || []).forEach(f => {
+  const readFiles = (files: FileList | File[]) => {
+    Array.from(files).forEach(f => {
+      if (!f.type.startsWith('image/')) return;
       const r = new FileReader();
       r.onload = ev =>
         setData(p => ({ ...p, itemImages: [...p.itemImages, ev.target?.result as string].slice(0, 5) }));
       r.readAsDataURL(f);
     });
+  };
+
+  const addImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) readFiles(e.target.files);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files) readFiles(e.dataTransfer.files);
   };
 
   const doPrint = () => {
@@ -99,14 +129,11 @@ export default function JewelryAppraisal() {
 
   const handleGenerateDescription = async () => {
     if (data.itemImages.length === 0) {
-      toast({ title: "Photos required", description: "Please add at least one photo of the item so Simplicity can analyze it.", variant: "destructive" });
+      toast({ title: 'Photographs required', description: 'Please add at least one photo of the item so Simplicity can analyze it.', variant: 'destructive' });
       return;
     }
 
     setGenerating(true);
-    // 2-minute hard ceiling so the UI can never hang on a stalled request.
-    // Sonnet 4.6 image appraisals normally complete in 8-30s; anything past
-    // 120s is a dead request and we should fail loudly instead of spinning.
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 120_000);
 
@@ -123,9 +150,6 @@ export default function JewelryAppraisal() {
         }),
       });
 
-      // Try to parse JSON regardless of status so we can surface the
-      // server's actual error field (e.g. "Description generator is
-      // temporarily unavailable" when ANTHROPIC_API_KEY is missing).
       let body: any = null;
       try { body = await res.json(); } catch { /* non-JSON body */ }
 
@@ -133,7 +157,6 @@ export default function JewelryAppraisal() {
         const serverMsg = body?.error || body?.response || `HTTP ${res.status}`;
         throw new Error(serverMsg);
       }
-
       if (!body || !body.description) {
         throw new Error('Server returned no description. Try again, or try a different photo.');
       }
@@ -156,13 +179,13 @@ export default function JewelryAppraisal() {
           return { ...p, specs: merged };
         });
       }
-      toast({ title: "Description generated", description: "Simplicity analyzed your photos and created a professional description. Review the specs and description below." });
+      toast({ title: 'Description composed', description: 'Simplicity has analysed your item and written a professional appraisal. Review and edit below.' });
       setTimeout(() => descRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
     } catch (err: any) {
       const msg = err?.name === 'AbortError'
-        ? 'Request timed out after 2 minutes. Please try again with a smaller or clearer photo.'
-        : (err?.message || "Could not generate description. Please try again.");
-      toast({ title: "Generation failed", description: msg, variant: "destructive" });
+        ? 'Request timed out after 2 minutes. Please try again with a clearer photograph.'
+        : (err?.message || 'Could not generate description. Please try again.');
+      toast({ title: 'Generation failed', description: msg, variant: 'destructive' });
     } finally {
       clearTimeout(timeoutId);
       setGenerating(false);
@@ -171,48 +194,54 @@ export default function JewelryAppraisal() {
 
   const handleSubmitForReview = async () => {
     if (!data.propertyOwner.trim()) {
-      toast({ title: "Name required", description: "Please enter your name to submit the appraisal.", variant: "destructive" });
+      toast({ title: 'Name required', description: 'Please enter your name to submit the appraisal.', variant: 'destructive' });
       return;
     }
     if (!data.customerEmail.trim() || !data.customerEmail.includes('@')) {
-      toast({ title: "Valid email required", description: "Please enter a valid email address so we can contact you.", variant: "destructive" });
+      toast({ title: 'Valid email required', description: 'Please enter a valid email address so we can contact you.', variant: 'destructive' });
       return;
     }
     if (!data.description.trim()) {
-      toast({ title: "Description required", description: "Please add photos and generate a description first, or write one manually.", variant: "destructive" });
+      toast({ title: 'Description required', description: 'Please add photos and generate a description first, or write one manually.', variant: 'destructive' });
       return;
     }
 
     setSubmitting(true);
     try {
-      const res = await apiRequest("POST", "/api/appraisal/submit", {
-        customerName: data.propertyOwner,
-        customerEmail: data.customerEmail,
-        appraisalType: 'Jewelry Appraisal',
-        appraisalNumber: data.appraisalNumber,
-        itemDescription: data.description,
-        retailValue: data.retailValue,
-        itemImages: data.itemImages,
-        zoomRequested: data.zoomRequested,
-        itemCategory: data.itemCategory,
-        customerAddress: data.address,
-        customerCityStateZip: data.cityStateZip,
-        appraisalDate: data.date,
-        templateStyle: data.templateStyle,
-        itemSpecs: data.specs,
-        appraisalReport: report,
+      const res = await fetch('/api/appraisal/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          customerName: data.propertyOwner,
+          customerEmail: data.customerEmail,
+          appraisalType: 'Jewelry Appraisal',
+          appraisalNumber: data.appraisalNumber,
+          itemDescription: data.description,
+          retailValue: data.retailValue,
+          itemImages: data.itemImages,
+          zoomRequested: data.zoomRequested,
+          itemCategory: data.itemCategory,
+          customerAddress: data.address,
+          customerCityStateZip: data.cityStateZip,
+          appraisalDate: data.date,
+          templateStyle: data.templateStyle,
+          itemSpecs: data.specs,
+          appraisalReport: report,
+        }),
       });
-      const result = await res.json();
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(result?.error || `HTTP ${res.status}`);
       setSubmitted(true);
       toast({
-        title: "Appraisal Submitted",
-        description: result.message || "Your appraisal has been submitted for review.",
+        title: 'Appraisal submitted',
+        description: result.message || 'Your appraisal has been submitted for certification review.',
       });
     } catch (err: any) {
       toast({
-        title: "Submission Failed",
-        description: err.message || "Something went wrong. Please try again.",
-        variant: "destructive",
+        title: 'Submission failed',
+        description: err.message || 'Something went wrong. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setSubmitting(false);
@@ -220,14 +249,69 @@ export default function JewelryAppraisal() {
   };
 
   const isDiamondItem = data.itemCategory === 'diamond';
-  const isWatch = data.itemCategory === 'watch';
   const showStoneFields = isDiamondItem || data.itemCategory === 'jewelry';
 
-  return (
-    <div style={{ background: '#e8e8e8', minHeight: '100vh' }}>
+  // ───────────────────────────────────────────────────────────────────
+  //  Reusable premium primitives
+  // ───────────────────────────────────────────────────────────────────
+  const sectionLabel = (roman: string, title: string, hint?: string) => (
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 18 }}>
+      <div style={{
+        fontFamily: T.display, fontSize: 18, fontWeight: 400, fontStyle: 'italic',
+        color: T.gold, letterSpacing: '0.05em', minWidth: 32,
+      }}>
+        {roman}.
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{
+          fontFamily: T.display, fontSize: 22, fontWeight: 400,
+          color: T.ink, letterSpacing: '0.01em', lineHeight: 1.1,
+        }}>
+          {title}
+        </div>
+        {hint && (
+          <div style={{
+            fontFamily: T.body, fontSize: 12, color: T.inkMuted,
+            marginTop: 4, letterSpacing: '0.02em', fontStyle: 'italic',
+          }}>
+            {hint}
+          </div>
+        )}
+      </div>
+      <div style={{ flex: 1, height: 1, background: T.hairline, marginBottom: 4 }} />
+    </div>
+  );
 
+  const fieldLabel = (text: string) => (
+    <div style={{
+      fontFamily: T.body, fontSize: 10, fontWeight: 500,
+      textTransform: 'uppercase', letterSpacing: '0.18em',
+      color: T.inkMuted, marginBottom: 8,
+    }}>
+      {text}
+    </div>
+  );
+
+  const darkInputStyle: React.CSSProperties = {
+    background: 'rgba(244,239,226,0.04)',
+    border: `1px solid ${T.hairline}`,
+    borderRadius: 4,
+    color: T.ink,
+    fontFamily: T.body,
+    fontSize: 14,
+    padding: '12px 14px',
+    height: 'auto',
+  };
+
+  return (
+    <div style={{
+      background: T.bgGradient,
+      minHeight: '100vh',
+      color: T.ink,
+      fontFamily: T.body,
+    }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IM+Fell+English:ital@0;1&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
         @media print {
           body, html { background: white !important; margin: 0; padding: 0; }
           .no-print { display: none !important; }
@@ -241,694 +325,860 @@ export default function JewelryAppraisal() {
           }
           @page { size: letter portrait; margin: 0; }
         }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .premium-input::placeholder { color: rgba(154,147,127,0.55); font-style: italic; }
+        .premium-input:focus-visible { outline: none; border-color: ${T.gold} !important; box-shadow: 0 0 0 3px ${T.goldGlow}; }
+        .premium-select > button { background: rgba(244,239,226,0.04) !important; border: 1px solid ${T.hairline} !important; color: ${T.ink} !important; height: auto !important; padding: 12px 14px !important; border-radius: 4px !important; font-family: ${T.body} !important; font-size: 14px !important; }
+        .premium-select > button:hover { border-color: ${T.gold} !important; }
+        .premium-textarea { background: rgba(244,239,226,0.04) !important; border: 1px solid ${T.hairline} !important; color: ${T.ink} !important; font-family: ${T.body} !important; border-radius: 4px !important; }
+        .premium-textarea:focus-visible { outline: none !important; border-color: ${T.gold} !important; box-shadow: 0 0 0 3px ${T.goldGlow} !important; }
+        .drop-zone-active { border-color: ${T.gold} !important; background: rgba(201,168,76,0.08) !important; }
       `}</style>
 
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* STICKY COMMAND BAR                                              */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
       <div className="no-print" style={{
-        background: '#1a1a2e', color: '#fff', padding: '12px 24px',
+        background: 'rgba(11,11,18,0.85)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        borderBottom: `1px solid ${T.hairline}`,
+        padding: '14px 32px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
+        position: 'sticky', top: 0, zIndex: 100,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <FileText size={18} color="#c9a84c" />
-          <span style={{ fontWeight: 600, fontSize: 15 }}><span className="simpleton-brand">Simpleton</span> Professional Appraisal</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            width: 32, height: 32, borderRadius: '50%',
+            border: `1px solid ${T.gold}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <FileText size={15} color={T.gold} />
+          </div>
+          <div>
+            <div style={{ fontFamily: T.display, fontSize: 15, fontWeight: 500, color: T.ink, letterSpacing: '0.02em' }}>
+              Simpleton <span style={{ fontStyle: 'italic', color: T.gold }}>Atelier</span>
+            </div>
+            <div style={{ fontSize: 9, color: T.inkMuted, letterSpacing: '0.25em', textTransform: 'uppercase', marginTop: 1 }}>
+              Professional Appraisal
+            </div>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <button
             onClick={() => setEditing(e => !e)}
             style={{
-              background: 'transparent', border: '1px solid #888', color: '#ddd',
-              borderRadius: 6, padding: '6px 14px', cursor: 'pointer', fontSize: 13,
-              display: 'flex', alignItems: 'center', gap: 6
+              background: 'transparent',
+              border: `1px solid ${T.hairline}`,
+              color: T.ink,
+              borderRadius: 2,
+              padding: '8px 18px',
+              cursor: 'pointer',
+              fontSize: 11,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              fontWeight: 500,
+              display: 'flex', alignItems: 'center', gap: 8,
+              transition: 'all 0.2s',
             }}
+            onMouseOver={e => { e.currentTarget.style.borderColor = T.gold; e.currentTarget.style.color = T.gold; }}
+            onMouseOut={e => { e.currentTarget.style.borderColor = T.hairline; e.currentTarget.style.color = T.ink; }}
           >
-            <Edit2 size={14} /> {editing ? 'Preview' : 'Edit'}
+            <Edit2 size={12} /> {editing ? 'Preview' : 'Edit'}
           </button>
           <button
             onClick={doPrint}
             style={{
-              background: '#c9a84c', border: 'none', color: '#000',
-              borderRadius: 6, padding: '6px 16px', cursor: 'pointer', fontSize: 13,
-              fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6
+              background: T.gold,
+              border: `1px solid ${T.gold}`,
+              color: '#0b0b12',
+              borderRadius: 2,
+              padding: '8px 20px',
+              cursor: 'pointer',
+              fontSize: 11,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: 8,
+              transition: 'all 0.2s',
             }}
+            onMouseOver={e => { e.currentTarget.style.background = T.goldDeep; }}
+            onMouseOut={e => { e.currentTarget.style.background = T.gold; }}
           >
-            <Printer size={14} /> Print Appraisal
+            <Printer size={12} /> Print Document
           </button>
         </div>
       </div>
 
       {editing && (
-        <div className="no-print" style={{ maxWidth: 780, margin: '24px auto', background: '#fff', borderRadius: 10, padding: 28, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+        <div className="no-print" style={{ maxWidth: 880, margin: '0 auto', padding: '56px 32px 80px' }}>
 
-          <div style={{
-            background: 'linear-gradient(135deg, #1a1a2e 0%, #2E5090 100%)',
-            borderRadius: 10,
-            padding: '24px 28px',
-            marginBottom: 24,
-            color: '#fff',
-          }}>
-            <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
-              3 Simple Steps
-            </h2>
-            <div style={{ fontSize: 13, opacity: 0.9, lineHeight: 1.6 }}>
-              Upload photos of your item, enter the specs you know, and Simplicity will generate a complete professional description and auto-fill any missing details.
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* EDITORIAL HEADER                                             */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <div style={{ textAlign: 'center', marginBottom: 64, animation: 'fadeUp 0.8s ease-out' }}>
+            <div style={{
+              fontFamily: T.body, fontSize: 10, letterSpacing: '0.4em',
+              color: T.gold, textTransform: 'uppercase', marginBottom: 24,
+            }}>
+              — Professional Valuation —
             </div>
+            <h1 style={{
+              fontFamily: T.display, fontSize: 64, fontWeight: 400,
+              color: T.ink, lineHeight: 1, margin: 0, letterSpacing: '-0.01em',
+            }}>
+              A Certified Record
+            </h1>
+            <h1 style={{
+              fontFamily: T.display, fontSize: 64, fontWeight: 400,
+              fontStyle: 'italic', color: T.gold, lineHeight: 1,
+              margin: '8px 0 0 0', letterSpacing: '-0.01em',
+            }}>
+              of Value
+            </h1>
+            <div style={{
+              width: 80, height: 1, background: T.gold,
+              margin: '32px auto', opacity: 0.6,
+            }} />
+            <p style={{
+              fontFamily: T.display, fontSize: 17, fontStyle: 'italic',
+              color: T.inkMuted, maxWidth: 560, margin: '0 auto',
+              lineHeight: 1.7, fontWeight: 400,
+            }}>
+              Upload your photographs, share what you know, and Simplicity will compose
+              a professional appraisal worthy of insurance, estate, or legal reference —
+              reviewed and certified by a GIA Graduate Gemologist.
+            </p>
           </div>
 
-          {/* STEP 1: PHOTOS */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#2E5090', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700 }}>1</div>
-              <Label style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>Upload Photos of Your Item</Label>
-            </div>
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* I. PHOTOGRAPHS                                                */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <section style={{ marginBottom: 56 }}>
+            {sectionLabel('I', 'Photographs', 'Up to five images — front, back, hallmarks, and any stamps')}
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 8 }}>
-              {data.itemImages.map((img, i) => (
-                <div key={i} style={{ position: 'relative', width: 110, height: 110, borderRadius: 8, overflow: 'hidden', border: '2px solid #e2e8f0' }}>
-                  <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  <button
-                    onClick={() => setData(p => ({ ...p, itemImages: p.itemImages.filter((_, x) => x !== i) }))}
-                    style={{ position: 'absolute', top: 4, right: 4, background: '#e53e3e', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                  >
-                    <X size={12} color="#fff" />
-                  </button>
-                </div>
-              ))}
-              {data.itemImages.length < 5 && (
-                <button
+            <div
+              onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              className={dragOver ? 'drop-zone-active' : ''}
+              style={{
+                border: `1px dashed ${T.hairline}`,
+                borderRadius: 4,
+                padding: 28,
+                background: 'rgba(244,239,226,0.02)',
+                transition: 'all 0.25s',
+              }}
+            >
+              {data.itemImages.length === 0 ? (
+                <div
                   onClick={() => imgRef.current?.click()}
                   style={{
-                    width: 110, height: 110, border: '2px dashed #cbd5e1', borderRadius: 8,
-                    background: '#f8fafc', cursor: 'pointer', display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: 12,
-                    transition: 'all 0.2s',
+                    cursor: 'pointer', textAlign: 'center', padding: '40px 20px',
                   }}
-                  onMouseOver={e => { e.currentTarget.style.borderColor = '#2E5090'; e.currentTarget.style.color = '#2E5090'; }}
-                  onMouseOut={e => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#64748b'; }}
                 >
-                  <Camera size={24} style={{ marginBottom: 4 }} />
-                  <span>Add Photo</span>
-                </button>
+                  <div style={{
+                    width: 56, height: 56, margin: '0 auto 16px',
+                    border: `1px solid ${T.gold}`, borderRadius: '50%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Camera size={22} color={T.gold} />
+                  </div>
+                  <div style={{ fontFamily: T.display, fontSize: 20, color: T.ink, marginBottom: 6 }}>
+                    Drag photographs here
+                  </div>
+                  <div style={{ fontSize: 12, color: T.inkMuted, letterSpacing: '0.04em' }}>
+                    or <span style={{ color: T.gold, textDecoration: 'underline' }}>browse from device</span>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 14 }}>
+                    {data.itemImages.map((img, i) => (
+                      <div key={i} style={{
+                        position: 'relative',
+                        aspectRatio: '1',
+                        border: `1px solid ${T.hairline}`,
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        background: '#000',
+                      }}>
+                        <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div style={{
+                          position: 'absolute', top: 8, left: 8,
+                          fontFamily: T.display, fontSize: 10, color: T.gold,
+                          background: 'rgba(0,0,0,0.72)', padding: '3px 8px',
+                          letterSpacing: '0.15em', textTransform: 'uppercase',
+                        }}>
+                          № {i + 1}
+                        </div>
+                        <button
+                          onClick={() => setData(p => ({ ...p, itemImages: p.itemImages.filter((_, x) => x !== i) }))}
+                          style={{
+                            position: 'absolute', top: 6, right: 6,
+                            background: 'rgba(0,0,0,0.72)',
+                            border: `1px solid ${T.hairline}`,
+                            borderRadius: '50%',
+                            width: 24, height: 24,
+                            cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}
+                        >
+                          <X size={12} color={T.ink} />
+                        </button>
+                      </div>
+                    ))}
+                    {data.itemImages.length < 5 && (
+                      <button
+                        onClick={() => imgRef.current?.click()}
+                        style={{
+                          aspectRatio: '1',
+                          border: `1px dashed ${T.hairline}`,
+                          borderRadius: 3,
+                          background: 'transparent',
+                          cursor: 'pointer',
+                          display: 'flex', flexDirection: 'column',
+                          alignItems: 'center', justifyContent: 'center',
+                          color: T.inkMuted,
+                          transition: 'all 0.2s',
+                        }}
+                        onMouseOver={e => { e.currentTarget.style.borderColor = T.gold; e.currentTarget.style.color = T.gold; }}
+                        onMouseOut={e => { e.currentTarget.style.borderColor = T.hairline; e.currentTarget.style.color = T.inkMuted; }}
+                      >
+                        <Camera size={20} style={{ marginBottom: 6 }} />
+                        <span style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase' }}>Add</span>
+                      </button>
+                    )}
+                  </div>
+                </>
               )}
               <input ref={imgRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={addImages} />
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8' }}>
-              Up to 5 photos. Include front, back, hallmarks, and any stamps or markings.
-            </div>
-          </div>
+          </section>
 
-          {/* STEP 2: STRUCTURED SPECS */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#2E5090', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700 }}>2</div>
-              <Label style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>Enter What You Know</Label>
-              <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 400 }}>(fill in whatever you have — Simplicity will try to fill the rest)</span>
-            </div>
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* II. SPECIFICATIONS                                           */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <section style={{ marginBottom: 56 }}>
+            {sectionLabel('II', 'Specifications', 'Share whatever you know — Simplicity will fill the rest')}
 
-            {/* Category + Metal Type */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Item Category</Label>
-                <Select value={data.itemCategory} onValueChange={v => set('itemCategory', v)}>
-                  <SelectTrigger style={{ marginTop: 4 }}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="gold">Gold / Precious Metal Only</SelectItem>
-                    <SelectItem value="diamond">Diamond / Gemstone Jewelry</SelectItem>
-                    <SelectItem value="watch">Watch / Luxury Timepiece</SelectItem>
-                    <SelectItem value="coin">Coin / Bullion</SelectItem>
-                    <SelectItem value="jewelry">General Jewelry</SelectItem>
-                  </SelectContent>
-                </Select>
+                {fieldLabel('Item Category')}
+                <div className="premium-select">
+                  <Select value={data.itemCategory} onValueChange={v => set('itemCategory', v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gold">Gold / Precious Metal Only</SelectItem>
+                      <SelectItem value="diamond">Diamond / Gemstone Jewelry</SelectItem>
+                      <SelectItem value="watch">Watch / Luxury Timepiece</SelectItem>
+                      <SelectItem value="coin">Coin / Bullion</SelectItem>
+                      <SelectItem value="jewelry">General Jewelry</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Metal Type</Label>
-                <Select value={data.specs.metalType || ''} onValueChange={v => setSpec('metalType', v)}>
-                  <SelectTrigger style={{ marginTop: 4 }}>
-                    <SelectValue placeholder="Select if known" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Yellow Gold">Yellow Gold</SelectItem>
-                    <SelectItem value="White Gold">White Gold</SelectItem>
-                    <SelectItem value="Rose Gold">Rose Gold</SelectItem>
-                    <SelectItem value="Sterling Silver">Sterling Silver</SelectItem>
-                    <SelectItem value="Fine Silver">Fine Silver</SelectItem>
-                    <SelectItem value="Platinum">Platinum</SelectItem>
-                    <SelectItem value="Palladium">Palladium</SelectItem>
-                    <SelectItem value="Two-Tone">Two-Tone</SelectItem>
-                    <SelectItem value="Tri-Color">Tri-Color</SelectItem>
-                    <SelectItem value="Stainless Steel">Stainless Steel</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
+                {fieldLabel('Metal Type')}
+                <div className="premium-select">
+                  <Select value={data.specs.metalType || ''} onValueChange={v => setSpec('metalType', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select if known" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Yellow Gold">Yellow Gold</SelectItem>
+                      <SelectItem value="White Gold">White Gold</SelectItem>
+                      <SelectItem value="Rose Gold">Rose Gold</SelectItem>
+                      <SelectItem value="Sterling Silver">Sterling Silver</SelectItem>
+                      <SelectItem value="Fine Silver">Fine Silver</SelectItem>
+                      <SelectItem value="Platinum">Platinum</SelectItem>
+                      <SelectItem value="Palladium">Palladium</SelectItem>
+                      <SelectItem value="Two-Tone">Two-Tone</SelectItem>
+                      <SelectItem value="Tri-Color">Tri-Color</SelectItem>
+                      <SelectItem value="Stainless Steel">Stainless Steel</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
-            {/* Karat + Weight */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Karat / Purity</Label>
-                <Select value={data.specs.karat || ''} onValueChange={v => setSpec('karat', v)}>
-                  <SelectTrigger style={{ marginTop: 4 }}>
-                    <SelectValue placeholder="Select if known" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="8K (333)">8K (333)</SelectItem>
-                    <SelectItem value="9K (375)">9K (375)</SelectItem>
-                    <SelectItem value="10K (417)">10K (417)</SelectItem>
-                    <SelectItem value="14K (585)">14K (585)</SelectItem>
-                    <SelectItem value="18K (750)">18K (750)</SelectItem>
-                    <SelectItem value="21K (875)">21K (875)</SelectItem>
-                    <SelectItem value="22K (917)">22K (917)</SelectItem>
-                    <SelectItem value="24K (999)">24K (999)</SelectItem>
-                    <SelectItem value=".925 Sterling">.925 Sterling Silver</SelectItem>
-                    <SelectItem value=".999 Fine Silver">.999 Fine Silver</SelectItem>
-                    <SelectItem value="Platinum 950">Platinum (950)</SelectItem>
-                    <SelectItem value="Palladium 950">Palladium (950)</SelectItem>
-                  </SelectContent>
-                </Select>
+                {fieldLabel('Karat / Purity')}
+                <div className="premium-select">
+                  <Select value={data.specs.karat || ''} onValueChange={v => setSpec('karat', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select if known" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="8K (333)">8K (333)</SelectItem>
+                      <SelectItem value="9K (375)">9K (375)</SelectItem>
+                      <SelectItem value="10K (417)">10K (417)</SelectItem>
+                      <SelectItem value="14K (585)">14K (585)</SelectItem>
+                      <SelectItem value="18K (750)">18K (750)</SelectItem>
+                      <SelectItem value="21K (875)">21K (875)</SelectItem>
+                      <SelectItem value="22K (917)">22K (917)</SelectItem>
+                      <SelectItem value="24K (999)">24K (999)</SelectItem>
+                      <SelectItem value=".925 Sterling">.925 Sterling Silver</SelectItem>
+                      <SelectItem value=".999 Fine Silver">.999 Fine Silver</SelectItem>
+                      <SelectItem value="Platinum 950">Platinum (950)</SelectItem>
+                      <SelectItem value="Palladium 950">Palladium (950)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Weight (grams)</Label>
-                <Input
-                  style={{ marginTop: 4 }}
-                  type="text"
-                  placeholder="e.g. 23.5"
-                  value={data.specs.weight || ''}
-                  onChange={e => setSpec('weight', e.target.value)}
-                />
+                {fieldLabel('Weight (grams)')}
+                <Input className="premium-input" style={darkInputStyle} placeholder="e.g. 23.5" value={data.specs.weight || ''} onChange={e => setSpec('weight', e.target.value)} />
               </div>
             </div>
 
-            {/* Measurements + Condition */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Measurements</Label>
-                <Input
-                  style={{ marginTop: 4 }}
-                  type="text"
-                  placeholder="e.g. 20 inches, 7mm wide"
-                  value={data.specs.measurements || ''}
-                  onChange={e => setSpec('measurements', e.target.value)}
-                />
+                {fieldLabel('Measurements')}
+                <Input className="premium-input" style={darkInputStyle} placeholder="e.g. 20 inches, 7mm wide" value={data.specs.measurements || ''} onChange={e => setSpec('measurements', e.target.value)} />
               </div>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Condition</Label>
-                <Select value={data.specs.condition || ''} onValueChange={v => setSpec('condition', v)}>
-                  <SelectTrigger style={{ marginTop: 4 }}>
-                    <SelectValue placeholder="Select if known" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CONDITION_OPTIONS.map(c => (
-                      <SelectItem key={c.value} value={c.value}>{c.value} — {c.desc}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {fieldLabel('Condition')}
+                <div className="premium-select">
+                  <Select value={data.specs.condition || ''} onValueChange={v => setSpec('condition', v)}>
+                    <SelectTrigger><SelectValue placeholder="Select if known" /></SelectTrigger>
+                    <SelectContent>
+                      {CONDITION_OPTIONS.map(c => (
+                        <SelectItem key={c.value} value={c.value}>{c.value} — {c.desc}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
 
-            {/* Brand/Maker + Hallmarks */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Brand / Maker</Label>
-                <Input
-                  style={{ marginTop: 4 }}
-                  type="text"
-                  placeholder="e.g. Tiffany, Cartier, custom"
-                  value={data.specs.brandMaker || ''}
-                  onChange={e => setSpec('brandMaker', e.target.value)}
-                />
+                {fieldLabel('Brand / Maker')}
+                <Input className="premium-input" style={darkInputStyle} placeholder="e.g. Tiffany, Cartier, custom" value={data.specs.brandMaker || ''} onChange={e => setSpec('brandMaker', e.target.value)} />
               </div>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Hallmarks / Stamps</Label>
-                <Input
-                  style={{ marginTop: 4 }}
-                  type="text"
-                  placeholder="e.g. 14K, 585, maker's mark"
-                  value={data.specs.hallmarks || ''}
-                  onChange={e => setSpec('hallmarks', e.target.value)}
-                />
+                {fieldLabel('Hallmarks / Stamps')}
+                <Input className="premium-input" style={darkInputStyle} placeholder="e.g. 14K, 585, maker's mark" value={data.specs.hallmarks || ''} onChange={e => setSpec('hallmarks', e.target.value)} />
               </div>
             </div>
 
-            {/* Stone Details - shown for diamond/jewelry */}
             {showStoneFields && (
               <div style={{
-                background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8,
-                padding: 16, marginTop: 8,
+                marginTop: 32,
+                padding: '28px 32px',
+                border: `1px solid ${T.hairline}`,
+                borderLeft: `2px solid ${T.gold}`,
+                background: 'rgba(201,168,76,0.02)',
+                borderRadius: 2,
               }}>
-                <Label style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a', marginBottom: 12, display: 'block' }}>Stone / Gemstone Details</Label>
+                <div style={{
+                  fontFamily: T.display, fontSize: 14, fontStyle: 'italic',
+                  color: T.gold, marginBottom: 20, letterSpacing: '0.05em',
+                }}>
+                  Stone &amp; Gemstone Details
+                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 18 }}>
                   <div>
-                    <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Stone Type</Label>
-                    <Select value={data.specs.stoneType || ''} onValueChange={v => setSpec('stoneType', v)}>
-                      <SelectTrigger style={{ marginTop: 4 }}>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Diamond">Diamond</SelectItem>
-                        <SelectItem value="Ruby">Ruby</SelectItem>
-                        <SelectItem value="Sapphire">Sapphire</SelectItem>
-                        <SelectItem value="Emerald">Emerald</SelectItem>
-                        <SelectItem value="Moissanite">Moissanite</SelectItem>
-                        <SelectItem value="CZ">Cubic Zirconia</SelectItem>
-                        <SelectItem value="Pearl">Pearl</SelectItem>
-                        <SelectItem value="Opal">Opal</SelectItem>
-                        <SelectItem value="Amethyst">Amethyst</SelectItem>
-                        <SelectItem value="Topaz">Topaz</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {fieldLabel('Stone Type')}
+                    <div className="premium-select">
+                      <Select value={data.specs.stoneType || ''} onValueChange={v => setSpec('stoneType', v)}>
+                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Diamond">Diamond</SelectItem>
+                          <SelectItem value="Ruby">Ruby</SelectItem>
+                          <SelectItem value="Sapphire">Sapphire</SelectItem>
+                          <SelectItem value="Emerald">Emerald</SelectItem>
+                          <SelectItem value="Moissanite">Moissanite</SelectItem>
+                          <SelectItem value="CZ">Cubic Zirconia</SelectItem>
+                          <SelectItem value="Pearl">Pearl</SelectItem>
+                          <SelectItem value="Opal">Opal</SelectItem>
+                          <SelectItem value="Amethyst">Amethyst</SelectItem>
+                          <SelectItem value="Topaz">Topaz</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <div>
-                    <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Stone Weight (carats)</Label>
-                    <Input
-                      style={{ marginTop: 4 }}
-                      type="text"
-                      placeholder="e.g. 1.50"
-                      value={data.specs.stoneWeight || ''}
-                      onChange={e => setSpec('stoneWeight', e.target.value)}
-                    />
+                    {fieldLabel('Stone Weight (carats)')}
+                    <Input className="premium-input" style={darkInputStyle} placeholder="e.g. 1.50" value={data.specs.stoneWeight || ''} onChange={e => setSpec('stoneWeight', e.target.value)} />
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 18 }}>
                   <div>
-                    <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Stone Color</Label>
-                    <Input
-                      style={{ marginTop: 4 }}
-                      type="text"
-                      placeholder="e.g. D, E, F or colorless"
-                      value={data.specs.stoneColor || ''}
-                      onChange={e => setSpec('stoneColor', e.target.value)}
-                    />
+                    {fieldLabel('Stone Color')}
+                    <Input className="premium-input" style={darkInputStyle} placeholder="e.g. D, E, F or colorless" value={data.specs.stoneColor || ''} onChange={e => setSpec('stoneColor', e.target.value)} />
                   </div>
                   <div>
-                    <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Stone Clarity</Label>
-                    <Input
-                      style={{ marginTop: 4 }}
-                      type="text"
-                      placeholder="e.g. VS1, SI2, or eye-clean"
-                      value={data.specs.stoneClarity || ''}
-                      onChange={e => setSpec('stoneClarity', e.target.value)}
-                    />
+                    {fieldLabel('Stone Clarity')}
+                    <Input className="premium-input" style={darkInputStyle} placeholder="e.g. VS1, SI2, or eye-clean" value={data.specs.stoneClarity || ''} onChange={e => setSpec('stoneClarity', e.target.value)} />
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
                   <div>
-                    <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Stone Cut</Label>
-                    <Input
-                      style={{ marginTop: 4 }}
-                      type="text"
-                      placeholder="e.g. Excellent, Very Good"
-                      value={data.specs.stoneCut || ''}
-                      onChange={e => setSpec('stoneCut', e.target.value)}
-                    />
+                    {fieldLabel('Stone Cut')}
+                    <Input className="premium-input" style={darkInputStyle} placeholder="e.g. Excellent, Very Good" value={data.specs.stoneCut || ''} onChange={e => setSpec('stoneCut', e.target.value)} />
                   </div>
                   <div>
-                    <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Stone Shape</Label>
-                    <Select value={data.specs.stoneShape || ''} onValueChange={v => setSpec('stoneShape', v)}>
-                      <SelectTrigger style={{ marginTop: 4 }}>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Round">Round</SelectItem>
-                        <SelectItem value="Princess">Princess</SelectItem>
-                        <SelectItem value="Oval">Oval</SelectItem>
-                        <SelectItem value="Cushion">Cushion</SelectItem>
-                        <SelectItem value="Emerald Cut">Emerald Cut</SelectItem>
-                        <SelectItem value="Pear">Pear</SelectItem>
-                        <SelectItem value="Marquise">Marquise</SelectItem>
-                        <SelectItem value="Asscher">Asscher</SelectItem>
-                        <SelectItem value="Radiant">Radiant</SelectItem>
-                        <SelectItem value="Heart">Heart</SelectItem>
-                        <SelectItem value="Baguette">Baguette</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {fieldLabel('Stone Shape')}
+                    <div className="premium-select">
+                      <Select value={data.specs.stoneShape || ''} onValueChange={v => setSpec('stoneShape', v)}>
+                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Round">Round</SelectItem>
+                          <SelectItem value="Princess">Princess</SelectItem>
+                          <SelectItem value="Oval">Oval</SelectItem>
+                          <SelectItem value="Cushion">Cushion</SelectItem>
+                          <SelectItem value="Emerald Cut">Emerald Cut</SelectItem>
+                          <SelectItem value="Pear">Pear</SelectItem>
+                          <SelectItem value="Marquise">Marquise</SelectItem>
+                          <SelectItem value="Asscher">Asscher</SelectItem>
+                          <SelectItem value="Radiant">Radiant</SelectItem>
+                          <SelectItem value="Heart">Heart</SelectItem>
+                          <SelectItem value="Baguette">Baguette</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
                 {isDiamondItem && (
                   <div style={{
-                    background: '#fff8e1', border: '1px solid #f0c14b', borderLeft: '4px solid #f0c14b',
-                    padding: '10px 14px', borderRadius: 4, marginTop: 12, fontSize: 13, color: '#5c4813'
+                    marginTop: 22,
+                    padding: '14px 18px',
+                    background: 'rgba(217,109,94,0.06)',
+                    border: `1px solid rgba(217,109,94,0.25)`,
+                    borderLeft: `2px solid ${T.danger}`,
+                    borderRadius: 2,
+                    fontSize: 12,
+                    color: '#e8c7c1',
+                    fontStyle: 'italic',
+                    display: 'flex', gap: 12, alignItems: 'flex-start',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                      <AlertTriangle size={14} color="#b8860b" />
-                      <strong>Diamond Notice</strong>
+                    <AlertTriangle size={14} color={T.danger} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div>
+                      <strong style={{ fontStyle: 'normal', color: T.danger, fontWeight: 600 }}>Diamond notice.</strong>{' '}
+                      Diamonds and colored gemstones require in-person examination with gemological equipment for accurate 4C grading unless you already hold a GIA, IGI, or AGS laboratory certificate.
                     </div>
-                    Diamonds and colored gemstones require in-person evaluation for accurate 4C grading unless you have a GIA, IGI, or AGS certification. If you have a certificate, Simplicity will note it in the description.
                   </div>
                 )}
               </div>
             )}
-          </div>
+          </section>
 
-          {/* STEP 3: GENERATE */}
-          <div style={{ marginBottom: 24 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#2E5090', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700 }}>3</div>
-              <Label style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>Generate Professional Description</Label>
-            </div>
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* III. COMPOSE                                                 */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <section style={{ marginBottom: 56 }}>
+            {sectionLabel('III', 'Compose', 'Simplicity will write a professional appraisal from your photographs')}
 
             <button
               onClick={handleGenerateDescription}
               disabled={generating || data.itemImages.length === 0}
               style={{
                 width: '100%',
-                padding: '14px 20px',
-                borderRadius: 8,
-                border: 'none',
-                background: generating ? '#94a3b8' : data.itemImages.length === 0 ? '#e2e8f0' : 'linear-gradient(135deg, #c9a84c 0%, #dab55d 100%)',
-                color: data.itemImages.length === 0 ? '#94a3b8' : '#000',
+                padding: '22px 28px',
+                borderRadius: 3,
+                border: `1px solid ${data.itemImages.length === 0 ? T.hairline : T.gold}`,
+                background: generating
+                  ? 'rgba(201,168,76,0.18)'
+                  : data.itemImages.length === 0
+                    ? 'transparent'
+                    : `linear-gradient(135deg, ${T.gold} 0%, ${T.goldDeep} 100%)`,
+                color: data.itemImages.length === 0 ? T.inkMuted : '#0b0b12',
                 cursor: generating || data.itemImages.length === 0 ? 'default' : 'pointer',
-                fontSize: 15,
-                fontWeight: 700,
+                fontFamily: T.display,
+                fontSize: 16,
+                fontWeight: 500,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
-                transition: 'all 0.2s',
-                boxShadow: data.itemImages.length > 0 && !generating ? '0 2px 8px rgba(201,168,76,0.3)' : 'none',
+                gap: 14,
+                transition: 'all 0.25s',
+                boxShadow: data.itemImages.length > 0 && !generating ? `0 4px 24px ${T.goldGlow}` : 'none',
               }}
             >
               {generating ? (
                 <>
                   <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                  Simplicity is analyzing your photos...
+                  <span style={{ fontStyle: 'italic' }}>Simplicity is composing your appraisal…</span>
                 </>
               ) : (
                 <>
                   <Sparkles size={18} />
-                  {data.itemImages.length === 0 ? 'Add Photos First' : 'Generate Description from Photos'}
+                  {data.itemImages.length === 0 ? 'Add a photograph to begin' : 'Compose Professional Description'}
                 </>
               )}
             </button>
-            <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
 
-            {data.itemImages.length === 0 && (
-              <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 8 }}>
-                Upload at least one photo above, then click to generate
+            {/* Description editor */}
+            <div style={{ marginTop: 32 }} ref={descRef}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
+                {fieldLabel('Professional Description')}
+                {descriptionGenerated && (
+                  <span style={{ fontSize: 10, color: T.success, letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                    ✓ Composed by Simplicity
+                  </span>
+                )}
               </div>
-            )}
-          </div>
-
-          <div style={{ marginBottom: 20 }} ref={descRef}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-              <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Professional Description</Label>
-              {descriptionGenerated && (
-                <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>AI Generated — you can edit below</span>
-              )}
-            </div>
-            <Textarea
-              style={{
-                marginTop: 4, minHeight: 160, fontSize: 13,
-                borderColor: descriptionGenerated ? '#86efac' : undefined,
-                transition: 'border-color 0.3s',
-              }}
-              placeholder="Simplicity will generate this from your photos. You can also write or edit manually."
-              value={data.description}
-              onChange={e => set('description', e.target.value)}
-            />
-          </div>
-
-          <div style={{ marginBottom: 20 }}>
-            <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Appraised Retail Value</Label>
-            <Input style={{ marginTop: 4 }} placeholder="Auto-estimated or enter manually" value={data.retailValue} onChange={e => set('retailValue', e.target.value)} />
-          </div>
-
-          {report && (
-            <div style={{
-              marginBottom: 24,
-              border: '1px solid #cbd5e1',
-              borderRadius: 10,
-              background: '#f8fafc',
-              overflow: 'hidden',
-            }}>
-              <button
-                type="button"
-                onClick={() => setReportOpen(o => !o)}
+              <Textarea
+                className="premium-textarea"
                 style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '14px 18px',
-                  background: '#2E5090',
-                  color: '#fff',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
+                  minHeight: 200,
+                  fontSize: 14,
+                  fontFamily: T.serif,
+                  lineHeight: 1.75,
+                  padding: '18px 20px',
                 }}
-              >
-                <span>Full Appraisal Report (AI Generated)</span>
-                <span style={{ fontSize: 18 }}>{reportOpen ? '−' : '+'}</span>
-              </button>
-              {reportOpen && (
-                <div style={{ padding: 18, fontSize: 13, color: '#1a1a1a' }}>
-                  {report.conditionGrade && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Condition Grade</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: '#2E5090' }}>{report.conditionGrade}</div>
-                      {report.conditionNotes && <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>{report.conditionNotes}</div>}
-                    </div>
-                  )}
-
-                  {(report.meltValue || report.fairMarketLow || report.retailReplacement || report.estateValue || report.liquidationValue) && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 6 }}>Tiered Valuation</div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 8 }}>
-                        {typeof report.retailReplacement === 'number' && report.retailReplacement > 0 && (
-                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Retail Replacement</div>
-                            <div style={{ fontSize: 15, fontWeight: 700, color: '#2E5090' }}>${Number(report.retailReplacement).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                          </div>
-                        )}
-                        {typeof report.fairMarketLow === 'number' && report.fairMarketLow > 0 && (
-                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Fair Market</div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.fairMarketLow).toLocaleString(undefined, { maximumFractionDigits: 0 })} – ${Number(report.fairMarketHigh || report.fairMarketLow).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                          </div>
-                        )}
-                        {typeof report.estateValue === 'number' && report.estateValue > 0 && (
-                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Estate</div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.estateValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                          </div>
-                        )}
-                        {typeof report.liquidationValue === 'number' && report.liquidationValue > 0 && (
-                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Liquidation</div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.liquidationValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-                          </div>
-                        )}
-                        {typeof report.meltValue === 'number' && report.meltValue > 0 && (
-                          <div style={{ padding: 10, background: '#fff', borderRadius: 6, border: '1px solid #e2e8f0' }}>
-                            <div style={{ fontSize: 9, color: '#64748b', textTransform: 'uppercase' }}>Melt / Intrinsic</div>
-                            <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>${Number(report.meltValue).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {report.valuationMath && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Valuation Math</div>
-                      <div style={{ fontSize: 12, color: '#1a1a1a', background: '#fff', padding: 10, borderRadius: 6, border: '1px solid #e2e8f0', lineHeight: 1.6 }}>{report.valuationMath}</div>
-                    </div>
-                  )}
-
-                  {report.materialAnalysis && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Material Analysis</div>
-                      <div style={{ fontSize: 12, color: '#1a1a1a', lineHeight: 1.6 }}>{report.materialAnalysis}</div>
-                    </div>
-                  )}
-
-                  {Array.isArray(report.keyFactors) && report.keyFactors.length > 0 && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Key Factors Affecting Value</div>
-                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#1a1a1a', lineHeight: 1.7 }}>
-                        {report.keyFactors.map((f: string, i: number) => <li key={i}>{f}</li>)}
-                      </ul>
-                    </div>
-                  )}
-
-                  {Array.isArray(report.recommendations) && report.recommendations.length > 0 && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Recommendations</div>
-                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: '#1a1a1a', lineHeight: 1.7 }}>
-                        {report.recommendations.map((r: string, i: number) => <li key={i}>{r}</li>)}
-                      </ul>
-                    </div>
-                  )}
-
-                  {report.certificationAdvice && (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Certification Advice</div>
-                      <div style={{ fontSize: 12, color: '#1a1a1a', lineHeight: 1.6 }}>{report.certificationAdvice}</div>
-                    </div>
-                  )}
-
-                  {Array.isArray(report.sources) && report.sources.length > 0 && (
-                    <div>
-                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b', marginBottom: 4 }}>Data Sources</div>
-                      <ul style={{ margin: 0, paddingLeft: 18, fontSize: 11, color: '#475569', lineHeight: 1.6 }}>
-                        {report.sources.map((s: string, i: number) => <li key={i}>{s}</li>)}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
+                placeholder="Simplicity will compose this from your photographs. You may also write or edit manually."
+                value={data.description}
+                onChange={e => set('description', e.target.value)}
+              />
             </div>
-          )}
 
-          <div style={{ marginBottom: 24 }}>
-            <Label style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12, display: 'block' }}>Choose Your Appraisal Template</Label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
-              {TEMPLATE_OPTIONS.map(t => (
+            <div style={{ marginTop: 20, maxWidth: 360 }}>
+              {fieldLabel('Appraised Retail Value')}
+              <Input className="premium-input" style={darkInputStyle} placeholder="Auto-estimated, or enter manually" value={data.retailValue} onChange={e => set('retailValue', e.target.value)} />
+            </div>
+
+            {report && (
+              <div style={{
+                marginTop: 32,
+                border: `1px solid ${T.hairline}`,
+                borderRadius: 3,
+                background: 'rgba(244,239,226,0.025)',
+                overflow: 'hidden',
+              }}>
                 <button
-                  key={t.id}
                   type="button"
-                  onClick={() => set('templateStyle', t.id)}
+                  onClick={() => setReportOpen(o => !o)}
                   style={{
-                    padding: '12px 10px',
-                    borderRadius: 8,
-                    border: data.templateStyle === t.id ? '2px solid #2E5090' : '2px solid #e2e8f0',
-                    background: data.templateStyle === t.id ? '#eef2ff' : '#fff',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '18px 24px',
+                    background: 'transparent',
+                    color: T.gold,
+                    border: 'none',
+                    borderBottom: reportOpen ? `1px solid ${T.hairline}` : 'none',
                     cursor: 'pointer',
-                    textAlign: 'center',
-                    transition: 'all 0.2s',
+                    fontFamily: T.display,
+                    fontSize: 13,
+                    fontWeight: 500,
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
                   }}
                 >
-                  <div style={{
-                    fontSize: 13, fontWeight: 700,
-                    color: data.templateStyle === t.id ? '#2E5090' : '#1a1a1a',
-                    marginBottom: 4,
-                  }}>
-                    {t.name}
-                  </div>
-                  <div style={{ fontSize: 10, color: '#64748b', lineHeight: 1.4 }}>
-                    {t.desc}
-                  </div>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontStyle: 'italic', color: T.inkMuted, fontSize: 11 }}>Full Report</span>
+                    <span>— Structured Appraisal</span>
+                  </span>
+                  <span style={{ fontSize: 20, fontWeight: 400 }}>{reportOpen ? '−' : '+'}</span>
                 </button>
-              ))}
+                {reportOpen && (
+                  <div style={{ padding: '24px 28px' }}>
+                    {report.conditionGrade && (
+                      <div style={{ marginBottom: 22, display: 'flex', gap: 16, alignItems: 'baseline' }}>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', minWidth: 90 }}>Condition</div>
+                        <div>
+                          <span style={{ fontFamily: T.display, fontSize: 18, color: T.gold }}>{report.conditionGrade}</span>
+                          {report.conditionNotes && <div style={{ fontSize: 12, color: T.inkMuted, fontStyle: 'italic', marginTop: 4, lineHeight: 1.6 }}>{report.conditionNotes}</div>}
+                        </div>
+                      </div>
+                    )}
+
+                    {(report.meltValue || report.fairMarketLow || report.retailReplacement || report.estateValue || report.liquidationValue) && (
+                      <div style={{ marginBottom: 22 }}>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 12 }}>Valuation Tiers</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 12 }}>
+                          {typeof report.retailReplacement === 'number' && report.retailReplacement > 0 && (
+                            <div style={{ padding: '14px 16px', background: 'rgba(201,168,76,0.08)', border: `1px solid ${T.gold}`, borderRadius: 2 }}>
+                              <div style={{ fontSize: 9, color: T.gold, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 4 }}>Retail Replacement</div>
+                              <div style={{ fontFamily: T.display, fontSize: 20, color: T.ink }}>${Number(report.retailReplacement).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            </div>
+                          )}
+                          {typeof report.fairMarketLow === 'number' && report.fairMarketLow > 0 && (
+                            <div style={{ padding: '14px 16px', background: 'rgba(244,239,226,0.03)', border: `1px solid ${T.hairline}`, borderRadius: 2 }}>
+                              <div style={{ fontSize: 9, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 4 }}>Fair Market</div>
+                              <div style={{ fontFamily: T.display, fontSize: 17, color: T.ink }}>${Number(report.fairMarketLow).toLocaleString(undefined, { maximumFractionDigits: 0 })} – ${Number(report.fairMarketHigh || report.fairMarketLow).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            </div>
+                          )}
+                          {typeof report.estateValue === 'number' && report.estateValue > 0 && (
+                            <div style={{ padding: '14px 16px', background: 'rgba(244,239,226,0.03)', border: `1px solid ${T.hairline}`, borderRadius: 2 }}>
+                              <div style={{ fontSize: 9, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 4 }}>Estate</div>
+                              <div style={{ fontFamily: T.display, fontSize: 17, color: T.ink }}>${Number(report.estateValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            </div>
+                          )}
+                          {typeof report.liquidationValue === 'number' && report.liquidationValue > 0 && (
+                            <div style={{ padding: '14px 16px', background: 'rgba(244,239,226,0.03)', border: `1px solid ${T.hairline}`, borderRadius: 2 }}>
+                              <div style={{ fontSize: 9, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 4 }}>Liquidation</div>
+                              <div style={{ fontFamily: T.display, fontSize: 17, color: T.ink }}>${Number(report.liquidationValue).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            </div>
+                          )}
+                          {typeof report.meltValue === 'number' && report.meltValue > 0 && (
+                            <div style={{ padding: '14px 16px', background: 'rgba(244,239,226,0.03)', border: `1px solid ${T.hairline}`, borderRadius: 2 }}>
+                              <div style={{ fontSize: 9, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 4 }}>Melt / Intrinsic</div>
+                              <div style={{ fontFamily: T.display, fontSize: 17, color: T.ink }}>${Number(report.meltValue).toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {report.valuationMath && (
+                      <div style={{ marginBottom: 22 }}>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 8 }}>Valuation Methodology</div>
+                        <div style={{ fontSize: 12, color: T.ink, lineHeight: 1.75, fontFamily: T.serif, fontStyle: 'italic' }}>{report.valuationMath}</div>
+                      </div>
+                    )}
+
+                    {report.materialAnalysis && (
+                      <div style={{ marginBottom: 22 }}>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 8 }}>Material Analysis</div>
+                        <div style={{ fontSize: 12, color: T.ink, lineHeight: 1.75, fontFamily: T.serif }}>{report.materialAnalysis}</div>
+                      </div>
+                    )}
+
+                    {Array.isArray(report.keyFactors) && report.keyFactors.length > 0 && (
+                      <div style={{ marginBottom: 22 }}>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 8 }}>Key Factors Affecting Value</div>
+                        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12, color: T.ink, lineHeight: 1.8, fontFamily: T.serif }}>
+                          {report.keyFactors.map((f: string, i: number) => <li key={i} style={{ marginBottom: 4 }}>{f}</li>)}
+                        </ul>
+                      </div>
+                    )}
+
+                    {Array.isArray(report.recommendations) && report.recommendations.length > 0 && (
+                      <div style={{ marginBottom: 22 }}>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 8 }}>Recommendations</div>
+                        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 12, color: T.ink, lineHeight: 1.8, fontFamily: T.serif }}>
+                          {report.recommendations.map((r: string, i: number) => <li key={i} style={{ marginBottom: 4 }}>{r}</li>)}
+                        </ul>
+                      </div>
+                    )}
+
+                    {report.certificationAdvice && (
+                      <div style={{ marginBottom: 22 }}>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 8 }}>Certification Advice</div>
+                        <div style={{ fontSize: 12, color: T.ink, lineHeight: 1.75, fontFamily: T.serif, fontStyle: 'italic' }}>{report.certificationAdvice}</div>
+                      </div>
+                    )}
+
+                    {Array.isArray(report.sources) && report.sources.length > 0 && (
+                      <div>
+                        <div style={{ fontSize: 10, color: T.inkMuted, textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: 8 }}>Data Sources</div>
+                        <ul style={{ margin: 0, paddingLeft: 20, fontSize: 11, color: T.inkMuted, lineHeight: 1.7 }}>
+                          {report.sources.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* IV. TEMPLATE                                                 */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <section style={{ marginBottom: 56 }}>
+            {sectionLabel('IV', 'Document Style', 'Five distinct presentation formats, each a world of its own')}
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14 }}>
+              {TEMPLATE_OPTIONS.map(t => {
+                const selected = data.templateStyle === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => set('templateStyle', t.id)}
+                    style={{
+                      padding: '22px 16px',
+                      borderRadius: 3,
+                      border: selected ? `1px solid ${T.gold}` : `1px solid ${T.hairline}`,
+                      background: selected ? 'rgba(201,168,76,0.08)' : 'transparent',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.25s',
+                      position: 'relative',
+                    }}
+                    onMouseOver={e => { if (!selected) e.currentTarget.style.borderColor = 'rgba(201,168,76,0.5)'; }}
+                    onMouseOut={e => { if (!selected) e.currentTarget.style.borderColor = T.hairline; }}
+                  >
+                    {selected && (
+                      <div style={{
+                        position: 'absolute', top: 8, right: 10,
+                        fontSize: 9, color: T.gold, letterSpacing: '0.2em', textTransform: 'uppercase',
+                      }}>
+                        ✓
+                      </div>
+                    )}
+                    <div style={{
+                      width: 36, height: 1, background: selected ? T.gold : T.hairline,
+                      margin: '0 auto 14px',
+                    }} />
+                    <div style={{
+                      fontFamily: T.display, fontSize: 18, fontWeight: 400,
+                      color: selected ? T.gold : T.ink, marginBottom: 6,
+                      letterSpacing: '0.02em',
+                    }}>
+                      {t.name}
+                    </div>
+                    <div style={{
+                      fontSize: 10, color: T.inkMuted,
+                      lineHeight: 1.5, fontStyle: 'italic', fontFamily: T.serif,
+                    }}>
+                      {t.tagline}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-          </div>
+          </section>
 
-          <div style={{
-            borderTop: '1px solid #e2e8f0',
-            paddingTop: 20,
-            marginBottom: 20,
-          }}>
-            <Label style={{ fontSize: 13, fontWeight: 700, color: '#1a1a1a', marginBottom: 12, display: 'block' }}>Your Information</Label>
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* V. CLIENT DETAILS                                            */}
+          {/* ─────────────────────────────────────────────────────────── */}
+          <section style={{ marginBottom: 48 }}>
+            {sectionLabel('V', 'Client Details', 'For the record of appraisal')}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Appraisal No.</Label>
-                <Input style={{ marginTop: 4 }} value={data.appraisalNumber} onChange={e => set('appraisalNumber', e.target.value)} />
+                {fieldLabel('Appraisal Number')}
+                <Input className="premium-input" style={darkInputStyle} value={data.appraisalNumber} onChange={e => set('appraisalNumber', e.target.value)} />
               </div>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Date</Label>
-                <Input style={{ marginTop: 4 }} type="date" value={data.date} onChange={e => set('date', e.target.value)} />
+                {fieldLabel('Date')}
+                <Input className="premium-input" style={darkInputStyle} type="date" value={data.date} onChange={e => set('date', e.target.value)} />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Your Full Name</Label>
-                <Input style={{ marginTop: 4 }} placeholder="Jane Smith" value={data.propertyOwner} onChange={e => set('propertyOwner', e.target.value)} />
+                {fieldLabel('Full Name')}
+                <Input className="premium-input" style={darkInputStyle} placeholder="Jane Smith" value={data.propertyOwner} onChange={e => set('propertyOwner', e.target.value)} />
               </div>
               <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Email Address</Label>
-                <Input style={{ marginTop: 4 }} type="email" placeholder="you@email.com" value={data.customerEmail} onChange={e => set('customerEmail', e.target.value)} />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 12 }}>
-              <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>Address (optional)</Label>
-                <Input style={{ marginTop: 4 }} placeholder="123 Main St" value={data.address} onChange={e => set('address', e.target.value)} />
-              </div>
-              <div>
-                <Label style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#666' }}>City, State, Zip</Label>
-                <Input style={{ marginTop: 4 }} placeholder="New York, NY 10001" value={data.cityStateZip} onChange={e => set('cityStateZip', e.target.value)} />
+                {fieldLabel('Email Address')}
+                <Input className="premium-input" style={darkInputStyle} type="email" placeholder="you@email.com" value={data.customerEmail} onChange={e => set('customerEmail', e.target.value)} />
               </div>
             </div>
 
-            <div style={{
-              background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8,
-              padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, marginTop: 8,
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+              <div>
+                {fieldLabel('Address (optional)')}
+                <Input className="premium-input" style={darkInputStyle} placeholder="123 Main St" value={data.address} onChange={e => set('address', e.target.value)} />
+              </div>
+              <div>
+                {fieldLabel('City, State, ZIP')}
+                <Input className="premium-input" style={darkInputStyle} placeholder="New York, NY 10001" value={data.cityStateZip} onChange={e => set('cityStateZip', e.target.value)} />
+              </div>
+            </div>
+
+            <label style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: '16px 22px',
+              border: `1px solid ${T.hairline}`,
+              borderRadius: 2,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
             }}>
-              <input type="checkbox" id="zoom" checked={data.zoomRequested} onChange={e => set('zoomRequested', e.target.checked)} style={{ width: 18, height: 18, accentColor: '#2E5090' }} />
-              <label htmlFor="zoom" style={{ fontSize: 13, color: '#1a1a1a', cursor: 'pointer' }}>
-                <strong>Request Zoom Consultation</strong>
-                <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>Schedule a live video call with our appraiser for detailed evaluation</div>
-              </label>
-            </div>
-          </div>
+              <input
+                type="checkbox"
+                checked={data.zoomRequested}
+                onChange={e => set('zoomRequested', e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: T.gold }}
+              />
+              <div>
+                <div style={{ fontFamily: T.display, fontSize: 14, color: T.ink, fontStyle: 'italic' }}>
+                  Request a Zoom consultation
+                </div>
+                <div style={{ fontSize: 11, color: T.inkMuted, marginTop: 3 }}>
+                  Schedule a live video call with our GIA certified appraiser for detailed evaluation.
+                </div>
+              </div>
+            </label>
+          </section>
 
+          {/* ─────────────────────────────────────────────────────────── */}
+          {/* SUBMIT                                                       */}
+          {/* ─────────────────────────────────────────────────────────── */}
           {!submitted ? (
             <button
               onClick={handleSubmitForReview}
               disabled={submitting || !data.description.trim()}
               style={{
                 width: '100%',
-                padding: '16px 20px',
-                borderRadius: 8,
-                border: 'none',
-                background: submitting || !data.description.trim() ? '#94a3b8' : '#2E5090',
-                color: '#fff',
+                padding: '24px 28px',
+                borderRadius: 2,
+                border: `1px solid ${!data.description.trim() ? T.hairline : T.gold}`,
+                background: submitting || !data.description.trim() ? 'transparent' : T.ink,
+                color: submitting || !data.description.trim() ? T.inkMuted : '#0b0b12',
                 cursor: submitting || !data.description.trim() ? 'default' : 'pointer',
-                fontSize: 16,
-                fontWeight: 700,
+                fontFamily: T.display,
+                fontSize: 15,
+                fontWeight: 500,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 8,
+                gap: 14,
+                transition: 'all 0.25s',
               }}
             >
               {submitting ? (
                 <>
                   <Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} />
-                  Submitting...
+                  <span style={{ fontStyle: 'italic' }}>Submitting…</span>
                 </>
               ) : (
                 <>
-                  <Send size={18} />
-                  Submit for Professional Review
+                  <Send size={16} />
+                  Submit for Certification
                 </>
               )}
             </button>
           ) : (
             <div style={{
-              background: '#f0fdf4', border: '2px solid #86efac', borderRadius: 10,
-              padding: '20px 24px', textAlign: 'center',
+              padding: '40px 36px', textAlign: 'center',
+              border: `1px solid ${T.gold}`,
+              background: 'rgba(201,168,76,0.04)',
+              borderRadius: 2,
             }}>
-              <CheckCircle size={28} color="#22c55e" style={{ marginBottom: 8 }} />
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#166534', marginBottom: 4 }}>
-                Appraisal Submitted Successfully
+              <div style={{
+                width: 56, height: 56, margin: '0 auto 20px',
+                border: `1px solid ${T.gold}`, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <CheckCircle size={22} color={T.gold} />
               </div>
-              <div style={{ fontSize: 13, color: '#15803d' }}>
-                Demiris Brown, GIA Certified Jewelry Appraiser, will review your submission and contact you within 24-48 hours.
+              <div style={{ fontFamily: T.display, fontSize: 24, color: T.gold, marginBottom: 10 }}>
+                Submitted for Review
+              </div>
+              <div style={{ fontSize: 13, color: T.inkMuted, maxWidth: 420, margin: '0 auto', lineHeight: 1.7, fontStyle: 'italic', fontFamily: T.serif }}>
+                Demiris Brown, GIA Graduate Gemologist, will personally review your submission and return a certified document within 24–48 hours.
               </div>
             </div>
           )}
         </div>
       )}
 
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/* DOCUMENT PREVIEW                                                */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
       <div className="appraisal-doc" style={{
         width: '8.5in', minHeight: '11in',
-        margin: '20px auto 40px',
+        margin: editing ? '40px auto 80px' : '20px auto 40px',
         background: '#ffffff',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
+        boxShadow: '0 20px 80px rgba(0,0,0,0.6), 0 4px 20px rgba(0,0,0,0.3)',
         padding: '0.65in 0.75in',
         position: 'relative', overflow: 'hidden',
         fontFamily: '"Times New Roman", Georgia, "Times", serif',
