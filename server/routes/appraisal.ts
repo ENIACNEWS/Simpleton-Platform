@@ -6,6 +6,40 @@ import { isAuthenticated } from "../auth";
 import { getKitcoPricing } from "../kitco-pricing";
 import crypto from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
+import sharp from "sharp";
+
+// Anthropic's vision API has a 5 MB per-image limit. Phone cameras routinely
+// produce 7-15 MB images, so we must compress before sending. This function
+// decodes the base64, resizes to max 2048px on the longest side, and
+// re-encodes as JPEG at quality 80 — which keeps visual detail high for
+// hallmark and stamp recognition while staying well under the 5 MB cap.
+const MAX_VISION_BYTES = 4_800_000; // stay under 5 MB with margin
+const MAX_VISION_DIM = 2048;
+
+async function compressImageForVision(dataUrl: string): Promise<{ base64: string; mediaType: string }> {
+  const mimeMatch = dataUrl.match(/^data:(image\/[a-z]+);base64,/);
+  const originalType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+  const raw = dataUrl.replace(/^data:image\/[a-z]+;base64,/, '');
+  const buf = Buffer.from(raw, 'base64');
+
+  // If already under the limit, pass through unchanged
+  if (buf.length <= MAX_VISION_BYTES) {
+    return { base64: raw, mediaType: originalType };
+  }
+
+  // Resize + compress with sharp
+  const compressed = await sharp(buf)
+    .resize(MAX_VISION_DIM, MAX_VISION_DIM, { fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 80, mozjpeg: true })
+    .toBuffer();
+
+  console.log(`📸 Image compressed: ${(buf.length / 1024 / 1024).toFixed(1)}MB → ${(compressed.length / 1024 / 1024).toFixed(1)}MB`);
+
+  return {
+    base64: compressed.toString('base64'),
+    mediaType: 'image/jpeg',
+  };
+}
 
 function escHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -206,9 +240,8 @@ FORMAT: Write professionally with clear section labels on their own lines follow
 
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-      const base64Data = image.replace(/^data:image\/[a-z]+;base64,/, '');
-      const mediaMatch = image.match(/^data:(image\/[a-z]+);base64,/);
-      const mediaType = mediaMatch ? mediaMatch[1] : 'image/jpeg';
+      // Compress oversized images before sending to Anthropic (5 MB limit)
+      const { base64: compressedBase64, mediaType: compressedMediaType } = await compressImageForVision(image);
 
       const startTime = Date.now();
       const visionResponse = await anthropic.messages.create({
@@ -222,8 +255,8 @@ FORMAT: Write professionally with clear section labels on their own lines follow
               type: "image",
               source: {
                 type: "base64",
-                media_type: mediaType as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
-                data: base64Data
+                media_type: compressedMediaType as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
+                data: compressedBase64
               }
             }
           ]
@@ -934,14 +967,15 @@ HONESTY PROTOCOL
 - Do NOT inflate or deflate values. Stay within realistic market ranges.
 - Always recommend in-person verification for insurance, estate, or legal use.`;
 
+      // Compress images to fit Anthropic's 5 MB/image limit before sending.
+      // Phone cameras routinely produce 7-15 MB shots; without this, the API
+      // rejects them with "image exceeds 5 MB maximum."
       const imageContent: any[] = [];
       for (const img of images.slice(0, 5)) {
-        const base64Data = img.replace(/^data:image\/[a-z]+;base64,/, '');
-        const mediaMatch = img.match(/^data:(image\/[a-z]+);base64,/);
-        const mediaType = mediaMatch ? mediaMatch[1] : 'image/jpeg';
+        const { base64, mediaType } = await compressImageForVision(img);
         imageContent.push({
           type: 'image',
-          source: { type: 'base64', media_type: mediaType as any, data: base64Data },
+          source: { type: 'base64', media_type: mediaType as any, data: base64 },
         });
       }
 
