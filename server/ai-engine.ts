@@ -78,7 +78,7 @@ class MultiProviderAIEngine {
       {
         name: 'Anthropic',
         type: 'anthropic',
-        models: ['claude-sonnet-4-20250514', 'claude-3-5-haiku-20241022'],
+        models: ['claude-sonnet-4-6', 'claude-3-5-haiku-20241022'],
         envKey: 'ANTHROPIC_API_KEY',
         available: false,
       },
@@ -620,7 +620,7 @@ Combine the best insights into a single natural, conversational response. Sound 
     try {
       if (anthropicClient) {
         const result = await anthropicClient.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-6',
           max_tokens: 2000,
           temperature: 0.8,
           messages: [{ role: 'user', content: synthesisPrompt }],

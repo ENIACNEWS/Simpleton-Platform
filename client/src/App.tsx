@@ -26,6 +26,7 @@ import QuantumTickerPage from "@/pages/quantum-ticker";
 import TickersPage from "@/pages/tickers";
 import SimpletonMarkets from "@/pages/simpleton-markets";
 // TEMPORARILY REMOVED: AIChat (Simplicity Chat), AIPriceAdvisor (SimpleDocs+)
+import SimplicityWorkspace from "@/pages/simplicity";
 import AIMarketAnalysis from "@/pages/ai-market-analysis";
 import MarketSignals from "@/pages/market-signals";
 import About from "@/pages/about";
@@ -91,6 +92,7 @@ function DesktopRouter() {
         <Route path="/tickers" component={TickersPage} />
         <Route path="/markets" component={SimpletonMarkets} />
         {/* TEMPORARILY REMOVED: /ai-chat, /ai-price-advisor */}
+        <Route path="/simplicity" component={SimplicityWorkspace} />
         <Route path="/ai-market-analysis" component={AIMarketAnalysis} />
         <Route path="/market-signals" component={MarketSignals} />
         <Route path="/standalone-precious-metals" component={StandalonePreciousMetals} />
