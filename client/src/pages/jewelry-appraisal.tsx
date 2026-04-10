@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Printer, Edit2, X, FileText, Send, CheckCircle, AlertTriangle, Sparkles, Camera, Loader2 } from 'lucide-react';
+import { Printer, Edit2, X, FileText, Send, CheckCircle, AlertTriangle, Sparkles, Camera, Loader2, ArrowLeft } from 'lucide-react';
+import { Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { AppraisalTemplate } from '@/components/appraisal-templates';
@@ -358,6 +359,21 @@ export default function JewelryAppraisal() {
         position: 'sticky', top: 0, zIndex: 100,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              border: `1px solid ${T.hairline}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+            onMouseOver={e => { e.currentTarget.style.borderColor = T.gold; }}
+            onMouseOut={e => { e.currentTarget.style.borderColor = T.hairline; }}
+            title="Back to home"
+            >
+              <ArrowLeft size={14} color={T.inkMuted} />
+            </div>
+          </Link>
           <div style={{
             width: 32, height: 32, borderRadius: '50%',
             border: `1px solid ${T.gold}`,
