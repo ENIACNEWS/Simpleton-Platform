@@ -1074,6 +1074,210 @@ export function LedgerTemplate(p: TemplateProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+//  6. MOTORCITY — Demiris Brown / Motor City Jewelry personal template
+//  Exact recreation of Demiris's physical PDF form. Red rules, Motor City
+//  Jewelry branding, centered disclaimer block, traditional layout.
+//  Available ONLY for Demiris Brown — not shown in the public picker.
+// ═══════════════════════════════════════════════════════════════════════
+export function MotorCityTemplate(p: TemplateProps) {
+  const C = { red: '#c41e2a', ink: '#1a1a1a', muted: '#444', hairline: '#ccc' };
+  const retail = fmtMoney(p.retailValue);
+  const tierRetail = p.report?.retailReplacement ? money0(p.report.retailReplacement) : null;
+  const displayValue = tierRetail || retail;
+
+  return (
+    <div style={{
+      background: '#fff', color: C.ink, minHeight: '100%', position: 'relative',
+      fontFamily: '"Times New Roman", Georgia, "Times", serif', fontSize: 13, lineHeight: 1.5,
+      padding: '0.5in 0.6in 0.4in',
+    }}>
+      {/* ── Top red rule ── */}
+      <div style={{ height: 3, background: C.red, marginBottom: 14 }} />
+
+      {/* ── Header: credentials left, logo center, "Property of" right ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'flex-start', marginBottom: 6 }}>
+        {/* Left: Demiris credentials */}
+        <div style={{ fontSize: 11, lineHeight: 1.4 }}>
+          <div style={{ fontWeight: 700, fontStyle: 'italic', fontSize: 13 }}>Demiris Brown</div>
+          <div style={{ fontStyle: 'italic' }}>Graduate Diamonds, GIA</div>
+          <div>26510 Gratiot Ave.</div>
+          <div>Roseville, MI 48066</div>
+          <div>(586)772-2274</div>
+        </div>
+
+        {/* Center: Motor City Jewelry logo */}
+        <div style={{ textAlign: 'center', padding: '0 24px' }}>
+          {/* Diamond icon */}
+          <div style={{ marginBottom: 2 }}>
+            <svg width="28" height="24" viewBox="0 0 28 24" fill="none" style={{ display: 'inline-block' }}>
+              <polygon points="14,2 22,9 14,22 6,9" fill={C.red} />
+              <polygon points="6,9 14,2 14,9" fill="#e85560" />
+              <polygon points="22,9 14,2 14,9" fill="#a01520" />
+              <polygon points="6,9 14,22 14,9" fill="#d42030" />
+              <polygon points="22,9 14,22 14,9" fill="#8a1018" />
+            </svg>
+          </div>
+          <div style={{
+            fontFamily: '"Impact", "Arial Black", sans-serif',
+            fontSize: 28, fontWeight: 900, letterSpacing: '0.08em',
+            lineHeight: 1, color: C.ink, textTransform: 'uppercase',
+          }}>
+            MOTOR CITY
+          </div>
+          <div style={{
+            fontFamily: '"Times New Roman", serif',
+            fontSize: 16, fontWeight: 400, letterSpacing: '0.25em',
+            textTransform: 'uppercase', color: C.ink, marginTop: 1,
+          }}>
+            JEWELRY
+          </div>
+        </div>
+
+        {/* Right: Property of */}
+        <div style={{ textAlign: 'right', fontSize: 12 }}>
+          <div style={{ fontWeight: 400 }}>Property of:</div>
+          <div style={{ fontWeight: 700, marginTop: 4, minHeight: 18 }}>
+            {p.customerName || ''}
+          </div>
+          {p.customerAddress && <div>{p.customerAddress}</div>}
+          {p.customerCityStateZip && <div>{p.customerCityStateZip}</div>}
+        </div>
+      </div>
+
+      {/* ── Red rule under header ── */}
+      <div style={{ height: 2, background: C.red, marginBottom: 16 }} />
+
+      {/* ── Disclaimer block ── */}
+      <div style={{
+        textAlign: 'center', fontSize: 9.5, lineHeight: 1.5,
+        color: C.red, fontWeight: 700, textTransform: 'uppercase',
+        maxWidth: '5.5in', margin: '0 auto 24px',
+        letterSpacing: '0.02em',
+      }}>
+        THE LISTED VALUES FOR REPLACEMENT IN THE EVENT OF A LOSS ARE
+        OFFERED TO GIVE THE OWNER SUFFICIENT PROTECTION TO RECOVER LIKE
+        QUALITY AND VALUE AND SIMILAR STYLING AND DO NOT NECESSARILY
+        REFLECT THE ORIGINAL PURCHASE PRICE OR PREVIOUS APPRAISALS. IT
+        MUST BE REALIZED THAT MANY ITEMS OF JEWELRY CANNOT BE REPLACED
+        DUE TO FOREIGN MANUFACTURE OR A VARIETY OF OTHER REASONS.
+        THEREFORE, VALUES ARE DETERMINED TO PERMIT SATISFACTORY
+        REPLACEMENT WITH A SIMILAR ITEM OF EQUAL VALUE, WE DO NOT AGREE
+        TO PURCHASE OR REPLACE THE ARTICLES.
+      </div>
+
+      {/* ── "Jewelry Appraisal" title + Date ── */}
+      <div style={{ textAlign: 'center', marginBottom: 6 }}>
+        <div style={{
+          fontFamily: '"Times New Roman", Georgia, serif',
+          fontSize: 24, fontStyle: 'italic', fontWeight: 400,
+          color: C.ink, borderBottom: `1px solid ${C.hairline}`,
+          display: 'inline-block', paddingBottom: 4,
+          letterSpacing: '0.02em',
+        }}>
+          Jewelry Appraisal
+        </div>
+      </div>
+      <div style={{ textAlign: 'right', fontSize: 12, marginBottom: 20 }}>
+        <span style={{ fontWeight: 400 }}>Date: </span>
+        <span style={{ borderBottom: `1px solid ${C.ink}`, paddingBottom: 1, display: 'inline-block', minWidth: 140 }}>
+          {fmtDate(p.date)}
+        </span>
+      </div>
+
+      {/* ── Appraisal Number (small, upper left) ── */}
+      <div style={{ fontSize: 10, color: C.muted, marginBottom: 12 }}>
+        Appraisal № {p.appraisalNumber}
+      </div>
+
+      {/* ── Description of Article ── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{
+          fontSize: 13, fontWeight: 700, fontStyle: 'italic',
+          marginBottom: 8,
+        }}>
+          Description of Article:
+        </div>
+        <div style={{
+          fontSize: 12, lineHeight: 1.75, whiteSpace: 'pre-wrap',
+          minHeight: 260, color: C.ink, textAlign: 'justify',
+        }}>
+          {p.description || ''}
+        </div>
+      </div>
+
+      {/* ── Images (if any) — small row below description ── */}
+      {p.images.length > 0 && (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 20, justifyContent: 'center' }}>
+          {p.images.slice(0, 4).map((img, i) => (
+            <img key={i} src={img} alt="" style={{
+              width: 100, height: 100, objectFit: 'contain',
+              border: `0.5px solid ${C.hairline}`,
+            }} />
+          ))}
+        </div>
+      )}
+
+      {/* ── Tiered values (if report exists) ── */}
+      {p.report && (p.report.retailReplacement || p.report.fairMarketLow || p.report.meltValue) && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${[p.report.retailReplacement, p.report.fairMarketLow, p.report.estateValue, p.report.liquidationValue, p.report.meltValue].filter(Boolean).length}, 1fr)`,
+            border: `1px solid ${C.hairline}`, fontSize: 10,
+          }}>
+            {[
+              ['Retail Replacement', money0(p.report.retailReplacement)],
+              ['Fair Market', p.report.fairMarketLow ? `${money0(p.report.fairMarketLow)}–${money0(p.report.fairMarketHigh || p.report.fairMarketLow)}` : null],
+              ['Estate', money0(p.report.estateValue)],
+              ['Liquidation', money0(p.report.liquidationValue)],
+              ['Melt', money2(p.report.meltValue)],
+            ].filter(([, v]) => v).map(([label, value], i, arr) => (
+              <div key={i} style={{
+                padding: '8px 6px', textAlign: 'center',
+                borderRight: i < arr.length - 1 ? `1px solid ${C.hairline}` : 'none',
+              }}>
+                <div style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, marginBottom: 2 }}>{label}</div>
+                <div style={{ fontWeight: 700, color: C.ink }}>{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Total estimated retail replacement value ── */}
+      <div style={{ marginBottom: 40 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
+          Total estimated retail replacement value:
+        </div>
+        <div style={{ fontSize: 18, fontWeight: 700, paddingLeft: 40 }}>
+          ${displayValue ? displayValue.replace('$', '') : ''}
+        </div>
+      </div>
+
+      {/* ── Appraiser signature ── */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
+          <span style={{ fontSize: 12 }}>Appraiser:</span>
+          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.05em' }}>DEMIRIS BROWN</span>
+        </div>
+        <div style={{ borderBottom: `1px solid ${C.ink}`, marginTop: 4, maxWidth: '90%' }} />
+      </div>
+
+      {/* ── Legal footer ── */}
+      <div style={{ fontSize: 9, color: C.muted, lineHeight: 1.5 }}>
+        The foregoing appraisal is made with the understanding that the Appraiser assumes no liability with respect to any action that may be taken on the basis of this appraisal.
+      </div>
+
+      {/* ── QR verify (small, bottom right) ── */}
+      <div style={{ position: 'absolute', bottom: 30, right: 40 }}>
+        <QRCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} size={48} />
+        <div style={{ fontSize: 6, color: C.muted, textAlign: 'center', marginTop: 2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Verify</div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 //  Router — maps template keys (new + legacy) to the rendered component
 // ═══════════════════════════════════════════════════════════════════════
 export function AppraisalTemplate({ templateStyle, ...props }: TemplateProps & { templateStyle: string }) {
@@ -1084,6 +1288,7 @@ export function AppraisalTemplate({ templateStyle, ...props }: TemplateProps & {
     case 'boutique': return <BoutiqueTemplate {...props} />;
     case 'vault':    return <VaultTemplate {...props} />;
     case 'ledger':   return <LedgerTemplate {...props} />;
+    case 'motorcity': return <MotorCityTemplate {...props} />;
     // Legacy aliases (pre-rebrand saved appraisals)
     case 'classic':      return <HeritageTemplate {...props} />;
     case 'elegant':      return <AtelierTemplate {...props} />;

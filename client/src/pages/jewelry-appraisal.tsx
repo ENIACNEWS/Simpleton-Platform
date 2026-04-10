@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Printer, Edit2, X, FileText, Send, CheckCircle, AlertTriangle, Sparkles, Camera, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 import { AppraisalTemplate } from '@/components/appraisal-templates';
 import type { ItemSpecs } from '@/components/appraisal-templates';
 
@@ -74,6 +75,14 @@ export default function JewelryAppraisal() {
   const [reportOpen, setReportOpen] = useState(true);
   const [dragOver, setDragOver] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Motor City Jewelry template is Demiris Brown's personal form —
+  // only visible when the admin (user id 1) is logged in.
+  const isAdmin = user && ((user as any).id === 1 || (user as any).role === 'admin');
+  const templateOptions = isAdmin
+    ? [...TEMPLATE_OPTIONS, { id: 'motorcity', name: 'Motor City', tagline: 'Demiris Brown personal form', accent: '#c41e2a' }]
+    : TEMPLATE_OPTIONS;
   const [data, setData] = useState<AppraisalData>({
     propertyOwner: '',
     customerEmail: '',
@@ -992,7 +1001,7 @@ export default function JewelryAppraisal() {
             {sectionLabel('IV', 'Document Style', 'Five distinct presentation formats, each a world of its own')}
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14 }}>
-              {TEMPLATE_OPTIONS.map(t => {
+              {templateOptions.map(t => {
                 const selected = data.templateStyle === t.id;
                 return (
                   <button
