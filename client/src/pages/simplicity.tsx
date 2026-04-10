@@ -181,19 +181,55 @@ export default function SimplicityWorkspace() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // ── State ──
+  // Load saved sessions from localStorage on mount
   const [activeMode, setActiveMode] = useState('general');
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<Session[]>(() => {
+    try {
+      const saved = localStorage.getItem('simplicity_sessions');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.map((s: any) => ({
+          ...s,
+          createdAt: new Date(s.createdAt),
+          messages: s.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })),
+        }));
+      }
+    } catch {}
+    return [];
+  });
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('simplicity_active_session') || null;
+    } catch { return null; }
+  });
   const [input, setInput] = useState('');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Start sidebar collapsed on mobile (< 768px)
+  const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
   const [searchQuery, setSearchQuery] = useState('');
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [feedbackGiven, setFeedbackGiven] = useState<Record<string, 'up' | 'down'>>({});
 
   const activeSession = sessions.find(s => s.id === activeSessionId) || null;
   const messages = activeSession?.messages || [];
+
+  // Persist sessions to localStorage (debounced via effect)
+  useEffect(() => {
+    try {
+      // Strip image URLs to keep localStorage under quota
+      const toSave = sessions.map(s => ({
+        ...s,
+        messages: s.messages.map(m => ({ ...m, imageUrl: undefined })),
+      }));
+      localStorage.setItem('simplicity_sessions', JSON.stringify(toSave));
+    } catch {}
+  }, [sessions]);
+
+  useEffect(() => {
+    try { if (activeSessionId) localStorage.setItem('simplicity_active_session', activeSessionId); }
+    catch {}
+  }, [activeSessionId]);
 
   // Auto-scroll
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages, isLoading]);
@@ -381,6 +417,7 @@ export default function SimplicityWorkspace() {
       `}</style>
 
       {/* ═══════════════ LEFT SIDEBAR ═══════════════ */}
+      {/* On mobile (< 768px) the sidebar overlays the main panel */}
       {sidebarOpen && (
         <div style={{
           width: 280, flexShrink: 0,
@@ -388,6 +425,13 @@ export default function SimplicityWorkspace() {
           borderRight: `1px solid ${T.hairline}`,
           display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
+          // Mobile overlay behavior
+          ...(typeof window !== 'undefined' && window.innerWidth < 768 ? {
+            position: 'absolute' as const,
+            top: 0, left: 0, bottom: 0,
+            zIndex: 50,
+            boxShadow: '8px 0 32px rgba(0,0,0,0.5)',
+          } : {}),
         }}>
           {/* Sidebar header */}
           <div style={{ padding: '16px 18px', borderBottom: `1px solid ${T.hairline}` }}>
@@ -449,7 +493,7 @@ export default function SimplicityWorkspace() {
               const modeColor = MODES.find(m => m.id === s.mode)?.color || T.gold;
               return (
                 <div key={s.id}
-                  onClick={() => { setActiveSessionId(s.id); setActiveMode(s.mode); }}
+                  onClick={() => { setActiveSessionId(s.id); setActiveMode(s.mode); if (window.innerWidth < 768) setSidebarOpen(false); }}
                   style={{
                     padding: '10px 12px', marginBottom: 4, borderRadius: 3, cursor: 'pointer',
                     background: isActive ? 'rgba(201,168,76,0.08)' : 'transparent',
@@ -505,8 +549,8 @@ export default function SimplicityWorkspace() {
             {sidebarOpen ? <ArrowLeft size={16} /> : <Brain size={16} />}
           </button>
 
-          {/* Mode tabs */}
-          <div style={{ display: 'flex', gap: 2, flex: 1 }}>
+          {/* Mode tabs — scrollable on mobile */}
+          <div style={{ display: 'flex', gap: 2, flex: 1, overflowX: 'auto', scrollbarWidth: 'none' }}>
             {MODES.map(mode => {
               const Icon = mode.icon;
               const isActive = activeMode === mode.id;
@@ -776,7 +820,7 @@ export default function SimplicityWorkspace() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 10, color: T.inkMuted }}>
               <span style={{ fontFamily: T.serif, fontStyle: 'italic' }}>
-                Powered by Simplicity · Sonnet 4.6
+                Powered by Simplicity
               </span>
               <span>
                 Enter to send · Shift+Enter for new line

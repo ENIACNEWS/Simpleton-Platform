@@ -558,10 +558,10 @@ export default function Home() {
               Basic
             </div>
             <div style={{ fontFamily: T.display, fontSize: 40, color: T.ink, fontWeight: 400, marginBottom: 4, lineHeight: 1 }}>
-              $29<span style={{ fontSize: 16, color: T.inkMuted, fontStyle: 'italic' }}>/mo</span>
+              $9.99<span style={{ fontSize: 16, color: T.inkMuted, fontStyle: 'italic' }}>/mo</span>
             </div>
             <div style={{ fontSize: 11, color: T.inkMuted, marginBottom: 28, fontStyle: 'italic', fontFamily: T.serif }}>
-              or $290/year (save 17%)
+              2 professional appraisals included
             </div>
             <div style={{ borderTop: `1px solid ${T.hairline}`, paddingTop: 20 }}>
               {[
@@ -570,7 +570,7 @@ export default function Home() {
                 'Coin Database Access',
                 'Rolex Archive',
                 'Live Spot Pricing',
-                '3 AI Appraisals / month',
+                '2 AI Appraisals / month',
               ].map(f => (
                 <div key={f} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
@@ -620,15 +620,15 @@ export default function Home() {
               Premium
             </div>
             <div style={{ fontFamily: T.display, fontSize: 40, color: T.ink, fontWeight: 400, marginBottom: 4, lineHeight: 1 }}>
-              $79<span style={{ fontSize: 16, color: T.inkMuted, fontStyle: 'italic' }}>/mo</span>
+              $19.99<span style={{ fontSize: 16, color: T.inkMuted, fontStyle: 'italic' }}>/mo</span>
             </div>
             <div style={{ fontSize: 11, color: T.inkMuted, marginBottom: 28, fontStyle: 'italic', fontFamily: T.serif }}>
-              or $790/year (save 17%)
+              5 professional appraisals included
             </div>
             <div style={{ borderTop: `1px solid rgba(201,168,76,0.2)`, paddingTop: 20 }}>
               {[
                 'Everything in Basic',
-                'Unlimited AI Appraisals',
+                '5 AI Appraisals / month',
                 'Simpleton Markets Intelligence',
                 'Market Signal Alerts',
                 'Simplicity AI Chat (Unlimited)',

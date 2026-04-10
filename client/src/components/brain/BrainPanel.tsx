@@ -423,7 +423,8 @@ ${imageHtml}
     return parts.length > 0 ? parts.join(" · ") : null;
   };
 
-  if (!isOpen) return null;
+  // Hide floating panel on /simplicity — the full workspace handles chat there
+  if (!isOpen || location === '/simplicity') return null;
   const contextStrip = contextStripText();
 
   // ═══════════════════════════════════════════════════════════════════

@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { useLocation } from "wouter";
 import { useBrain } from "@/lib/brain-context";
 
 // Design tokens — shared with the editorial site language.
@@ -12,7 +13,10 @@ const T = {
 export function BrainTrigger() {
   const { isOpen, openBrain, suggestion, awareness } = useBrain();
 
-  if (isOpen) return null;
+  const [location] = useLocation();
+
+  // Hide on /simplicity — the full workspace is already there
+  if (isOpen || location === '/simplicity') return null;
 
   const hasActivity = !!(
     suggestion ||

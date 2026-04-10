@@ -1135,6 +1135,25 @@ export default function JewelryAppraisal() {
           {/* ─────────────────────────────────────────────────────────── */}
           {/* SUBMIT                                                       */}
           {/* ─────────────────────────────────────────────────────────── */}
+          {/* Certification disclosure */}
+          <div style={{
+            padding: '16px 20px', marginBottom: 24,
+            border: `1px solid ${T.hairline}`,
+            borderLeft: `2px solid ${T.gold}`,
+            borderRadius: 2,
+            background: 'rgba(201,168,76,0.03)',
+          }}>
+            <div style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: T.gold, marginBottom: 6, fontWeight: 600 }}>
+              Important Disclosure
+            </div>
+            <div style={{ fontSize: 12, color: T.inkMuted, lineHeight: 1.7, fontFamily: T.serif, fontStyle: 'italic' }}>
+              No AI-generated appraisal is considered certified until the item has been examined
+              either in person or through a live Zoom consultation with our GIA certified appraiser.
+              Once the appraisal has been reviewed and certified, a signed and certified appraisal
+              document will be mailed to the address provided above.
+            </div>
+          </div>
+
           {!submitted ? (
             <button
               onClick={handleSubmitForReview}
