@@ -53,6 +53,11 @@ export function PageGlow() {
             zIndex: 9999,
             boxShadow: `inset 0 0 80px 20px rgba(${current.value}, ${bright.outer}), inset 0 0 200px 60px rgba(${current.value}, ${bright.inner})`,
             animation: 'glowPulse 6s ease-in-out infinite',
+            // Screen blend prevents the glow from darkening page content.
+            // Without this the inset box-shadow + opacity pulse was
+            // covering the entire viewport with a 50-100% dark overlay,
+            // making all sections below the hero invisible.
+            mixBlendMode: 'screen',
           }}
         />
       )}
@@ -125,7 +130,7 @@ export function PageGlow() {
 
       <style>{`
         @keyframes glowPulse {
-          0%, 100% { opacity: 0.5; }
+          0%, 100% { opacity: 0.7; }
           50% { opacity: 1; }
         }
       `}</style>
