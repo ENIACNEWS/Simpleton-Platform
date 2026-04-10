@@ -46,6 +46,14 @@ const MODES = [
     color: T.gold,
     description: 'Full Simplicity — precious metals, diamonds, watches, coins, and beyond',
     contextHint: '',
+    prompts: [
+      "What's the difference between 14K and 18K gold?",
+      "How are diamonds graded and priced?",
+      "What Rolex models hold value best?",
+      "Tell me about Morgan Silver Dollars",
+      "Is now a good time to buy gold?",
+      "How do I read hallmarks on jewelry?",
+    ],
   },
   {
     id: 'rolex',
@@ -54,6 +62,14 @@ const MODES = [
     color: '#a78bfa',
     description: 'Rolex specialist — reference numbers, market values, authentication, model history',
     contextHint: 'You are in ROLEX EXPERT MODE. Focus on Rolex watches: reference numbers, serial dating, movement calibers (3135, 3235, 3285), case materials, market values, authentication tips, investment analysis, and model history. Be the most knowledgeable Rolex expert in the world.',
+    prompts: [
+      "How do I identify a Rolex by reference number?",
+      "What's the market value of a Submariner 126610LN?",
+      "How to date a Rolex by serial number",
+      "Which Rolex models have appreciated the most?",
+      "How to spot a fake Rolex",
+      "Explain the difference between Oyster and Jubilee bracelets",
+    ],
   },
   {
     id: 'gold',
@@ -62,6 +78,14 @@ const MODES = [
     color: '#fbbf24',
     description: 'Live pricing, melt calculations, market analysis, buy/sell signals',
     contextHint: 'You are in GOLD & METALS MODE. Focus on precious metals: gold, silver, platinum, palladium, rhodium, iridium. Provide live pricing analysis, melt value calculations, market signals, supply/demand dynamics, central bank activity, and buy/hold/sell recommendations. Be the most authoritative precious metals analyst in the industry.',
+    prompts: [
+      "What's gold trading at right now?",
+      "Calculate melt value: 50 grams of 14K gold",
+      "Should I buy or sell silver this week?",
+      "Why is platinum cheaper than gold?",
+      "What drives the gold-to-silver ratio?",
+      "Tell me about rhodium — is it worth investing in?",
+    ],
   },
   {
     id: 'appraisal',
@@ -70,6 +94,14 @@ const MODES = [
     color: '#c9a84c',
     description: 'Photo-based appraisals, catalog descriptions, valuation methodology',
     contextHint: 'You are in APPRAISAL MODE. Focus on professional jewelry appraisal: item identification from photos, hallmark reading, construction analysis (solid vs hollow, cast vs fabricated), condition grading (Poor through Mint), melt value calculations with shown math, retail replacement values, and insurance documentation. Write in catalog-style language: "One (1) ladies\' 14K (585) white gold..." format.',
+    prompts: [
+      "How do I determine if a chain is solid or hollow?",
+      "What does a professional appraisal include?",
+      "How to read gold hallmarks and stamps",
+      "What's the difference between melt value and retail value?",
+      "How much does condition affect jewelry value?",
+      "Upload a photo of your item for an instant appraisal",
+    ],
   },
   {
     id: 'diamonds',
@@ -78,6 +110,14 @@ const MODES = [
     color: '#60a5fa',
     description: '4C grading, Rapaport pricing, lab vs natural, certification guidance',
     contextHint: 'You are in DIAMOND EXPERT MODE. Focus on diamond grading and pricing: the 4Cs (Cut, Color, Clarity, Carat), Rapaport price list mechanics, per-carat pricing jumps at thresholds, lab-grown vs natural market dynamics, GIA/AGS/IGI certification differences, fluorescence impact, and wholesale vs retail pricing. Be the most knowledgeable diamond expert in the industry.',
+    prompts: [
+      "Explain the 4Cs — which matters most?",
+      "What's VS2 clarity and is it good enough?",
+      "Lab-grown vs natural — what's the market doing?",
+      "Why do diamond prices jump at 1 carat?",
+      "How to read a GIA certificate",
+      "What diamond color grade is the best value?",
+    ],
   },
 ];
 
@@ -517,14 +557,99 @@ export default function SimplicityWorkspace() {
           {currentMode.description}
         </div>
 
-        {/* ── Messages ── */}
+        {/* ── Messages / Welcome ── */}
         <div className="ws-scroll" style={{
           flex: 1, overflowY: 'auto', padding: '24px 0',
         }}>
+          {/* ── WELCOME HERO (empty state) ── */}
+          {messages.length <= 1 && !isLoading && (
+            <div style={{ maxWidth: 720, margin: '0 auto', padding: '60px 24px 24px', textAlign: 'center' }}>
+              {/* Monogram + Name */}
+              <div style={{
+                width: 72, height: 72, borderRadius: '50%',
+                border: `1.5px solid ${currentMode.color}44`,
+                background: `${currentMode.color}0a`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 20px',
+              }}>
+                <span style={{
+                  fontFamily: T.display, fontSize: 36, fontWeight: 400,
+                  fontStyle: 'italic', color: currentMode.color, lineHeight: 1,
+                }}>S</span>
+              </div>
+              <h1 style={{
+                fontFamily: T.display, fontSize: 32, fontWeight: 400,
+                color: T.ink, margin: '0 0 8px', letterSpacing: '-0.01em',
+              }}>
+                <span style={{ fontStyle: 'italic', color: currentMode.color }}>Simplicity</span>
+                {activeMode !== 'general' && (
+                  <span style={{ color: T.inkMuted }}> — {currentMode.label}</span>
+                )}
+              </h1>
+              <p style={{
+                fontFamily: T.serif, fontSize: 16, fontStyle: 'italic',
+                color: T.inkMuted, lineHeight: 1.7, margin: '0 auto 40px',
+                maxWidth: 480,
+              }}>
+                {currentMode.description}
+              </p>
+
+              {/* Suggested prompts grid */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                gap: 10, textAlign: 'left',
+              }}>
+                {currentMode.prompts.map((prompt, i) => (
+                  <button key={i}
+                    onClick={() => {
+                      if (!activeSessionId) createSession();
+                      const userMsg: Msg = { id: Date.now().toString(), type: 'user', content: prompt, timestamp: new Date() };
+                      setSessions(prev => prev.map(s => s.id === activeSessionId ? { ...s, messages: [...s.messages, userMsg] } : s));
+                      sendMessage(prompt);
+                    }}
+                    style={{
+                      padding: '14px 16px',
+                      background: 'rgba(244,239,226,0.02)',
+                      border: `1px solid ${T.hairline}`,
+                      borderRadius: 4,
+                      cursor: 'pointer',
+                      fontSize: 13, fontFamily: T.body,
+                      color: T.ink, lineHeight: 1.5,
+                      transition: 'all 0.2s',
+                      textAlign: 'left',
+                    }}
+                    onMouseOver={e => {
+                      e.currentTarget.style.borderColor = `${currentMode.color}66`;
+                      e.currentTarget.style.background = `${currentMode.color}08`;
+                    }}
+                    onMouseOut={e => {
+                      e.currentTarget.style.borderColor = T.hairline;
+                      e.currentTarget.style.background = 'rgba(244,239,226,0.02)';
+                    }}
+                  >
+                    <div style={{ fontSize: 11, color: currentMode.color, marginBottom: 4, fontFamily: T.serif, fontStyle: 'italic' }}>
+                      Try asking
+                    </div>
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{
+                marginTop: 32, fontSize: 11, color: T.inkMuted,
+                fontFamily: T.serif, fontStyle: 'italic',
+              }}>
+                Or type anything below — Simplicity knows far more than markets.
+              </div>
+            </div>
+          )}
+
+          {/* ── CHAT MESSAGES (active conversation) ── */}
+          {(messages.length > 1 || isLoading) && (
           <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 24px' }}>
-            {messages.map((msg) => {
+            {messages.filter(m => m.id !== '1').map((msg) => {
               const isUser = msg.type === 'user';
-              const isGreeting = msg.id === '1';
               return (
                 <div key={msg.id} style={{ marginBottom: 20 }}>
                   <div style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
@@ -542,14 +667,14 @@ export default function SimplicityWorkspace() {
                         {msg.type === 'assistant' && msg.streaming && !msg.content ? (
                           <TypingIndicator />
                         ) : msg.type === 'assistant' ? (
-                          <div style={isGreeting ? { fontFamily: T.serif, fontStyle: 'italic', fontSize: 15, lineHeight: 1.8 } : {}}>
+                          <div>
                             <ProseRenderer content={msg.content} className="text-sm" />
                           </div>
                         ) : (
                           <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{msg.content}</p>
                         )}
 
-                        {msg.type === 'assistant' && !isGreeting && !msg.streaming && msg.content && (
+                        {msg.type === 'assistant' && !msg.streaming && msg.content && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 12, paddingTop: 10, borderTop: `1px solid ${T.hairline}` }}>
                             <button onClick={() => sendFeedback(msg.id, 1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: feedbackGiven[msg.id] === 'up' ? '#6ec29a' : T.inkMuted }}>
                               <ThumbsUp size={13} />
@@ -581,6 +706,7 @@ export default function SimplicityWorkspace() {
             )}
             <div ref={messagesEndRef} />
           </div>
+          )}
         </div>
 
         {/* ── Input bar ── */}
