@@ -171,7 +171,14 @@ export function Navigation(
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-64 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[110] dropdown" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--primary)', border: '1px solid' }}>
                   <div className="p-2 space-y-1">
-                    {/* TEMPORARILY REMOVED: Simplicity Chat, SimpleDocs+, Simpleton's List */}
+                    <Link
+                      href="/simplicity"
+                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
+                      style={{ color: 'var(--foreground)' }}
+                    >
+                      <Brain className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                      <span className="font-medium">Simplicity AI</span>
+                    </Link>
                     <Link
                       href="/markets"
                       className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
@@ -560,7 +567,21 @@ export function Navigation(
                         </span>
                       </div>
                       <div className="space-y-0.5">
-                        {/* TEMPORARILY REMOVED: Simplicity Chat, SimpleDocs+ */}
+                        <Link
+                          href="/simplicity"
+                          className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
+                          style={{ color: 'var(--foreground)' }}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
+                            <Brain className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}>Simplicity AI</span>
+                            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>AI workspace with specialist modes</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
+                        </Link>
                         <Link
                           href="/markets"
                           className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
