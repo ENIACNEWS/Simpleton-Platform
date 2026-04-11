@@ -159,7 +159,7 @@ export default function AppraisalView() {
         @media print {
           body, html { background: white !important; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          .appraisal-doc { box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0.65in 0.75in !important; height: 11in !important; max-height: 11in !important; overflow: hidden !important; }
+          .appraisal-doc { box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; height: 11in !important; max-height: 11in !important; overflow: hidden !important; }
           @page { size: letter portrait; margin: 0; }
         }
       `}</style>
@@ -370,10 +370,8 @@ export default function AppraisalView() {
         margin: '20px auto 40px',
         background: '#ffffff',
         boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
-        padding: '0.65in 0.75in',
         position: 'relative', overflow: 'hidden',
-        fontFamily: '"Times New Roman", Georgia, "Times", serif',
-        color: '#1a1a1a', boxSizing: 'border-box',
+        boxSizing: 'border-box',
       }}>
         <AppraisalTemplate
           templateStyle={appraisal.templateStyle || 'classic'}

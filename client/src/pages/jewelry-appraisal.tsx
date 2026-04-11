@@ -1253,10 +1253,8 @@ export default function JewelryAppraisal() {
         margin: editing ? '40px auto 80px' : '20px auto 40px',
         background: '#ffffff',
         boxShadow: '0 20px 80px rgba(0,0,0,0.6), 0 4px 20px rgba(0,0,0,0.3)',
-        padding: '0.65in 0.75in',
         position: 'relative', overflow: 'hidden',
-        fontFamily: '"Times New Roman", Georgia, "Times", serif',
-        color: '#1a1a1a', boxSizing: 'border-box',
+        boxSizing: 'border-box',
       }}>
         <AppraisalTemplate
           templateStyle={data.templateStyle}
