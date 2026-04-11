@@ -2091,6 +2091,60 @@ export const appraisalCounter = pgTable("appraisal_counter", {
 
 export * from "./models/chat";
 
+// ============================================
+// AUTONOMOUS AGENT SYSTEM
+// 8 AI agents running 24/7 for Simpleton Technologies
+// ============================================
+
+export const agentDefinitions = pgTable("agent_definitions", {
+  id: serial("id").primaryKey(),
+  agentId: text("agent_id").notNull().unique(), // maven, simplicity, scout, dispatch, pulse, ledger, draft, market
+  name: text("name").notNull(),
+  product: text("product").notNull(), // simplefaxs, simpletonapp, both
+  model: text("model").notNull(), // claude-opus-4-6, claude-sonnet-4-6
+  systemPrompt: text("system_prompt").notNull(),
+  schedule: text("schedule"), // cron expression e.g. "0 * * * *" for hourly
+  isActive: boolean("is_active").notNull().default(true),
+  lastRunAt: timestamp("last_run_at"),
+  totalRuns: integer("total_runs").notNull().default(0),
+  totalTokens: integer("total_tokens").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("idx_agent_id").on(table.agentId),
+]);
+
+export const agentTasks = pgTable("agent_tasks", {
+  id: serial("id").primaryKey(),
+  agentId: text("agent_id").notNull(), // references agentDefinitions.agentId
+  taskType: text("task_type").notNull(), // scheduled, triggered, manual
+  trigger: text("trigger"), // cron, webhook, email, manual, startup
+  status: text("status").notNull().default("pending"), // pending, running, completed, failed, cancelled
+  priority: integer("priority").notNull().default(5), // 1=critical, 5=normal, 10=low
+  input: text("input"), // the prompt/data sent to the agent
+  output: text("output"), // the agent's response
+  inputTokens: integer("input_tokens").default(0),
+  outputTokens: integer("output_tokens").default(0),
+  durationMs: integer("duration_ms"),
+  error: text("error"),
+  deliveryMethod: text("delivery_method"), // email, dashboard, webhook, none
+  deliveredTo: text("delivered_to"), // email address or webhook URL
+  deliveredAt: timestamp("delivered_at"),
+  scheduledFor: timestamp("scheduled_for"),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("idx_task_agent").on(table.agentId),
+  index("idx_task_status").on(table.status),
+  index("idx_task_scheduled").on(table.scheduledFor),
+]);
+
+export type AgentDefinition = typeof agentDefinitions.$inferSelect;
+export type InsertAgentDefinition = typeof agentDefinitions.$inferInsert;
+export type AgentTask = typeof agentTasks.$inferSelect;
+export type InsertAgentTask = typeof agentTasks.$inferInsert;
+
 
 // ============================================
 // SIMPLICITY COLLECTIVE INTELLIGENCE

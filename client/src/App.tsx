@@ -57,6 +57,7 @@ import LookupPage from "@/pages/lookup";
 import LiveMarkets from "@/pages/live-markets";
 import WhatIsThisWorth from "@/pages/what-is-this-worth";
 import S7Panel from "@/pages/s7-panel";
+import AgentCommandCenter from "@/pages/agent-command-center";
 import PriceBoard from "@/pages/price-board";
 import Cryptocurrency from "@/pages/cryptocurrency";
 import NewsHub from "@/pages/news-hub";
@@ -119,6 +120,7 @@ function DesktopRouter() {
         <Route path="/ghost-admin" component={GhostAdmin} />
         <Route path="/ghost-admin-dashboard" component={GhostAdminDashboard} />
         <Route path="/s7" component={S7Panel} />
+        <Route path="/agents" component={AgentCommandCenter} />
         <Route path="/price-board" component={PriceBoard} />
         <Route path="/cryptocurrency" component={Cryptocurrency} />
         <Route path="/crypto" component={Cryptocurrency} />

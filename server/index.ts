@@ -6,6 +6,7 @@ import { simplicityBodySystem } from "./simplicity-body-system";
 import { simplicitySelfAwareness } from "./simplicity-self-awareness";
 import { healthMonitor, registerHealthRoutes } from "./health-monitor";
 import { backgroundLearner, startBackgroundLearning, stopBackgroundLearning } from "./simplicity-background-learner";
+import { agentScheduler } from "./agents";
 
 const app = express();
 // Increase payload limits for image uploads in Simpleton Vision™
@@ -105,12 +106,23 @@ app.use((req, res, next) => {
         console.error('Background Learner startup error (non-blocking):', err);
       }
     }, 60000);
+
+    // Start Autonomous Agent System after 90s
+    setTimeout(async () => {
+      try {
+        await agentScheduler.start();
+        log('Agent System online — 8 agents standing by');
+      } catch (err) {
+        console.error('Agent Scheduler startup error (non-blocking):', err);
+      }
+    }, 90000);
   });
 
   // Graceful shutdown
   const shutdown = async () => {
     log('Shutting down gracefully...');
     healthMonitor.stop();
+    agentScheduler.stop();
     await stopBackgroundLearning();
     process.exit(0);
   };

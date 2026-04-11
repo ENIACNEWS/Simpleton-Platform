@@ -45,6 +45,7 @@ import {
   ExternalLink,
   Store,
   Menu,
+  Bot,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -404,6 +405,15 @@ export function Navigation(
                           >
                             <Mail className="w-4 h-4 text-amber-400" />
                             <span><span className="simpleton-brand">Simpleton</span> Email Center</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/agents"
+                            className="flex items-center space-x-2"
+                          >
+                            <Bot className="w-4 h-4 text-amber-400" />
+                            <span>Agent Command Center</span>
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -875,6 +885,20 @@ export function Navigation(
                                 </div>
                                 <div className="flex-1">
                                   <span className="font-medium text-sm" style={{ color: 'var(--primary)' }}><span className="simpleton-brand">Simpleton</span> Email Center</span>
+                                </div>
+                                <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
+                              </Link>
+                              <Link
+                                href="/agents"
+                                className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
+                                style={{ color: 'var(--foreground)' }}
+                                onClick={() => setIsMenuOpen(false)}
+                              >
+                                <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--primary)' }}>
+                                  <Bot className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                                </div>
+                                <div className="flex-1">
+                                  <span className="font-medium text-sm" style={{ color: 'var(--primary)' }}>Agent Command Center</span>
                                 </div>
                                 <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
                               </Link>

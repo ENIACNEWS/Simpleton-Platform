@@ -26,6 +26,7 @@ import { registerIntelligenceRoutes } from "./routes/intelligence";
 import { registerPlatformRoutes } from "./routes/platform";
 import { registerCryptoRoutes } from "./routes/crypto";
 import { startMarketIntelligence } from "./market-intelligence";
+import { registerAgentRoutes } from "./routes/agents";
 import seoRoutes from "./routes/seo";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -169,6 +170,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Simpletons List routes (must come after auth middleware)
   registerSimpletonListRoutes(app);
+
+  // Autonomous Agent System routes
+  registerAgentRoutes(app);
 
   // Global error handler — catches unhandled errors and returns clean responses.
   // NEVER leak stack traces or internal details to the client.
