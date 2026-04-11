@@ -544,14 +544,65 @@ export default function Home() {
         </div>
 
         <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: 24, maxWidth: 780, margin: '0 auto',
+          display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: 20, maxWidth: 960, margin: '0 auto',
         }}>
-          {/* Basic */}
+          {/* Free */}
           <div className="plan-card" style={{
             border: `1px solid ${T.hairline}`,
             borderRadius: 3,
-            padding: '40px 32px',
+            padding: '36px 28px',
+            background: 'rgba(244,239,226,0.015)',
+          }}>
+            <div style={{ fontSize: 10, letterSpacing: '0.3em', color: T.inkMuted, textTransform: 'uppercase', marginBottom: 12 }}>
+              Free
+            </div>
+            <div style={{ fontFamily: T.display, fontSize: 40, color: T.ink, fontWeight: 400, marginBottom: 4, lineHeight: 1 }}>
+              $0<span style={{ fontSize: 16, color: T.inkMuted, fontStyle: 'italic' }}>/mo</span>
+            </div>
+            <div style={{ fontSize: 11, color: T.inkMuted, marginBottom: 28, fontStyle: 'italic', fontFamily: T.serif }}>
+              Forever free — no credit card required
+            </div>
+            <div style={{ borderTop: `1px solid ${T.hairline}`, paddingTop: 20 }}>
+              {[
+                'Precious Metals Calculator',
+                'Diamond Calculator',
+                'Coin Database',
+                'Rolex Archive',
+                'Live Spot Pricing',
+              ].map(f => (
+                <div key={f} style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '8px 0', fontSize: 13, color: T.ink,
+                }}>
+                  <ChevronRight size={12} color={T.gold} />
+                  {f}
+                </div>
+              ))}
+            </div>
+            <button className="cta-outline" style={{
+              width: '100%', marginTop: 28,
+              background: 'transparent',
+              border: `1px solid ${T.hairline}`,
+              color: T.ink,
+              padding: '14px 20px',
+              borderRadius: 2,
+              fontFamily: T.display,
+              fontSize: 12,
+              fontWeight: 500,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+            }}>
+              Get Started
+            </button>
+          </div>
+
+          {/* Basic — $9.99 */}
+          <div className="plan-card" style={{
+            border: `1px solid ${T.hairline}`,
+            borderRadius: 3,
+            padding: '36px 28px',
             background: 'rgba(244,239,226,0.015)',
           }}>
             <div style={{ fontSize: 10, letterSpacing: '0.3em', color: T.inkMuted, textTransform: 'uppercase', marginBottom: 12 }}>
@@ -565,12 +616,11 @@ export default function Home() {
             </div>
             <div style={{ borderTop: `1px solid ${T.hairline}`, paddingTop: 20 }}>
               {[
-                'Precious Metals Calculator',
-                'Diamond Calculator',
-                'Coin Database Access',
-                'Rolex Archive',
-                'Live Spot Pricing',
+                'Everything in Free',
                 '2 AI Appraisals / month',
+                'Simplicity AI Chat',
+                'Simpleton Markets',
+                'Appraisal Verification Portal',
               ].map(f => (
                 <div key={f} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
@@ -599,16 +649,16 @@ export default function Home() {
             </button>
           </div>
 
-          {/* Premium */}
+          {/* Premium — $19.99 */}
           <div className="plan-card" style={{
             border: `1px solid ${T.gold}`,
             borderRadius: 3,
-            padding: '40px 32px',
+            padding: '36px 28px',
             background: `linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 100%)`,
             position: 'relative',
           }}>
             <div style={{
-              position: 'absolute', top: -1, right: 24,
+              position: 'absolute', top: -1, right: 20,
               background: T.gold, color: '#0b0b12',
               padding: '4px 14px', fontSize: 9,
               letterSpacing: '0.2em', textTransform: 'uppercase',
@@ -629,9 +679,8 @@ export default function Home() {
               {[
                 'Everything in Basic',
                 '5 AI Appraisals / month',
-                'Simpleton Markets Intelligence',
                 'Market Signal Alerts',
-                'Simplicity AI Chat (Unlimited)',
+                'Simplicity AI (Unlimited)',
                 'Priority Support',
                 'Custom Branding on Appraisals',
               ].map(f => (
