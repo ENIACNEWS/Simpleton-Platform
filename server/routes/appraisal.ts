@@ -313,6 +313,11 @@ FORMAT: Write professionally with clear section labels on their own lines follow
     }
   });
 
+  // Generate unique appraisal numbers in format: SN6XXXXXXX
+  // SN = Simpleton Number
+  // 6  = always starts with 6 (June — creator's birth month)
+  // XXXXXXX = 7 sequential digits from the DB counter, guaranteeing uniqueness
+  // Total: "SN" + 8 digits = SN60000001, SN60000002, etc.
   app.get("/api/appraisal/next-number", async (_req, res) => {
     try {
       const result = await db.execute(sql`
@@ -322,13 +327,16 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         RETURNING last_number
       `);
       const num = result.rows[0]?.last_number as number;
-      const formatted = `S${String(num).padStart(4, '0')}`;
+      // SN + "6" + 7-digit zero-padded sequential number
+      const formatted = `SN6${String(num).padStart(7, '0')}`;
       res.json({ appraisalNumber: formatted });
     } catch (error: any) {
-      // Fallback: if the appraisal_counter table doesn't exist yet
-      // (db:push hasn't been run), generate from timestamp + random
+      // Fallback when appraisal_counter table doesn't exist yet.
+      // Uses timestamp + random to prevent collisions until db:push runs.
       console.warn('⚠️ appraisal_counter table missing — using fallback numbering. Run "npm run db:push" to create it.');
-      const fallback = `S${String(Date.now()).slice(-6)}`;
+      const ts = String(Date.now()).slice(-5);
+      const rand = String(Math.floor(Math.random() * 100)).padStart(2, '0');
+      const fallback = `SN6${ts}${rand}`;
       res.json({ appraisalNumber: fallback });
     }
   });
