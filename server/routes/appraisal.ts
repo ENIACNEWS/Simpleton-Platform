@@ -341,6 +341,46 @@ FORMAT: Write professionally with clear section labels on their own lines follow
     }
   });
 
+  // Public lookup by appraisal number (GIA Report Check style).
+  // Anyone with the number can view the full report — the number
+  // itself is the access credential, just like a GIA report number.
+  app.get("/api/appraisal/lookup/:number", async (req, res) => {
+    try {
+      const { number } = req.params;
+      if (!number || number.length < 4) return res.status(400).json({ error: "Invalid appraisal number." });
+
+      const [appraisal] = await db.select().from(appraisals)
+        .where(eq(appraisals.appraisalNumber, number.toUpperCase()))
+        .limit(1);
+
+      if (!appraisal) return res.status(404).json({ error: "No appraisal found for this number." });
+
+      res.json({
+        appraisalNumber: appraisal.appraisalNumber,
+        status: appraisal.status,
+        itemCategory: appraisal.itemCategory,
+        itemDescription: appraisal.itemDescription,
+        retailValue: appraisal.retailValue,
+        itemImages: appraisal.itemImages || [],
+        customerName: appraisal.customerName,
+        customerAddress: appraisal.customerAddress,
+        customerCityStateZip: appraisal.customerCityStateZip,
+        appraisalDate: appraisal.appraisalDate,
+        certifiedBy: appraisal.certifiedBy,
+        certificationNotes: appraisal.certificationNotes,
+        certifiedAt: appraisal.certifiedAt,
+        templateStyle: appraisal.templateStyle || 'heritage',
+        itemSpecs: appraisal.itemSpecs || {},
+        appraisalReport: (appraisal as any).appraisalReport || null,
+        shareToken: appraisal.shareToken,
+        createdAt: appraisal.createdAt,
+      });
+    } catch (error: any) {
+      console.error('❌ Appraisal lookup error:', error);
+      res.status(500).json({ error: "Failed to look up appraisal." });
+    }
+  });
+
   app.post("/api/appraisal/submit", async (req, res) => {
     try {
       const {

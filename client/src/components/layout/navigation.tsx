@@ -20,6 +20,7 @@ import {
   User,
   Shield,
   FileText,
+  Search,
   Lock,
   AlertTriangle,
   BarChart3,
@@ -158,6 +159,14 @@ export function Navigation(
                       >
                         <FileText className="w-4 h-4" style={{ color: 'var(--primary)' }} />
                         <span className="font-medium" style={{ color: 'var(--primary)' }}>Professional Appraisal</span>
+                      </Link>
+                      <Link
+                        href="/lookup"
+                        className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
+                        style={{ color: 'var(--foreground)' }}
+                      >
+                        <Search className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                        <span className="font-medium">Verify Appraisal</span>
                       </Link>
                     </div>
                   </div>
@@ -550,6 +559,21 @@ export function Navigation(
                           <div className="flex-1">
                             <span className="font-medium text-sm block" style={{ color: 'var(--primary)' }}>Professional Appraisal</span>
                             <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>Certified by GIA Gemologist</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
+                        </Link>
+                        <Link
+                          href="/lookup"
+                          className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
+                          style={{ color: 'var(--foreground)' }}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
+                            <Search className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}>Verify Appraisal</span>
+                            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>Look up by appraisal number</span>
                           </div>
                           <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
                         </Link>

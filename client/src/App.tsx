@@ -53,6 +53,7 @@ import JewelryAppraisal from "@/pages/jewelry-appraisal";
 import GhostAdmin from "@/pages/GhostAdmin";
 import GhostAdminDashboard from "@/pages/GhostAdminDashboard";
 import AppraisalView from "@/pages/appraisal-view";
+import LookupPage from "@/pages/lookup";
 import WhatIsThisWorth from "@/pages/what-is-this-worth";
 import S7Panel from "@/pages/s7-panel";
 import PriceBoard from "@/pages/price-board";
@@ -110,6 +111,7 @@ function DesktopRouter() {
         <Route path="/gmail-organizer" component={GmailOrganizer} />
         <Route path="/jewelry-appraisal" component={JewelryAppraisal} />
         <Route path="/appraisal/:token" component={AppraisalView} />
+        <Route path="/lookup" component={LookupPage} />
         <Route path="/what-is-this-worth" component={WhatIsThisWorth} />
         {/* TEMPORARILY REMOVED: /simpletons-list */}
         <Route path="/ghost-admin" component={GhostAdmin} />
