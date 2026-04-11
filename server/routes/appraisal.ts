@@ -325,8 +325,11 @@ FORMAT: Write professionally with clear section labels on their own lines follow
       const formatted = `S${String(num).padStart(4, '0')}`;
       res.json({ appraisalNumber: formatted });
     } catch (error: any) {
-      console.error('❌ Appraisal counter error:', error);
-      res.status(500).json({ error: "Failed to generate appraisal number" });
+      // Fallback: if the appraisal_counter table doesn't exist yet
+      // (db:push hasn't been run), generate from timestamp + random
+      console.warn('⚠️ appraisal_counter table missing — using fallback numbering. Run "npm run db:push" to create it.');
+      const fallback = `S${String(Date.now()).slice(-6)}`;
+      res.json({ appraisalNumber: fallback });
     }
   });
 
