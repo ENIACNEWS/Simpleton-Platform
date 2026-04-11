@@ -50,7 +50,7 @@ const features = [
   {
     icon: FileText,
     title: "Professional Appraisal",
-    desc: "AI-powered catalog descriptions reviewed by a GIA Graduate Gemologist. Five premium document templates with tiered valuations.",
+    desc: "SI-powered catalog descriptions reviewed by a GIA Graduate Gemologist. Five premium document templates with tiered valuations.",
     href: "/jewelry-appraisal",
     accent: '#c9a84c',
   },
@@ -363,7 +363,7 @@ export default function Home() {
             color: T.rose, marginBottom: 28,
           }}>
             <Sparkles size={12} />
-            AI-Powered Intelligence
+            SI-Powered Intelligence
           </div>
 
           <h2 style={{
@@ -497,7 +497,7 @@ export default function Home() {
           {[
             { icon: Award, label: 'GIA Certified Appraiser' },
             { icon: Radio, label: 'Live Market Data' },
-            { icon: Cpu, label: 'AI-Powered Analysis' },
+            { icon: Cpu, label: 'SI-Powered Analysis' },
             { icon: Shield, label: 'Secure & Encrypted' },
           ].map(t => (
             <div key={t.label} style={{
@@ -611,14 +611,14 @@ export default function Home() {
             <div style={{ fontFamily: T.display, fontSize: 40, color: T.ink, fontWeight: 400, marginBottom: 4, lineHeight: 1 }}>
               $9.99<span style={{ fontSize: 16, color: T.inkMuted, fontStyle: 'italic' }}>/mo</span>
             </div>
-            <div style={{ fontSize: 11, color: T.inkMuted, marginBottom: 28, fontStyle: 'italic', fontFamily: T.serif }}>
-              2 professional appraisals included
+            <div style={{ fontSize: 11, color: T.gold, marginBottom: 28, fontStyle: 'italic', fontFamily: T.serif, fontWeight: 600 }}>
+              First month free for new customers
             </div>
             <div style={{ borderTop: `1px solid ${T.hairline}`, paddingTop: 20 }}>
               {[
                 'Everything in Free',
-                '2 AI Appraisals / month',
-                'Simplicity AI Chat',
+                '2 SI Appraisals / month',
+                'Simplicity Chat',
                 'Simpleton Markets',
                 'Appraisal Verification Portal',
               ].map(f => (
@@ -678,9 +678,9 @@ export default function Home() {
             <div style={{ borderTop: `1px solid rgba(201,168,76,0.2)`, paddingTop: 20 }}>
               {[
                 'Everything in Basic',
-                '5 AI Appraisals / month',
+                '5 SI Appraisals / month',
                 'Market Signal Alerts',
-                'Simplicity AI (Unlimited)',
+                'Simplicity (Unlimited)',
                 'Priority Support',
                 'Custom Branding on Appraisals',
               ].map(f => (
