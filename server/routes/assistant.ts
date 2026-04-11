@@ -2,6 +2,23 @@ import type { Express } from "express";
 import { simplicitySelfAwareness } from '../simplicity-self-awareness';
 
 export function registerAssistantRoutes(app: Express) {
+
+  // Smart prompts — TikTok-style progressive personalization.
+  // Returns suggested prompts tailored to the user's profile phase
+  // (cold/warm/hot) based on their accumulated memories and interaction count.
+  app.get("/api/assistant/smart-prompts", async (req, res) => {
+    try {
+      const sessionToken = req.query.sessionToken as string || req.headers['x-session-token'] as string || '';
+      const mode = (req.query.mode as string) || 'general';
+      const { getSmartPrompts } = await import('../simplicity-algorithm');
+      const result = await getSmartPrompts(sessionToken, mode, 6);
+      res.json(result);
+    } catch (error) {
+      console.error('Smart prompts error:', error);
+      res.json({ prompts: [], phase: 'cold', profileDepth: 0 });
+    }
+  });
+
   app.get("/api/chat/history", async (req, res) => {
     try {
       const sessionToken = req.query.sessionToken as string;

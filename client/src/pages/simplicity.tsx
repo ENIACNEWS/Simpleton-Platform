@@ -208,6 +208,8 @@ export default function SimplicityWorkspace() {
   // Start sidebar collapsed on mobile (< 768px)
   const [sidebarOpen, setSidebarOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
   const [searchQuery, setSearchQuery] = useState('');
+  const [smartPrompts, setSmartPrompts] = useState<string[] | null>(null);
+  const [profilePhase, setProfilePhase] = useState<string>('cold');
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const [feedbackGiven, setFeedbackGiven] = useState<Record<string, 'up' | 'down'>>({});
 
@@ -236,6 +238,20 @@ export default function SimplicityWorkspace() {
 
   // Focus input on mode change
   useEffect(() => { inputRef.current?.focus(); }, [activeMode, activeSessionId]);
+
+  // Fetch smart prompts — progressive personalization (cold → warm → hot)
+  useEffect(() => {
+    const token = sessionTokenRef.current;
+    fetch(`/api/assistant/smart-prompts?sessionToken=${encodeURIComponent(token)}&mode=${activeMode}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.prompts && data.prompts.length > 0) {
+          setSmartPrompts(data.prompts);
+          setProfilePhase(data.phase || 'cold');
+        }
+      })
+      .catch(() => { /* fall back to static prompts */ });
+  }, [activeMode]);
 
   // ── Session management ──
   const createSession = useCallback((mode?: string) => {
@@ -644,7 +660,7 @@ export default function SimplicityWorkspace() {
                 gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
                 gap: 10, textAlign: 'left',
               }}>
-                {currentMode.prompts.map((prompt, i) => (
+                {(smartPrompts || currentMode.prompts).map((prompt, i) => (
                   <button key={i}
                     onClick={() => {
                       if (!activeSessionId) createSession();
@@ -673,7 +689,7 @@ export default function SimplicityWorkspace() {
                     }}
                   >
                     <div style={{ fontSize: 11, color: currentMode.color, marginBottom: 4, fontFamily: T.serif, fontStyle: 'italic' }}>
-                      Try asking
+                      {smartPrompts && profilePhase !== 'cold' ? 'For you' : 'Try asking'}
                     </div>
                     {prompt}
                   </button>
@@ -684,7 +700,11 @@ export default function SimplicityWorkspace() {
                 marginTop: 32, fontSize: 11, color: T.inkMuted,
                 fontFamily: T.serif, fontStyle: 'italic',
               }}>
-                Or type anything below — Simplicity knows far more than markets.
+                {profilePhase === 'hot'
+                  ? 'These suggestions are tailored to you. Or type anything — I remember.'
+                  : profilePhase === 'warm'
+                  ? 'Getting to know you. Ask me anything — the more we talk, the better I get.'
+                  : 'Or type anything below — Simplicity knows far more than markets.'}
               </div>
             </div>
           )}
