@@ -1131,7 +1131,7 @@ export function LedgerTemplate(p: TemplateProps) {
 //  Available ONLY for Demiris Brown — not shown in the public picker.
 // ═══════════════════════════════════════════════════════════════════════
 export function MotorCityTemplate(p: TemplateProps) {
-  const C = { red: '#c41e2a', ink: '#1a1a1a', muted: '#444', hairline: '#ccc' };
+  const C = { red: '#c41e2a', ink: '#000', muted: '#333', hairline: '#ccc' };
   const retail = fmtMoney(p.retailValue);
   const tierRetail = p.report?.retailReplacement ? money0(p.report.retailReplacement) : null;
   const displayValue = tierRetail || retail;
@@ -1139,8 +1139,9 @@ export function MotorCityTemplate(p: TemplateProps) {
   return (
     <div style={{
       background: '#fff', color: C.ink, minHeight: '100%', position: 'relative',
-      fontFamily: '"Times New Roman", Georgia, "Times", serif', fontSize: 13, lineHeight: 1.5,
+      fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 13, lineHeight: 1.5,
       padding: '0.5in 0.6in 0.4in',
+      WebkitFontSmoothing: 'antialiased',
     }}>
       {/* ── Top red rule ── */}
       <div style={{ height: 3, background: C.red, marginBottom: 14 }} />
@@ -1150,10 +1151,10 @@ export function MotorCityTemplate(p: TemplateProps) {
         {/* Left: Demiris credentials */}
         <div style={{ fontSize: 12, lineHeight: 1.4, color: C.ink }}>
           <div style={{ fontWeight: 700, fontStyle: 'italic', fontSize: 14 }}>Demiris Brown</div>
-          <div style={{ fontStyle: 'italic', fontWeight: 600 }}>Graduate Diamonds, GIA</div>
-          <div style={{ fontWeight: 500 }}>26510 Gratiot Ave.</div>
-          <div style={{ fontWeight: 500 }}>Roseville, MI 48066</div>
-          <div style={{ fontWeight: 500 }}>(586)772-2274</div>
+          <div style={{ fontStyle: 'italic', fontWeight: 700 }}>Graduate Diamonds, GIA</div>
+          <div style={{ fontWeight: 700 }}>26510 Gratiot Ave.</div>
+          <div style={{ fontWeight: 700 }}>Roseville, MI 48066</div>
+          <div style={{ fontWeight: 700 }}>(586)772-2274</div>
         </div>
 
         {/* Center: Motor City Jewelry logo */}
@@ -1176,8 +1177,8 @@ export function MotorCityTemplate(p: TemplateProps) {
             MOTOR CITY
           </div>
           <div style={{
-            fontFamily: '"Times New Roman", serif',
-            fontSize: 16, fontWeight: 400, letterSpacing: '0.25em',
+            fontFamily: 'Arial, Helvetica, sans-serif',
+            fontSize: 16, fontWeight: 700, letterSpacing: '0.25em',
             textTransform: 'uppercase', color: C.ink, marginTop: 1,
           }}>
             JEWELRY
@@ -1186,13 +1187,13 @@ export function MotorCityTemplate(p: TemplateProps) {
 
         {/* Right: Property of */}
         <div style={{ textAlign: 'right', fontSize: 12, color: C.ink }}>
-          <div style={{ fontWeight: 600 }}>Property of:</div>
+          <div style={{ fontWeight: 700 }}>Property of:</div>
           <div style={{ fontWeight: 700, marginTop: 4, minHeight: 18 }}>
             {p.customerName || ''}
           </div>
-          {p.customerAddress && <div style={{ fontWeight: 500 }}>{p.customerAddress}</div>}
-          {p.customerCityStateZip && <div style={{ fontWeight: 500 }}>{p.customerCityStateZip}</div>}
-          {p.customerPhone && <div style={{ marginTop: 2, fontWeight: 500 }}>{p.customerPhone}</div>}
+          {p.customerAddress && <div style={{ fontWeight: 700 }}>{p.customerAddress}</div>}
+          {p.customerCityStateZip && <div style={{ fontWeight: 700 }}>{p.customerCityStateZip}</div>}
+          {p.customerPhone && <div style={{ marginTop: 2, fontWeight: 700 }}>{p.customerPhone}</div>}
         </div>
       </div>
 
@@ -1221,7 +1222,7 @@ export function MotorCityTemplate(p: TemplateProps) {
       <div style={{ textAlign: 'center', marginBottom: 6 }}>
         <div style={{
           fontFamily: '"Times New Roman", Georgia, serif',
-          fontSize: 24, fontStyle: 'italic', fontWeight: 400,
+          fontSize: 24, fontStyle: 'italic', fontWeight: 700,
           color: C.ink, borderBottom: `1px solid ${C.hairline}`,
           display: 'inline-block', paddingBottom: 4,
           letterSpacing: '0.02em',
@@ -1230,15 +1231,15 @@ export function MotorCityTemplate(p: TemplateProps) {
         </div>
       </div>
       <div style={{ textAlign: 'right', fontSize: 13, marginBottom: 16, color: C.ink }}>
-        <span style={{ fontWeight: 600 }}>Date: </span>
+        <span style={{ fontWeight: 700 }}>Date: </span>
         <span style={{ fontWeight: 700, borderBottom: `1px solid ${C.ink}`, paddingBottom: 1, display: 'inline-block', minWidth: 140 }}>
           {fmtDate(p.date)}
         </span>
       </div>
 
       {/* ── Appraisal Number (small, upper left) ── */}
-      <div style={{ fontSize: 10, color: C.ink, fontWeight: 500, marginBottom: 10 }}>
-        Appraisal № {p.appraisalNumber}
+      <div style={{ fontSize: 10, color: C.ink, fontWeight: 700, marginBottom: 10 }}>
+        Appraisal No. {p.appraisalNumber}
       </div>
 
       {/* ── Description of Article ── */}
@@ -1288,7 +1289,7 @@ export function MotorCityTemplate(p: TemplateProps) {
                 padding: '8px 6px', textAlign: 'center',
                 borderRight: i < arr.length - 1 ? `1px solid ${C.hairline}` : 'none',
               }}>
-                <div style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, marginBottom: 2 }}>{label}</div>
+                <div style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, marginBottom: 2, fontWeight: 700 }}>{label}</div>
                 <div style={{ fontWeight: 700, color: C.ink }}>{value}</div>
               </div>
             ))}
@@ -1298,10 +1299,10 @@ export function MotorCityTemplate(p: TemplateProps) {
 
       {/* ── Total estimated retail replacement value ── */}
       <div style={{ marginBottom: 20 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
+        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4, color: C.ink }}>
           Total estimated retail replacement value:
         </div>
-        <div style={{ fontSize: 18, fontWeight: 700, paddingLeft: 40 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, paddingLeft: 40, color: C.ink }}>
           ${displayValue ? displayValue.replace('$', '') : ''}
         </div>
       </div>
@@ -1309,21 +1310,21 @@ export function MotorCityTemplate(p: TemplateProps) {
       {/* ── Appraiser signature ── */}
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-          <span style={{ fontSize: 12 }}>Appraiser:</span>
-          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.05em' }}>DEMIRIS BROWN</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.ink }}>Appraiser:</span>
+          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.05em', color: C.ink }}>DEMIRIS BROWN</span>
         </div>
-        <div style={{ borderBottom: `1px solid ${C.ink}`, marginTop: 4, maxWidth: '90%' }} />
+        <div style={{ borderBottom: `2px solid ${C.ink}`, marginTop: 4, maxWidth: '90%' }} />
       </div>
 
       {/* ── Legal footer ── */}
-      <div style={{ fontSize: 9, color: C.muted, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 9, color: C.muted, lineHeight: 1.5, fontWeight: 700 }}>
         The foregoing appraisal is made with the understanding that the Appraiser assumes no liability with respect to any action that may be taken on the basis of this appraisal.
       </div>
 
       {/* ── QR verify (small, bottom right) ── */}
       <div style={{ position: 'absolute', bottom: 30, right: 40 }}>
         <QRCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} size={48} />
-        <div style={{ fontSize: 6, color: C.muted, textAlign: 'center', marginTop: 2, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Verify</div>
+        <div style={{ fontSize: 6, color: C.muted, textAlign: 'center', marginTop: 2, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 700 }}>Verify</div>
       </div>
     </div>
   );
