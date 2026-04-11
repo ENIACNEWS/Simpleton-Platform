@@ -363,6 +363,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         retailValue: appraisal.retailValue,
         itemImages: appraisal.itemImages || [],
         customerName: appraisal.customerName,
+        customerPhone: appraisal.customerPhone,
         customerAddress: appraisal.customerAddress,
         customerCityStateZip: appraisal.customerCityStateZip,
         appraisalDate: appraisal.appraisalDate,
@@ -386,6 +387,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
       const {
         customerName,
         customerEmail,
+        customerPhone,
         appraisalType,
         appraisalNumber,
         itemDescription,
@@ -401,8 +403,16 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         appraisalReport,
       } = req.body;
 
-      if (!customerName || !customerEmail) {
-        return res.status(400).json({ error: "Name and email are required to submit an appraisal." });
+      // Check if submitter is the admin (Demiris) — admin appraisals
+      // are auto-certified and have relaxed validation.
+      const sessionUser = (req as any).user;
+      const isAdmin = sessionUser && (sessionUser.id === 1 || sessionUser.role === 'admin');
+
+      if (!customerName) {
+        return res.status(400).json({ error: "Name is required to submit an appraisal." });
+      }
+      if (!isAdmin && !customerEmail) {
+        return res.status(400).json({ error: "Email is required to submit an appraisal." });
       }
 
       let validatedImages: string[] = [];
@@ -457,13 +467,14 @@ FORMAT: Write professionally with clear section labels on their own lines follow
       const [saved] = await db.insert(appraisals).values({
         appraisalNumber: appraisalNumber || `S${Date.now()}`,
         shareToken,
-        status: "pending",
+        status: isAdmin ? "certified" : "pending",
         itemCategory: itemCategory || "jewelry",
         itemDescription: itemDescription || '',
         retailValue: retailValue || null,
         itemImages: validatedImages,
         customerName,
-        customerEmail,
+        customerEmail: customerEmail || '',
+        customerPhone: customerPhone || null,
         customerAddress: customerAddress || null,
         customerCityStateZip: customerCityStateZip || null,
         appraisalDate: appraisalDate || new Date().toISOString().split("T")[0],
@@ -471,6 +482,10 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         appraisalReport: sanitizedReport,
         templateStyle: chosenTemplate,
         zoomRequested: zoomRequested || false,
+        ...(isAdmin ? {
+          certifiedBy: "Demiris Brown, GIA Graduate Gemologist",
+          certifiedAt: new Date(),
+        } : {}),
       }).returning();
 
       const baseUrl = process.env.APP_DOMAIN || 'https://simpletonapp.com';
@@ -566,7 +581,10 @@ FORMAT: Write professionally with clear section labels on their own lines follow
 
       res.json({
         success: true,
-        message: "Your preliminary appraisal has been submitted successfully. A certified appraiser (Demiris Brown, GIA Graduate Gemologist) will review your submission and contact you within 24-48 hours.",
+        certified: isAdmin,
+        message: isAdmin
+          ? `Appraisal #${saved.appraisalNumber} certified and ready.`
+          : "Your preliminary appraisal has been submitted successfully. A certified appraiser (Demiris Brown, GIA Graduate Gemologist) will review your submission and contact you within 24-48 hours.",
         appraisalNumber: saved.appraisalNumber,
         shareToken,
         shareUrl: viewUrl,
@@ -582,7 +600,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
   app.post("/api/appraisal/save", async (req, res) => {
     try {
       const {
-        customerName, customerEmail, appraisalNumber,
+        customerName, customerEmail, customerPhone, appraisalNumber,
         itemCategory, itemDescription, retailValue,
         itemImages, customerAddress, customerCityStateZip,
         appraisalDate, aiAssessment, zoomRequested, source, templateStyle, itemSpecs,
@@ -607,6 +625,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         itemImages: itemImages || [],
         customerName,
         customerEmail,
+        customerPhone: customerPhone || null,
         customerAddress: customerAddress || null,
         customerCityStateZip: customerCityStateZip || null,
         appraisalDate: appraisalDate || new Date().toISOString().split("T")[0],
@@ -656,6 +675,7 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         retailValue: appraisal.retailValue,
         itemImages: appraisal.itemImages || [],
         customerName: appraisal.customerName,
+        customerPhone: appraisal.customerPhone,
         customerAddress: appraisal.customerAddress,
         customerCityStateZip: appraisal.customerCityStateZip,
         appraisalDate: appraisal.appraisalDate,

@@ -31,6 +31,7 @@ interface AppraisalResult {
   retailValue: string | null;
   itemImages: string[];
   customerName: string;
+  customerPhone: string | null;
   customerAddress: string | null;
   customerCityStateZip: string | null;
   appraisalDate: string | null;
@@ -298,7 +299,7 @@ export default function LookupPage() {
 
           {/* Full appraisal document */}
           <div className="lookup-fade" style={{
-            width: '8.5in', maxWidth: 'calc(100vw - 2rem)', minHeight: '11in',
+            width: '8.5in', maxWidth: 'calc(100vw - 2rem)', height: '11in',
             margin: '0 auto 80px',
             background: '#ffffff',
             boxShadow: '0 20px 80px rgba(0,0,0,0.6), 0 4px 20px rgba(0,0,0,0.3)',
@@ -311,6 +312,7 @@ export default function LookupPage() {
               templateStyle={result.templateStyle || 'heritage'}
               appraisalNumber={result.appraisalNumber}
               customerName={result.customerName}
+              customerPhone={result.customerPhone}
               customerAddress={result.customerAddress}
               customerCityStateZip={result.customerCityStateZip}
               date={result.appraisalDate || result.createdAt}

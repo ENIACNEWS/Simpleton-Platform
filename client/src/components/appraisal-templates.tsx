@@ -50,6 +50,7 @@ export interface AppraisalReport {
 interface TemplateProps {
   appraisalNumber: string;
   customerName: string;
+  customerPhone?: string | null;
   customerAddress?: string | null;
   customerCityStateZip?: string | null;
   date: string;
@@ -68,6 +69,14 @@ interface TemplateProps {
 // ───────────────────────────────────────────────────────────────────────
 //  Shared utilities
 // ───────────────────────────────────────────────────────────────────────
+// Clamp description to avoid overflowing one-page layout.
+// Each template has different space budgets; this is a generous default.
+const MAX_DESC_CHARS = 650;
+function clampDesc(s: string, max: number = MAX_DESC_CHARS): string {
+  if (!s || s.length <= max) return s;
+  return s.slice(0, max).replace(/\s+\S*$/, '') + '…';
+}
+
 function fmtDate(s: string | null) {
   if (!s) return new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   const d = new Date(s.includes('T') ? s : s + 'T12:00:00');
@@ -226,6 +235,29 @@ export function HeritageTemplate(p: TemplateProps) {
             </div>
           ))}
         </div>
+        {/* Client details row */}
+        {(p.customerAddress || p.customerPhone) && (
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+          border: `0.5px solid ${C.hairline}`, background: '#fff',
+          fontSize: 9, marginBottom: 18, marginTop: -18,
+          borderTop: 'none',
+        }}>
+          {[
+            ['Address', [p.customerAddress, p.customerCityStateZip].filter(Boolean).join(', ') || '—'],
+            ['Phone', p.customerPhone || '—'],
+            ['', ''],
+          ].map(([k, v], i) => (
+            <div key={i} style={{
+              padding: '7px 10px',
+              borderRight: i < 2 ? `0.5px solid ${C.hairline}` : 'none',
+            }}>
+              {k && <div style={{ fontSize: 7, letterSpacing: '0.15em', color: C.goldDeep, textTransform: 'uppercase', marginBottom: 2, fontWeight: 700 }}>{k}</div>}
+              {v && <div style={{ fontSize: 10, color: C.ink, fontFamily: '"Courier New", monospace' }}>{v}</div>}
+            </div>
+          ))}
+        </div>
+        )}
 
         {/* Image + dossier data */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 18, marginBottom: 18 }}>
@@ -278,8 +310,8 @@ export function HeritageTemplate(p: TemplateProps) {
           <div style={{ fontSize: 9, letterSpacing: '0.15em', color: C.goldDeep, textTransform: 'uppercase', fontWeight: 700, marginBottom: 6 }}>
             — Description of Article —
           </div>
-          <div style={{ fontSize: 10.5, lineHeight: 1.75, textAlign: 'justify', whiteSpace: 'pre-wrap', color: C.ink }}>
-            {p.description || <span style={{ color: '#aaa', fontStyle: 'italic' }}>Description will appear here...</span>}
+          <div style={{ fontSize: 10.5, lineHeight: 1.75, textAlign: 'justify', whiteSpace: 'pre-wrap', color: C.ink, overflow: 'hidden' }}>
+            {clampDesc(p.description) || <span style={{ color: '#aaa', fontStyle: 'italic' }}>Description will appear here...</span>}
           </div>
         </div>
 
@@ -424,6 +456,12 @@ export function AtelierTemplate(p: TemplateProps) {
         <div style={{ fontSize: 9, letterSpacing: '0.35em', color: C.muted, textTransform: 'uppercase', marginBottom: 16 }}>
           — The Property Of {p.customerName || 'A Private Collector'} —
         </div>
+        {(p.customerAddress || p.customerPhone) && (
+          <div style={{ fontSize: 9, color: C.muted, letterSpacing: '0.08em', marginTop: -10, marginBottom: 10, textAlign: 'center' }}>
+            {[p.customerAddress, p.customerCityStateZip].filter(Boolean).join(', ')}
+            {p.customerPhone && <>{p.customerAddress ? ' · ' : ''}{p.customerPhone}</>}
+          </div>
+        )}
         <div style={{
           fontFamily: '"Playfair Display", serif', fontSize: 40, fontWeight: 400,
           lineHeight: 1.15, letterSpacing: '-0.01em', color: C.ink, maxWidth: '6in', margin: '0 auto',
@@ -448,8 +486,8 @@ export function AtelierTemplate(p: TemplateProps) {
       )}
 
       <Section roman={nextRoman()} title="Description">
-        <div style={{ fontSize: 12, lineHeight: 1.9, whiteSpace: 'pre-wrap', color: C.ink, textAlign: 'justify', fontFamily: '"Playfair Display", serif' }}>
-          {p.description || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
+        <div style={{ fontSize: 12, lineHeight: 1.9, whiteSpace: 'pre-wrap', color: C.ink, textAlign: 'justify', fontFamily: '"Playfair Display", serif', overflow: 'hidden' }}>
+          {clampDesc(p.description) || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
         </div>
       </Section>
 
@@ -591,15 +629,21 @@ export function BoutiqueTemplate(p: TemplateProps) {
           <div style={{ fontSize: 10, color: C.muted, fontStyle: 'italic', letterSpacing: '0.04em' }}>
             prepared exclusively for {p.customerName || 'a valued client'}
           </div>
+          {(p.customerAddress || p.customerPhone) && (
+            <div style={{ fontSize: 9, color: C.muted, letterSpacing: '0.04em', marginTop: 4 }}>
+              {[p.customerAddress, p.customerCityStateZip].filter(Boolean).join(', ')}
+              {p.customerPhone && <>{p.customerAddress ? ' · ' : ''}{p.customerPhone}</>}
+            </div>
+          )}
         </div>
 
         {/* Description in narrow column */}
         <div style={{
           fontSize: 11, lineHeight: 1.85, textAlign: 'justify',
           whiteSpace: 'pre-wrap', color: C.ink, marginBottom: 24,
-          fontFamily: '"Playfair Display", serif',
+          fontFamily: '"Playfair Display", serif', overflow: 'hidden',
         }}>
-          {p.description || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
+          {clampDesc(p.description) || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
         </div>
 
         {/* Specs in delicate table */}
@@ -732,6 +776,12 @@ export function VaultTemplate(p: TemplateProps) {
           <div style={{ fontFamily: '"Playfair Display", serif', fontSize: 12, fontStyle: 'italic', color: C.muted, letterSpacing: '0.08em' }}>
             Lot № 001 · Property of {p.customerName || 'a Private Collection'}
           </div>
+          {(p.customerAddress || p.customerPhone) && (
+            <div style={{ fontSize: 9, color: C.muted, letterSpacing: '0.06em', marginTop: 4 }}>
+              {[p.customerAddress, p.customerCityStateZip].filter(Boolean).join(', ')}
+              {p.customerPhone && <>{p.customerAddress ? ' · ' : ''}{p.customerPhone}</>}
+            </div>
+          )}
         </div>
 
         {/* Two-column split: image left, spec block right */}
@@ -800,8 +850,8 @@ export function VaultTemplate(p: TemplateProps) {
           <div style={{ fontSize: 10, letterSpacing: '0.2em', color: C.brass, textTransform: 'uppercase', marginBottom: 8, fontWeight: 700 }}>
             — Cataloguer's Note —
           </div>
-          <div style={{ fontSize: 11, lineHeight: 1.85, textAlign: 'justify', whiteSpace: 'pre-wrap', color: C.ink, fontFamily: 'Georgia, serif' }}>
-            {p.description || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
+          <div style={{ fontSize: 11, lineHeight: 1.85, textAlign: 'justify', whiteSpace: 'pre-wrap', color: C.ink, fontFamily: 'Georgia, serif', overflow: 'hidden' }}>
+            {clampDesc(p.description) || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
           </div>
         </div>
 
@@ -939,6 +989,7 @@ export function LedgerTemplate(p: TemplateProps) {
               <div style={{ fontSize: 11, fontWeight: 600, color: C.ink }}>{p.customerName || '—'}</div>
               {p.customerAddress && <div style={{ fontSize: 10, color: C.muted }}>{p.customerAddress}</div>}
               {p.customerCityStateZip && <div style={{ fontSize: 10, color: C.muted }}>{p.customerCityStateZip}</div>}
+              {p.customerPhone && <div style={{ fontSize: 10, color: C.muted }}>{p.customerPhone}</div>}
             </div>
 
             <div style={{ marginTop: 10 }}>
@@ -952,8 +1003,8 @@ export function LedgerTemplate(p: TemplateProps) {
         <div style={{ borderRight: `1px solid ${C.hairline}` }}>
           <PanelHeader label="02 · Description & Specifications" />
           <div style={{ padding: 16 }}>
-            <div style={{ fontSize: 10, lineHeight: 1.7, whiteSpace: 'pre-wrap', color: C.ink, marginBottom: 14, fontFamily: 'Georgia, serif' }}>
-              {p.description || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
+            <div style={{ fontSize: 10, lineHeight: 1.7, whiteSpace: 'pre-wrap', color: C.ink, marginBottom: 14, fontFamily: 'Georgia, serif', overflow: 'hidden' }}>
+              {clampDesc(p.description) || <span style={{ color: '#bbb', fontStyle: 'italic' }}>Description will appear here...</span>}
             </div>
 
             {rows.length > 0 && (
@@ -1097,12 +1148,12 @@ export function MotorCityTemplate(p: TemplateProps) {
       {/* ── Header: credentials left, logo center, "Property of" right ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'flex-start', marginBottom: 6 }}>
         {/* Left: Demiris credentials */}
-        <div style={{ fontSize: 11, lineHeight: 1.4 }}>
-          <div style={{ fontWeight: 700, fontStyle: 'italic', fontSize: 13 }}>Demiris Brown</div>
-          <div style={{ fontStyle: 'italic' }}>Graduate Diamonds, GIA</div>
-          <div>26510 Gratiot Ave.</div>
-          <div>Roseville, MI 48066</div>
-          <div>(586)772-2274</div>
+        <div style={{ fontSize: 12, lineHeight: 1.4, color: C.ink }}>
+          <div style={{ fontWeight: 700, fontStyle: 'italic', fontSize: 14 }}>Demiris Brown</div>
+          <div style={{ fontStyle: 'italic', fontWeight: 600 }}>Graduate Diamonds, GIA</div>
+          <div style={{ fontWeight: 500 }}>26510 Gratiot Ave.</div>
+          <div style={{ fontWeight: 500 }}>Roseville, MI 48066</div>
+          <div style={{ fontWeight: 500 }}>(586)772-2274</div>
         </div>
 
         {/* Center: Motor City Jewelry logo */}
@@ -1134,13 +1185,14 @@ export function MotorCityTemplate(p: TemplateProps) {
         </div>
 
         {/* Right: Property of */}
-        <div style={{ textAlign: 'right', fontSize: 12 }}>
-          <div style={{ fontWeight: 400 }}>Property of:</div>
+        <div style={{ textAlign: 'right', fontSize: 12, color: C.ink }}>
+          <div style={{ fontWeight: 600 }}>Property of:</div>
           <div style={{ fontWeight: 700, marginTop: 4, minHeight: 18 }}>
             {p.customerName || ''}
           </div>
-          {p.customerAddress && <div>{p.customerAddress}</div>}
-          {p.customerCityStateZip && <div>{p.customerCityStateZip}</div>}
+          {p.customerAddress && <div style={{ fontWeight: 500 }}>{p.customerAddress}</div>}
+          {p.customerCityStateZip && <div style={{ fontWeight: 500 }}>{p.customerCityStateZip}</div>}
+          {p.customerPhone && <div style={{ marginTop: 2, fontWeight: 500 }}>{p.customerPhone}</div>}
         </div>
       </div>
 
@@ -1151,7 +1203,7 @@ export function MotorCityTemplate(p: TemplateProps) {
       <div style={{
         textAlign: 'center', fontSize: 9.5, lineHeight: 1.5,
         color: C.red, fontWeight: 700, textTransform: 'uppercase',
-        maxWidth: '5.5in', margin: '0 auto 24px',
+        maxWidth: '5.5in', margin: '0 auto 16px',
         letterSpacing: '0.02em',
       }}>
         THE LISTED VALUES FOR REPLACEMENT IN THE EVENT OF A LOSS ARE
@@ -1177,40 +1229,40 @@ export function MotorCityTemplate(p: TemplateProps) {
           Jewelry Appraisal
         </div>
       </div>
-      <div style={{ textAlign: 'right', fontSize: 12, marginBottom: 20 }}>
-        <span style={{ fontWeight: 400 }}>Date: </span>
-        <span style={{ borderBottom: `1px solid ${C.ink}`, paddingBottom: 1, display: 'inline-block', minWidth: 140 }}>
+      <div style={{ textAlign: 'right', fontSize: 13, marginBottom: 16, color: C.ink }}>
+        <span style={{ fontWeight: 600 }}>Date: </span>
+        <span style={{ fontWeight: 700, borderBottom: `1px solid ${C.ink}`, paddingBottom: 1, display: 'inline-block', minWidth: 140 }}>
           {fmtDate(p.date)}
         </span>
       </div>
 
       {/* ── Appraisal Number (small, upper left) ── */}
-      <div style={{ fontSize: 10, color: C.muted, marginBottom: 12 }}>
+      <div style={{ fontSize: 10, color: C.ink, fontWeight: 500, marginBottom: 10 }}>
         Appraisal № {p.appraisalNumber}
       </div>
 
       {/* ── Description of Article ── */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 16 }}>
         <div style={{
           fontSize: 13, fontWeight: 700, fontStyle: 'italic',
-          marginBottom: 8,
+          marginBottom: 6, color: C.ink,
         }}>
           Description of Article:
         </div>
         <div style={{
-          fontSize: 12, lineHeight: 1.75, whiteSpace: 'pre-wrap',
-          minHeight: 260, color: C.ink, textAlign: 'justify',
+          fontSize: 11.5, lineHeight: 1.6, whiteSpace: 'pre-wrap',
+          color: C.ink, textAlign: 'justify', overflow: 'hidden',
         }}>
-          {p.description || ''}
+          {clampDesc(p.description) || ''}
         </div>
       </div>
 
       {/* ── Images (if any) — small row below description ── */}
       {p.images.length > 0 && (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 20, justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14, justifyContent: 'center' }}>
           {p.images.slice(0, 4).map((img, i) => (
             <img key={i} src={img} alt="" style={{
-              width: 100, height: 100, objectFit: 'contain',
+              width: 80, height: 80, objectFit: 'contain',
               border: `0.5px solid ${C.hairline}`,
             }} />
           ))}
@@ -1219,7 +1271,7 @@ export function MotorCityTemplate(p: TemplateProps) {
 
       {/* ── Tiered values (if report exists) ── */}
       {p.report && (p.report.retailReplacement || p.report.fairMarketLow || p.report.meltValue) && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginBottom: 14 }}>
           <div style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${[p.report.retailReplacement, p.report.fairMarketLow, p.report.estateValue, p.report.liquidationValue, p.report.meltValue].filter(Boolean).length}, 1fr)`,
@@ -1245,7 +1297,7 @@ export function MotorCityTemplate(p: TemplateProps) {
       )}
 
       {/* ── Total estimated retail replacement value ── */}
-      <div style={{ marginBottom: 40 }}>
+      <div style={{ marginBottom: 20 }}>
         <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>
           Total estimated retail replacement value:
         </div>
@@ -1255,7 +1307,7 @@ export function MotorCityTemplate(p: TemplateProps) {
       </div>
 
       {/* ── Appraiser signature ── */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
           <span style={{ fontSize: 12 }}>Appraiser:</span>
           <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.05em' }}>DEMIRIS BROWN</span>

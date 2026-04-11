@@ -2055,6 +2055,7 @@ export const appraisals = pgTable("appraisals", {
   itemImages: jsonb("item_images").default([]),
   customerName: text("customer_name").notNull(),
   customerEmail: text("customer_email").notNull(),
+  customerPhone: text("customer_phone"),
   customerAddress: text("customer_address"),
   customerCityStateZip: text("customer_city_state_zip"),
   appraisalDate: text("appraisal_date"),

@@ -15,6 +15,7 @@ interface AppraisalData {
   retailValue: string | null;
   itemImages: string[];
   customerName: string;
+  customerPhone: string | null;
   customerAddress: string | null;
   customerCityStateZip: string | null;
   appraisalDate: string | null;
@@ -158,7 +159,7 @@ export default function AppraisalView() {
         @media print {
           body, html { background: white !important; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          .appraisal-doc { box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0.65in 0.75in !important; }
+          .appraisal-doc { box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0.65in 0.75in !important; height: 11in !important; max-height: 11in !important; overflow: hidden !important; }
           @page { size: letter portrait; margin: 0; }
         }
       `}</style>
@@ -365,7 +366,7 @@ export default function AppraisalView() {
       </div>
 
       <div className="appraisal-doc" style={{
-        width: '8.5in', minHeight: '11in',
+        width: '8.5in', height: '11in',
         margin: '20px auto 40px',
         background: '#ffffff',
         boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
@@ -378,6 +379,7 @@ export default function AppraisalView() {
           templateStyle={appraisal.templateStyle || 'classic'}
           appraisalNumber={appraisal.appraisalNumber}
           customerName={appraisal.customerName}
+          customerPhone={appraisal.customerPhone}
           customerAddress={appraisal.customerAddress}
           customerCityStateZip={appraisal.customerCityStateZip}
           date={appraisal.appraisalDate || appraisal.createdAt}

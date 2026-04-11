@@ -12,6 +12,7 @@ import type { ItemSpecs } from '@/components/appraisal-templates';
 interface AppraisalData {
   propertyOwner: string;
   customerEmail: string;
+  customerPhone: string;
   address: string;
   cityStateZip: string;
   appraisalNumber: string;
@@ -87,6 +88,7 @@ export default function JewelryAppraisal() {
   const [data, setData] = useState<AppraisalData>({
     propertyOwner: '',
     customerEmail: '',
+    customerPhone: '',
     address: '',
     cityStateZip: '',
     appraisalNumber: '',
@@ -204,12 +206,26 @@ export default function JewelryAppraisal() {
 
   const handleSubmitForReview = async () => {
     if (!data.propertyOwner.trim()) {
-      toast({ title: 'Name required', description: 'Please enter your name to submit the appraisal.', variant: 'destructive' });
+      toast({ title: 'Name required', description: 'Please enter the client name.', variant: 'destructive' });
       return;
     }
-    if (!data.customerEmail.trim() || !data.customerEmail.includes('@')) {
-      toast({ title: 'Valid email required', description: 'Please enter a valid email address so we can contact you.', variant: 'destructive' });
-      return;
+    if (!isAdmin) {
+      if (!data.customerEmail.trim() || !data.customerEmail.includes('@')) {
+        toast({ title: 'Valid email required', description: 'Please enter a valid email address so we can contact you.', variant: 'destructive' });
+        return;
+      }
+      if (!data.customerPhone.trim()) {
+        toast({ title: 'Phone required', description: 'Please enter a phone number so we can reach you.', variant: 'destructive' });
+        return;
+      }
+      if (!data.address.trim()) {
+        toast({ title: 'Address required', description: 'A mailing address is required for certified document delivery.', variant: 'destructive' });
+        return;
+      }
+      if (!data.cityStateZip.trim()) {
+        toast({ title: 'City/State/ZIP required', description: 'Please enter your city, state, and ZIP code.', variant: 'destructive' });
+        return;
+      }
     }
     if (!data.description.trim()) {
       toast({ title: 'Description required', description: 'Please add photos and generate a description first, or write one manually.', variant: 'destructive' });
@@ -225,6 +241,7 @@ export default function JewelryAppraisal() {
         body: JSON.stringify({
           customerName: data.propertyOwner,
           customerEmail: data.customerEmail,
+          customerPhone: data.customerPhone,
           appraisalType: 'Jewelry Appraisal',
           appraisalNumber: data.appraisalNumber,
           itemDescription: data.description,
@@ -244,8 +261,8 @@ export default function JewelryAppraisal() {
       if (!res.ok) throw new Error(result?.error || `HTTP ${res.status}`);
       setSubmitted(true);
       toast({
-        title: 'Appraisal submitted',
-        description: result.message || 'Your appraisal has been submitted for certification review.',
+        title: isAdmin ? 'Appraisal certified' : 'Appraisal submitted',
+        description: result.message || (isAdmin ? 'Certified and ready.' : 'Submitted for certification review.'),
       });
     } catch (err: any) {
       toast({
@@ -331,7 +348,9 @@ export default function JewelryAppraisal() {
             max-width: 100% !important;
             margin: 0 !important;
             padding: 0.65in 0.75in !important;
-            min-height: auto !important;
+            height: 11in !important;
+            max-height: 11in !important;
+            overflow: hidden !important;
           }
           @page { size: letter portrait; margin: 0; }
         }
@@ -1096,17 +1115,26 @@ export default function JewelryAppraisal() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 20 }}>
               <div>
-                {fieldLabel('Address (optional)')}
+                {fieldLabel('Phone Number')}
+                <Input className="premium-input" style={darkInputStyle} type="tel" placeholder="(313) 555-1234" value={data.customerPhone} onChange={e => set('customerPhone', e.target.value)} />
+              </div>
+              <div>
+                {fieldLabel('Mailing Address')}
                 <Input className="premium-input" style={darkInputStyle} placeholder="123 Main St" value={data.address} onChange={e => set('address', e.target.value)} />
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
               <div>
                 {fieldLabel('City, State, ZIP')}
                 <Input className="premium-input" style={darkInputStyle} placeholder="New York, NY 10001" value={data.cityStateZip} onChange={e => set('cityStateZip', e.target.value)} />
               </div>
+              <div />
             </div>
 
+            {!isAdmin && (
             <label style={{
               display: 'flex', alignItems: 'center', gap: 14,
               padding: '16px 22px',
@@ -1130,6 +1158,7 @@ export default function JewelryAppraisal() {
                 </div>
               </div>
             </label>
+            )}
           </section>
 
           {/* ─────────────────────────────────────────────────────────── */}
@@ -1144,13 +1173,12 @@ export default function JewelryAppraisal() {
             background: 'rgba(201,168,76,0.03)',
           }}>
             <div style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: T.gold, marginBottom: 6, fontWeight: 600 }}>
-              Important Disclosure
+              {isAdmin ? 'Admin Appraisal' : 'Important Disclosure'}
             </div>
             <div style={{ fontSize: 12, color: T.inkMuted, lineHeight: 1.7, fontFamily: T.serif, fontStyle: 'italic' }}>
-              No AI-generated appraisal is considered certified until the item has been examined
-              either in person or through a live Zoom consultation with our GIA certified appraiser.
-              Once the appraisal has been reviewed and certified, a signed and certified appraisal
-              document will be mailed to the address provided above.
+              {isAdmin
+                ? 'This appraisal will be automatically certified upon submission. All fields except client name and description are optional.'
+                : 'No AI-generated appraisal is considered certified until the item has been examined either in person or through a live Zoom consultation with our GIA certified appraiser. Once the appraisal has been reviewed and certified, a signed and certified appraisal document will be mailed to the address provided above.'}
             </div>
           </div>
 
@@ -1186,7 +1214,7 @@ export default function JewelryAppraisal() {
               ) : (
                 <>
                   <Send size={16} />
-                  Submit for Certification
+                  {isAdmin ? 'Certify & Submit' : 'Submit for Certification'}
                 </>
               )}
             </button>
@@ -1205,10 +1233,12 @@ export default function JewelryAppraisal() {
                 <CheckCircle size={22} color={T.gold} />
               </div>
               <div style={{ fontFamily: T.display, fontSize: 24, color: T.gold, marginBottom: 10 }}>
-                Submitted for Review
+                {isAdmin ? 'Certified' : 'Submitted for Review'}
               </div>
               <div style={{ fontSize: 13, color: T.inkMuted, maxWidth: 420, margin: '0 auto', lineHeight: 1.7, fontStyle: 'italic', fontFamily: T.serif }}>
-                Demiris Brown, GIA Graduate Gemologist, will personally review your submission and return a certified document within 24–48 hours.
+                {isAdmin
+                  ? 'Appraisal certified and ready. The document is live and can be shared immediately.'
+                  : 'Demiris Brown, GIA Graduate Gemologist, will personally review your submission and return a certified document within 24–48 hours.'}
               </div>
             </div>
           )}
@@ -1219,7 +1249,7 @@ export default function JewelryAppraisal() {
       {/* DOCUMENT PREVIEW                                                */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <div className="appraisal-doc" style={{
-        width: '8.5in', minHeight: '11in',
+        width: '8.5in', height: '11in',
         margin: editing ? '40px auto 80px' : '20px auto 40px',
         background: '#ffffff',
         boxShadow: '0 20px 80px rgba(0,0,0,0.6), 0 4px 20px rgba(0,0,0,0.3)',
@@ -1232,6 +1262,7 @@ export default function JewelryAppraisal() {
           templateStyle={data.templateStyle}
           appraisalNumber={data.appraisalNumber}
           customerName={data.propertyOwner}
+          customerPhone={data.customerPhone}
           customerAddress={data.address}
           customerCityStateZip={data.cityStateZip}
           date={data.date}
