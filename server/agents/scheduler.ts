@@ -8,6 +8,7 @@ import { agentTasks, agentDefinitions } from "../../shared/schema";
 import { eq, and, lte, isNull } from "drizzle-orm";
 import { AGENT_CONFIGS, type AgentConfig } from "./config";
 import { runAgent } from "./runner";
+import { collectSecurityTelemetry, formatTelemetryForPrompt } from "./sentinel-collector";
 
 // Simple cron parser for: minute hour dayOfMonth month dayOfWeek
 function parseCron(expr: string): { minute: number[]; hour: number[]; dom: number[]; month: number[]; dow: number[] } {
@@ -50,8 +51,17 @@ function shouldRunNow(cron: ReturnType<typeof parseCron>, now: Date): boolean {
   );
 }
 
-// Task prompts for scheduled runs
-const SCHEDULED_PROMPTS: Record<string, () => string> = {
+// Task prompts for scheduled runs (sync or async)
+const SCHEDULED_PROMPTS: Record<string, () => string | Promise<string>> = {
+  sentinel: async () => {
+    try {
+      const telemetry = await collectSecurityTelemetry();
+      return formatTelemetryForPrompt(telemetry);
+    } catch (err: any) {
+      return `Security telemetry collection failed: ${err.message}. Run a general threat assessment based on your knowledge of the infrastructure. Report this collection failure as a 🟡 MEDIUM finding.`;
+    }
+  },
+
   pulse: () => `Run your hourly health check for ${new Date().toISOString()}.
 
 Check the following and report status:
@@ -175,7 +185,7 @@ class AgentScheduler {
           continue;
         }
 
-        const prompt = getPrompt();
+        const prompt = await Promise.resolve(getPrompt());
 
         // Create task
         const [task] = await db

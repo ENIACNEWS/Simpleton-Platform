@@ -58,6 +58,7 @@ const AGENT_ICONS: Record<string, any> = {
   ledger: TrendingUp,
   draft: FileText,
   market: Megaphone,
+  sentinel: Shield,
 };
 
 const AGENT_COLORS: Record<string, string> = {
@@ -69,6 +70,7 @@ const AGENT_COLORS: Record<string, string> = {
   ledger: "#8b5cf6",
   draft: "#ec4899",
   market: "#06b6d4",
+  sentinel: "#dc2626",
 };
 
 const MODEL_BADGE: Record<string, { label: string; color: string }> = {
@@ -522,6 +524,7 @@ function RunModal({
     market: ["Build a launch campaign for SimpliFaxs", "Generate this week's social content", "Suggest 5 TikTok video concepts"],
     maven: ["Analyze VIN: 1HGCM82633A004352", "What are red flags for a 2019 Ford F-150 title?"],
     simplicity: ["Explain GIA diamond grading scale", "Current gold spot price context and forecast"],
+    sentinel: ["Run full security audit now", "Check for suspicious login attempts in the last hour", "Audit all API endpoints for exposed data", "Review OWASP Top 10 compliance status", "Scan for XSS and injection vulnerabilities"],
   };
 
   return (

@@ -171,6 +171,53 @@ Draft a professional response.`;
   }
 });
 
+// ── POST /api/agents/alert — Security alert trigger (for Sentinel) ──
+router.post("/alert", async (req, res) => {
+  try {
+    const { source, severity, description, data } = req.body;
+
+    if (!description) {
+      return res.status(400).json({ error: "description is required" });
+    }
+
+    const input = `🚨 SECURITY ALERT — ${severity?.toUpperCase() || "UNKNOWN"} SEVERITY
+Source: ${source || "External monitor"}
+Time: ${new Date().toISOString()}
+
+${description}
+
+${data ? `Raw data:\n${typeof data === "string" ? data : JSON.stringify(data, null, 2)}` : ""}
+
+Analyze this alert. Classify severity, identify the threat, and provide immediate recommended actions.`;
+
+    const [task] = await db
+      .insert(agentTasks)
+      .values({
+        agentId: "sentinel",
+        taskType: "triggered",
+        trigger: "alert",
+        status: "pending",
+        priority: severity === "critical" ? 1 : severity === "high" ? 2 : 3,
+        input,
+        deliveryMethod: "email",
+        deliveredTo: "demiris@simpletonapp.com",
+      })
+      .returning();
+
+    runAgent("sentinel", input, {
+      taskId: task.id,
+      deliveryMethod: "email",
+      deliveredTo: "demiris@simpletonapp.com",
+    }).catch((err) => {
+      console.error("[AgentRoute] Sentinel alert failed:", err.message);
+    });
+
+    res.json({ message: "Sentinel alerted", taskId: task.id, severity });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── POST /api/agents/toggle — Enable/disable an agent ─────
 router.post("/toggle", async (req, res) => {
   try {
