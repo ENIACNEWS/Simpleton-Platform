@@ -21,10 +21,10 @@ const T = {
 };
 
 const CHANNELS = [
-  { id: 'cnbc', label: 'CNBC', ytChannel: 'UCvJJ_dzjViJCoLf5uKUTwoA' },
-  { id: 'yahoo', label: 'Yahoo Finance', ytChannel: 'UCEAZeUIeJs0IjQiqTCdVSIg' },
-  { id: 'bloomberg', label: 'Bloomberg', ytChannel: 'UCIALMKvObZNtJ68-rmLjgSA' },
-  { id: 'fox', label: 'Fox Business', ytChannel: 'UCceHTOnQ2S3JdGaD5VN_2Dg' },
+  { id: 'cnbc', label: 'CNBC', ytChannel: 'UCvJJ_dzjViJCoLf5uKUTwoA', searchQuery: 'CNBC live market' },
+  { id: 'yahoo', label: 'Yahoo Finance', ytChannel: 'UCEAZeUIeJs0IjQiqTCdVSIg', searchQuery: 'Yahoo Finance live' },
+  { id: 'bloomberg', label: 'Bloomberg', ytChannel: 'UCIALMKvObZNtJ68-rmLjgSA', searchQuery: 'Bloomberg live market' },
+  { id: 'fox', label: 'Fox Business', ytChannel: 'UCceHTOnQ2S3JdGaD5VN_2Dg', searchQuery: 'Fox Business live' },
 ];
 
 interface Article { title: string; link: string; source: string; pubDate: string; }
@@ -195,19 +195,46 @@ export default function LiveMarkets() {
               ))}
             </div>
 
-            {/* Video embed */}
+            {/* Video embed — uses live_stream channel embed with fallback */}
             <div className="lm-fade" style={{
               aspectRatio: '16/9', background: '#000', borderRadius: 4,
               overflow: 'hidden', border: `1px solid ${T.hairline}`, marginBottom: 24,
+              position: 'relative',
             }}>
               <iframe
                 key={activeYt}
-                src={`https://www.youtube.com/embed/live_stream?channel=${activeYt}&autoplay=0`}
+                src={`https://www.youtube.com/embed/live_stream?channel=${activeYt}&autoplay=1&mute=1`}
                 style={{ width: '100%', height: '100%', border: 'none' }}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 title={`Live: ${CHANNELS.find(c => c.id === activeChannel)?.label}`}
               />
+              {/* Fallback overlay when stream is not live */}
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                padding: '12px 16px',
+                background: 'linear-gradient(transparent, rgba(0,0,0,0.85))',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: T.rose, animation: 'pulse 2s infinite' }} />
+                  <span style={{ fontSize: 11, color: T.inkMuted, fontFamily: T.mono }}>
+                    {CHANNELS.find(c => c.id === activeChannel)?.label} Live
+                  </span>
+                </div>
+                <a
+                  href={`https://www.youtube.com/@${activeChannel === 'cnbc' ? 'CNBC' : activeChannel === 'yahoo' ? 'YahooFinance' : activeChannel === 'bloomberg' ? 'Bloomberg' : 'FoxBusiness'}/live`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontSize: 10, color: T.gold, textDecoration: 'none',
+                    padding: '4px 10px', borderRadius: 4,
+                    border: `1px solid ${T.gold}40`, background: 'rgba(201,168,76,0.1)',
+                  }}
+                >
+                  Open on YouTube ↗
+                </a>
+              </div>
             </div>
 
             {/* SI Briefing */}

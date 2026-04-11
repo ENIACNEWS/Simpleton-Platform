@@ -181,6 +181,26 @@ export const useTheme = () => {
   return context;
 };
 
+// Determine if a color is dark (for computing derived variables)
+function isColorDark(color: string): boolean {
+  if (!color) return true;
+  // Handle rgba
+  const rgbaMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (rgbaMatch) {
+    const [, r, g, b] = rgbaMatch.map(Number);
+    return (r * 299 + g * 587 + b * 114) / 1000 < 128;
+  }
+  // Handle hex
+  const hex = color.replace('#', '');
+  if (hex.length >= 6) {
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return (r * 299 + g * 587 + b * 114) / 1000 < 128;
+  }
+  return true; // default to dark
+}
+
 interface ThemeProviderProps {
   children: React.ReactNode;
 }
@@ -974,6 +994,43 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         break;
     }
     
+    // Auto-compute derived CSS variables for full UI coverage
+    // If the theme didn't explicitly set these, derive them from the base 4
+    const computed = getComputedStyle(root);
+    const bg = computed.getPropertyValue('--background').trim();
+    const fg = computed.getPropertyValue('--foreground').trim();
+    const primary = computed.getPropertyValue('--primary').trim();
+    const card = computed.getPropertyValue('--card').trim();
+
+    // Determine if theme is dark or light based on background
+    const isDark = isColorDark(bg);
+
+    // Set derived variables only if not already set by the theme
+    if (!computed.getPropertyValue('--border').trim() || computed.getPropertyValue('--border').trim() === '') {
+      root.style.setProperty('--border', isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.12)');
+    }
+    if (!computed.getPropertyValue('--secondary').trim() || computed.getPropertyValue('--secondary').trim() === '') {
+      root.style.setProperty('--secondary', isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)');
+    }
+    if (!computed.getPropertyValue('--muted-foreground').trim() || computed.getPropertyValue('--muted-foreground').trim() === '') {
+      root.style.setProperty('--muted-foreground', isDark ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)');
+    }
+    if (!computed.getPropertyValue('--accent').trim() || computed.getPropertyValue('--accent').trim() === '') {
+      root.style.setProperty('--accent', primary);
+    }
+    // Always set these for full component coverage
+    root.style.setProperty('--card-foreground', fg);
+    root.style.setProperty('--primary-foreground', isDark ? '#000000' : '#FFFFFF');
+    root.style.setProperty('--secondary-foreground', fg);
+    root.style.setProperty('--accent-foreground', isDark ? '#000000' : '#FFFFFF');
+    root.style.setProperty('--muted', isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)');
+    root.style.setProperty('--destructive', '#ef4444');
+    root.style.setProperty('--destructive-foreground', '#FFFFFF');
+    root.style.setProperty('--input', isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)');
+    root.style.setProperty('--ring', primary);
+    root.style.setProperty('--popover', card || bg);
+    root.style.setProperty('--popover-foreground', fg);
+
     localStorage.setItem('simpleton-theme', theme);
   }, [theme]);
 

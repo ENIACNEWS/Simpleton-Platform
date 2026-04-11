@@ -5,7 +5,7 @@ import { useLivePricing } from "@/hooks/use-live-pricing";
 import { useAuth } from "@/hooks/use-auth";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+// Theme switcher now inline in user dropdown (paid users only)
 import {
   MessageCircle,
   Settings,
@@ -46,6 +46,7 @@ import {
   Store,
   Menu,
   Bot,
+  Palette,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -57,6 +58,115 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+
+import { useTheme, type ThemeMode } from "@/contexts/theme-context";
+
+const THEME_PRESETS: { value: ThemeMode; label: string; color: string }[] = [
+  { value: 'simpleton-blue', label: 'Maven Blue', color: '#4A7BC7' },
+  { value: 'obsidian-black', label: 'Obsidian Gold', color: '#FFD700' },
+  { value: 'void-black', label: 'Void Red', color: '#FF6B6B' },
+  { value: 'deep-navy', label: 'Deep Navy', color: '#D4AF37' },
+  { value: 'carbon-black', label: 'Carbon Cyan', color: '#00D4FF' },
+  { value: 'midnight-pulse', label: 'Midnight Pulse', color: '#010137' },
+  { value: 'forest-black', label: 'Forest', color: '#2ECC71' },
+  { value: 'crimson-night', label: 'Crimson Night', color: '#DC143C' },
+  { value: 'golden-night', label: 'Gold Rush', color: '#FFD700' },
+  { value: 'royal-purple', label: 'Royal Purple', color: '#8B5CF6' },
+  { value: 'cyber-blue', label: 'Cyber Blue', color: '#00BFFF' },
+  { value: 'light', label: 'Light Mode', color: '#0066cc' },
+  { value: 'quantum-dark', label: 'Quantum', color: '#00FFFF' },
+  { value: 'neon-green', label: 'Neon Green', color: '#39FF14' },
+  { value: 'parallax-neural-purple', label: 'Neural Purple', color: '#4A00B0' },
+  { value: 'holographic-gold', label: 'Holographic Gold', color: '#FFD700' },
+];
+
+function ThemeSwitcherDropdownItem() {
+  const { theme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <DropdownMenuItem
+        onSelect={(e) => { e.preventDefault(); setOpen(!open); }}
+        className="flex items-center space-x-2 cursor-pointer"
+      >
+        <Palette className="w-4 h-4 text-amber-400" />
+        <span>Themes</span>
+        <ChevronRight className="w-3 h-3 ml-auto" />
+      </DropdownMenuItem>
+      {open && (
+        <div
+          className="absolute right-full top-0 mr-1 w-52 max-h-72 overflow-y-auto rounded-md border shadow-lg z-50"
+          style={{ background: 'var(--popover, #1a1a2e)', borderColor: 'var(--border, #2a2a3e)' }}
+        >
+          {THEME_PRESETS.map((t) => (
+            <button
+              key={t.value}
+              onClick={() => { setTheme(t.value); setOpen(false); }}
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:opacity-80 transition-opacity"
+              style={{
+                color: 'var(--foreground)',
+                background: theme === t.value ? 'var(--secondary, rgba(255,255,255,0.08))' : 'transparent',
+              }}
+            >
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{
+                  background: t.color,
+                  boxShadow: theme === t.value ? `0 0 6px ${t.color}` : 'none',
+                }}
+              />
+              <span className="truncate">{t.label}</span>
+              {theme === t.value && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 ml-auto flex-shrink-0" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MobileThemePicker({ onClose }: { onClose: () => void }) {
+  const { theme, setTheme } = useTheme();
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
+        style={{ color: 'var(--foreground)' }}
+      >
+        <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--primary)' }}>
+          <Palette className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+        </div>
+        <div className="flex-1 text-left">
+          <span className="font-medium text-sm" style={{ color: 'var(--primary)' }}>Themes</span>
+        </div>
+        <ChevronRight className={`w-3.5 h-3.5 opacity-30 transition-transform ${expanded ? 'rotate-90' : ''}`} style={{ color: 'var(--foreground)' }} />
+      </button>
+      {expanded && (
+        <div className="grid grid-cols-2 gap-2 px-4 pb-3">
+          {THEME_PRESETS.map((t) => (
+            <button
+              key={t.value}
+              onClick={() => { setTheme(t.value); }}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs transition-all"
+              style={{
+                background: theme === t.value ? 'var(--primary)' : 'var(--muted, rgba(255,255,255,0.06))',
+                color: theme === t.value ? 'var(--primary-foreground, #000)' : 'var(--foreground)',
+                border: theme === t.value ? 'none' : '1px solid var(--border, rgba(255,255,255,0.08))',
+              }}
+            >
+              <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: t.color }} />
+              <span className="truncate">{t.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface NavigationProps {
   onAIToggle?: () => void;
@@ -312,7 +422,6 @@ export function Navigation(
 
             {/* Right Side */}
             <div className="flex items-center space-x-4">
-              <ThemeSwitcher />
               
               {!isAuthenticated && (
                 <Link href="/login">
@@ -387,6 +496,16 @@ export function Navigation(
                         <span>Portfolio</span>
                       </Link>
                     </DropdownMenuItem>
+                    {((user as any)?.subscriptionStatus && (user as any).subscriptionStatus !== 'free') || (user as any)?.role === 'admin' ? (
+                      <ThemeSwitcherDropdownItem />
+                    ) : (
+                      <DropdownMenuItem asChild>
+                        <Link href="/subscription" className="flex items-center space-x-2 opacity-50">
+                          <Palette className="w-4 h-4" />
+                          <span>Themes <span className="text-xs text-amber-400 ml-1">Premium</span></span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     {(user?.id === 1 || (user as any)?.role === 'admin') && (
                       <>
                         <DropdownMenuItem asChild>
@@ -858,6 +977,23 @@ export function Navigation(
                             </div>
                             <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
                           </Link>
+                          {((user as any)?.subscriptionStatus && (user as any).subscriptionStatus !== 'free') || (user as any)?.role === 'admin' ? (
+                            <MobileThemePicker onClose={() => setIsMenuOpen(false)} />
+                          ) : (
+                            <Link
+                              href="/subscription"
+                              className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
+                              style={{ color: 'var(--foreground)' }}
+                              onClick={() => setIsMenuOpen(false)}
+                            >
+                              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
+                                <Palette className="w-4 h-4 opacity-40" style={{ color: 'var(--foreground)' }} />
+                              </div>
+                              <div className="flex-1">
+                                <span className="font-medium text-sm opacity-50" style={{ color: 'var(--foreground)' }}>Themes <span className="text-xs text-amber-400 ml-1">Premium</span></span>
+                              </div>
+                            </Link>
+                          )}
                           {(user?.id === 1 || (user as any)?.role === 'admin') && (
                             <>
                               <Link
