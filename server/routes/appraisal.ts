@@ -418,8 +418,8 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         }
       }
 
-      const validTemplates = ['classic', 'elegant', 'modern', 'professional', 'detailed'];
-      const chosenTemplate = validTemplates.includes(templateStyle) ? templateStyle : 'classic';
+      const validTemplates = ['classic', 'elegant', 'modern', 'professional', 'detailed', 'heritage', 'atelier', 'boutique', 'vault', 'ledger', 'motorcity'];
+      const chosenTemplate = validTemplates.includes(templateStyle) ? templateStyle : 'heritage';
 
       const shareToken = crypto.randomBytes(12).toString("base64url");
 
@@ -592,8 +592,8 @@ FORMAT: Write professionally with clear section labels on their own lines follow
         return res.status(400).json({ error: "Name, email, and description are required." });
       }
 
-      const validTemplates = ['classic', 'elegant', 'modern', 'professional', 'detailed'];
-      const chosenTemplate = validTemplates.includes(templateStyle) ? templateStyle : 'classic';
+      const validTemplates = ['classic', 'elegant', 'modern', 'professional', 'detailed', 'heritage', 'atelier', 'boutique', 'vault', 'ledger', 'motorcity'];
+      const chosenTemplate = validTemplates.includes(templateStyle) ? templateStyle : 'heritage';
 
       const shareToken = crypto.randomBytes(12).toString("base64url");
 
