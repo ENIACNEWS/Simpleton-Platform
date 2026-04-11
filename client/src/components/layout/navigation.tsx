@@ -21,6 +21,7 @@ import {
   Shield,
   FileText,
   Search,
+  Radio,
   Lock,
   AlertTriangle,
   BarChart3,
@@ -186,7 +187,15 @@ export function Navigation(
                       style={{ color: 'var(--foreground)' }}
                     >
                       <Brain className="w-4 h-4" style={{ color: 'var(--primary)' }} />
-                      <span className="font-medium">Simplicity AI</span>
+                      <span className="font-medium">Simplicity SI</span>
+                    </Link>
+                    <Link
+                      href="/live"
+                      className="flex items-center space-x-2 px-3 py-2 rounded-lg transition-colors block hover:opacity-80"
+                      style={{ color: 'var(--foreground)' }}
+                    >
+                      <Radio className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                      <span className="font-medium" style={{ color: 'var(--primary)' }}>Live Markets & News</span>
                     </Link>
                     <Link
                       href="/markets"
@@ -603,6 +612,21 @@ export function Navigation(
                           <div className="flex-1">
                             <span className="font-medium text-sm block" style={{ color: 'var(--foreground)' }}>Simplicity AI</span>
                             <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>AI workspace with specialist modes</span>
+                          </div>
+                          <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
+                        </Link>
+                        <Link
+                          href="/live"
+                          className="group flex items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm active:scale-[0.97]"
+                          style={{ color: 'var(--foreground)' }}
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--muted)', border: '1px solid var(--border)' }}>
+                            <Radio className="w-4 h-4" style={{ color: 'var(--primary)' }} />
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-medium text-sm block" style={{ color: 'var(--primary)' }}>Live Markets & News</span>
+                            <span className="text-[11px]" style={{ color: 'var(--muted-foreground)' }}>TV, headlines & SI briefing</span>
                           </div>
                           <ChevronRight className="w-3.5 h-3.5 opacity-30" style={{ color: 'var(--foreground)' }} />
                         </Link>
