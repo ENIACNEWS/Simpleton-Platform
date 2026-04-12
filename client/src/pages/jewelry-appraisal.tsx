@@ -344,10 +344,10 @@ export default function JewelryAppraisal() {
           .no-print { display: none !important; }
           .appraisal-doc {
             box-shadow: none !important;
-            width: 100% !important;
-            max-width: 100% !important;
+            width: 8.5in !important;
+            max-width: 8.5in !important;
             margin: 0 !important;
-            padding: 0.65in 0.75in !important;
+            padding: 0 !important;
             height: 11in !important;
             max-height: 11in !important;
             overflow: hidden !important;

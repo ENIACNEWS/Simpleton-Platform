@@ -1131,200 +1131,238 @@ export function LedgerTemplate(p: TemplateProps) {
 //  Available ONLY for Demiris Brown — not shown in the public picker.
 // ═══════════════════════════════════════════════════════════════════════
 export function MotorCityTemplate(p: TemplateProps) {
-  const C = { red: '#c41e2a', ink: '#000', muted: '#333', hairline: '#ccc' };
+  // Premium print-first design — all text bold black, Georgia serif,
+  // generous sizing, high-contrast borders, large images.
+  const C = { red: '#c41e2a', ink: '#000', muted: '#222', hairline: '#999', light: '#666' };
   const retail = fmtMoney(p.retailValue);
   const tierRetail = p.report?.retailReplacement ? money0(p.report.retailReplacement) : null;
   const displayValue = tierRetail || retail;
+  const rows = specRows(p.itemSpecs);
+  const hasImages = p.images.length > 0;
 
   return (
     <div style={{
-      background: '#fff', color: C.ink, minHeight: '100%', position: 'relative',
-      fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 13, lineHeight: 1.5,
-      padding: '0.5in 0.6in 0.4in',
+      background: '#fff', color: C.ink, height: '100%', position: 'relative',
+      fontFamily: 'Georgia, "Times New Roman", serif', fontSize: 13, lineHeight: 1.5,
+      padding: '0.45in 0.55in 0.35in',
       WebkitFontSmoothing: 'antialiased',
+      boxSizing: 'border-box',
+      overflow: 'hidden',
     }}>
-      {/* ── Top red rule ── */}
-      <div style={{ height: 3, background: C.red, marginBottom: 14 }} />
+      {/* ── Top red rule (thick, premium) ── */}
+      <div style={{ height: 4, background: C.red, marginBottom: 12 }} />
 
-      {/* ── Header: credentials left, logo center, "Property of" right ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'flex-start', marginBottom: 6 }}>
+      {/* ── Header: credentials left, logo center, client right ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'flex-start', marginBottom: 4 }}>
         {/* Left: Demiris credentials */}
-        <div style={{ fontSize: 12, lineHeight: 1.4, color: C.ink }}>
-          <div style={{ fontWeight: 700, fontStyle: 'italic', fontSize: 14 }}>Demiris Brown</div>
+        <div style={{ fontSize: 11, lineHeight: 1.45, color: C.ink, fontWeight: 700 }}>
+          <div style={{ fontStyle: 'italic', fontSize: 15, fontWeight: 900, marginBottom: 1 }}>Demiris Brown</div>
           <div style={{ fontStyle: 'italic', fontWeight: 700 }}>Graduate Diamonds, GIA</div>
-          <div style={{ fontWeight: 700 }}>26510 Gratiot Ave.</div>
-          <div style={{ fontWeight: 700 }}>Roseville, MI 48066</div>
-          <div style={{ fontWeight: 700 }}>(586)772-2274</div>
+          <div>26510 Gratiot Ave.</div>
+          <div>Roseville, MI 48066</div>
+          <div>(586) 772-2274</div>
         </div>
 
         {/* Center: Motor City Jewelry logo */}
-        <div style={{ textAlign: 'center', padding: '0 24px' }}>
-          {/* Diamond icon */}
+        <div style={{ textAlign: 'center', padding: '0 20px' }}>
           <div style={{ marginBottom: 2 }}>
-            <svg width="28" height="24" viewBox="0 0 28 24" fill="none" style={{ display: 'inline-block' }}>
-              <polygon points="14,2 22,9 14,22 6,9" fill={C.red} />
-              <polygon points="6,9 14,2 14,9" fill="#e85560" />
-              <polygon points="22,9 14,2 14,9" fill="#a01520" />
-              <polygon points="6,9 14,22 14,9" fill="#d42030" />
-              <polygon points="22,9 14,22 14,9" fill="#8a1018" />
+            <svg width="32" height="28" viewBox="0 0 28 24" fill="none" style={{ display: 'inline-block' }}>
+              <polygon points="14,1 23,9 14,23 5,9" fill={C.red} />
+              <polygon points="5,9 14,1 14,9" fill="#e85560" />
+              <polygon points="23,9 14,1 14,9" fill="#a01520" />
+              <polygon points="5,9 14,23 14,9" fill="#d42030" />
+              <polygon points="23,9 14,23 14,9" fill="#8a1018" />
             </svg>
           </div>
           <div style={{
             fontFamily: '"Impact", "Arial Black", sans-serif',
-            fontSize: 28, fontWeight: 900, letterSpacing: '0.08em',
+            fontSize: 30, fontWeight: 900, letterSpacing: '0.06em',
             lineHeight: 1, color: C.ink, textTransform: 'uppercase',
           }}>
             MOTOR CITY
           </div>
           <div style={{
-            fontFamily: 'Arial, Helvetica, sans-serif',
-            fontSize: 16, fontWeight: 700, letterSpacing: '0.25em',
+            fontFamily: 'Georgia, "Times New Roman", serif',
+            fontSize: 17, fontWeight: 700, letterSpacing: '0.3em',
             textTransform: 'uppercase', color: C.ink, marginTop: 1,
           }}>
             JEWELRY
           </div>
         </div>
 
-        {/* Right: Property of */}
-        <div style={{ textAlign: 'right', fontSize: 12, color: C.ink }}>
-          <div style={{ fontWeight: 700 }}>Property of:</div>
-          <div style={{ fontWeight: 700, marginTop: 4, minHeight: 18 }}>
-            {p.customerName || ''}
-          </div>
-          {p.customerAddress && <div style={{ fontWeight: 700 }}>{p.customerAddress}</div>}
-          {p.customerCityStateZip && <div style={{ fontWeight: 700 }}>{p.customerCityStateZip}</div>}
-          {p.customerPhone && <div style={{ marginTop: 2, fontWeight: 700 }}>{p.customerPhone}</div>}
+        {/* Right: Client info */}
+        <div style={{ textAlign: 'right', fontSize: 11, color: C.ink, fontWeight: 700, lineHeight: 1.45 }}>
+          <div style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: C.muted, marginBottom: 3 }}>Property of</div>
+          <div style={{ fontSize: 13, fontWeight: 900 }}>{p.customerName || ''}</div>
+          {p.customerAddress && <div>{p.customerAddress}</div>}
+          {p.customerCityStateZip && <div>{p.customerCityStateZip}</div>}
+          {p.customerPhone && <div style={{ marginTop: 2 }}>{p.customerPhone}</div>}
         </div>
       </div>
 
       {/* ── Red rule under header ── */}
-      <div style={{ height: 2, background: C.red, marginBottom: 16 }} />
+      <div style={{ height: 2, background: C.red, marginBottom: 10 }} />
 
-      {/* ── Disclaimer block ── */}
+      {/* ── Title bar: Jewelry Appraisal + Date + Number ── */}
       <div style={{
-        textAlign: 'center', fontSize: 9.5, lineHeight: 1.5,
-        color: C.red, fontWeight: 700, textTransform: 'uppercase',
-        maxWidth: '5.5in', margin: '0 auto 16px',
-        letterSpacing: '0.02em',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+        marginBottom: 10, paddingBottom: 6,
+        borderBottom: `1.5px solid ${C.ink}`,
       }}>
-        THE LISTED VALUES FOR REPLACEMENT IN THE EVENT OF A LOSS ARE
-        OFFERED TO GIVE THE OWNER SUFFICIENT PROTECTION TO RECOVER LIKE
-        QUALITY AND VALUE AND SIMILAR STYLING AND DO NOT NECESSARILY
-        REFLECT THE ORIGINAL PURCHASE PRICE OR PREVIOUS APPRAISALS. IT
-        MUST BE REALIZED THAT MANY ITEMS OF JEWELRY CANNOT BE REPLACED
-        DUE TO FOREIGN MANUFACTURE OR A VARIETY OF OTHER REASONS.
-        THEREFORE, VALUES ARE DETERMINED TO PERMIT SATISFACTORY
-        REPLACEMENT WITH A SIMILAR ITEM OF EQUAL VALUE, WE DO NOT AGREE
-        TO PURCHASE OR REPLACE THE ARTICLES.
-      </div>
-
-      {/* ── "Jewelry Appraisal" title + Date ── */}
-      <div style={{ textAlign: 'center', marginBottom: 6 }}>
         <div style={{
-          fontFamily: '"Times New Roman", Georgia, serif',
-          fontSize: 24, fontStyle: 'italic', fontWeight: 700,
-          color: C.ink, borderBottom: `1px solid ${C.hairline}`,
-          display: 'inline-block', paddingBottom: 4,
-          letterSpacing: '0.02em',
+          fontFamily: 'Georgia, "Times New Roman", serif',
+          fontSize: 26, fontStyle: 'italic', fontWeight: 900,
+          color: C.ink, letterSpacing: '0.02em',
         }}>
           Jewelry Appraisal
         </div>
-      </div>
-      <div style={{ textAlign: 'right', fontSize: 13, marginBottom: 16, color: C.ink }}>
-        <span style={{ fontWeight: 700 }}>Date: </span>
-        <span style={{ fontWeight: 700, borderBottom: `1px solid ${C.ink}`, paddingBottom: 1, display: 'inline-block', minWidth: 140 }}>
-          {fmtDate(p.date)}
-        </span>
-      </div>
-
-      {/* ── Appraisal Number (small, upper left) ── */}
-      <div style={{ fontSize: 10, color: C.ink, fontWeight: 700, marginBottom: 10 }}>
-        Appraisal No. {p.appraisalNumber}
-      </div>
-
-      {/* ── Description of Article ── */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{
-          fontSize: 13, fontWeight: 700, fontStyle: 'italic',
-          marginBottom: 6, color: C.ink,
-        }}>
-          Description of Article:
-        </div>
-        <div style={{
-          fontSize: 11.5, lineHeight: 1.6, whiteSpace: 'pre-wrap',
-          color: C.ink, textAlign: 'justify', overflow: 'hidden',
-        }}>
-          {clampDesc(p.description) || ''}
+        <div style={{ textAlign: 'right', fontSize: 12, fontWeight: 700 }}>
+          <div>Date: <span style={{ borderBottom: `1px solid ${C.ink}`, paddingBottom: 1, display: 'inline-block', minWidth: 130 }}>{fmtDate(p.date)}</span></div>
+          <div style={{ fontSize: 10, marginTop: 3, color: C.muted }}>No. {p.appraisalNumber}</div>
         </div>
       </div>
 
-      {/* ── Images (if any) — small row below description ── */}
-      {p.images.length > 0 && (
-        <div style={{ display: 'flex', gap: 8, marginBottom: 14, justifyContent: 'center' }}>
-          {p.images.slice(0, 4).map((img, i) => (
-            <img key={i} src={img} alt="" style={{
-              width: 80, height: 80, objectFit: 'contain',
-              border: `0.5px solid ${C.hairline}`,
+      {/* ── Main content: Description + Images side by side ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: hasImages ? '1fr 200px' : '1fr', gap: 16, marginBottom: 12 }}>
+        {/* Description */}
+        <div>
+          <div style={{
+            fontSize: 12, fontWeight: 900, fontStyle: 'italic',
+            marginBottom: 5, color: C.ink, textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+          }}>
+            Description of Article
+          </div>
+          <div style={{
+            fontSize: 11, lineHeight: 1.65, whiteSpace: 'pre-wrap',
+            color: C.ink, textAlign: 'justify', overflow: 'hidden',
+            fontWeight: 500, maxHeight: hasImages ? 250 : 300,
+          }}>
+            {clampDesc(p.description) || ''}
+          </div>
+
+          {/* Specs grid (if any) */}
+          {rows.length > 0 && (
+            <div style={{ marginTop: 8 }}>
+              {rows.slice(0, 6).map((r, i) => (
+                <div key={i} style={{
+                  display: 'flex', fontSize: 10, fontWeight: 700,
+                  borderBottom: `0.5px solid ${C.hairline}`,
+                  padding: '2px 0',
+                }}>
+                  <div style={{ width: 110, color: C.muted, textTransform: 'uppercase', fontSize: 9, letterSpacing: '0.05em' }}>{r.label}</div>
+                  <div style={{ color: C.ink }}>{r.value}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Images — large, prominent, high quality */}
+        {hasImages && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* Primary image — large */}
+            <img src={p.images[0]} alt="" style={{
+              width: 200, height: 200, objectFit: 'cover',
+              border: `1.5px solid ${C.ink}`,
+              borderRadius: 2,
             }} />
-          ))}
-        </div>
-      )}
+            {/* Secondary images row */}
+            {p.images.length > 1 && (
+              <div style={{ display: 'flex', gap: 4 }}>
+                {p.images.slice(1, 4).map((img, i) => (
+                  <img key={i} src={img} alt="" style={{
+                    width: 63, height: 63, objectFit: 'cover',
+                    border: `1px solid ${C.hairline}`,
+                    borderRadius: 1,
+                  }} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
-      {/* ── Tiered values (if report exists) ── */}
+      {/* ── Tiered values grid (bold, high contrast) ── */}
       {p.report && (p.report.retailReplacement || p.report.fairMarketLow || p.report.meltValue) && (
-        <div style={{ marginBottom: 14 }}>
+        <div style={{ marginBottom: 10 }}>
           <div style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${[p.report.retailReplacement, p.report.fairMarketLow, p.report.estateValue, p.report.liquidationValue, p.report.meltValue].filter(Boolean).length}, 1fr)`,
-            border: `1px solid ${C.hairline}`, fontSize: 10,
+            border: `2px solid ${C.ink}`,
           }}>
             {[
               ['Retail Replacement', money0(p.report.retailReplacement)],
               ['Fair Market', p.report.fairMarketLow ? `${money0(p.report.fairMarketLow)}–${money0(p.report.fairMarketHigh || p.report.fairMarketLow)}` : null],
               ['Estate', money0(p.report.estateValue)],
               ['Liquidation', money0(p.report.liquidationValue)],
-              ['Melt', money2(p.report.meltValue)],
+              ['Melt / Intrinsic', money2(p.report.meltValue)],
             ].filter(([, v]) => v).map(([label, value], i, arr) => (
               <div key={i} style={{
                 padding: '8px 6px', textAlign: 'center',
-                borderRight: i < arr.length - 1 ? `1px solid ${C.hairline}` : 'none',
+                borderRight: i < arr.length - 1 ? `2px solid ${C.ink}` : 'none',
+                background: i === 0 ? '#f5f5f5' : 'transparent',
               }}>
-                <div style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.08em', color: C.muted, marginBottom: 2, fontWeight: 700 }}>{label}</div>
-                <div style={{ fontWeight: 700, color: C.ink }}>{value}</div>
+                <div style={{ fontSize: 8, textTransform: 'uppercase', letterSpacing: '0.1em', color: C.muted, marginBottom: 3, fontWeight: 900 }}>{label}</div>
+                <div style={{ fontWeight: 900, fontSize: 13, color: C.ink }}>{value}</div>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* ── Total estimated retail replacement value ── */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4, color: C.ink }}>
-          Total estimated retail replacement value:
+      {/* ── Total estimated retail replacement value — showpiece ── */}
+      <div style={{
+        marginBottom: 12, padding: '10px 16px',
+        border: `2.5px solid ${C.ink}`,
+        background: '#fafafa',
+      }}>
+        <div style={{ fontWeight: 900, fontSize: 12, marginBottom: 3, color: C.ink, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          Total Estimated Retail Replacement Value
         </div>
-        <div style={{ fontSize: 18, fontWeight: 700, paddingLeft: 40, color: C.ink }}>
-          ${displayValue ? displayValue.replace('$', '') : ''}
+        <div style={{ fontSize: 28, fontWeight: 900, color: C.ink, fontFamily: 'Georgia, "Times New Roman", serif' }}>
+          {displayValue || ''}
         </div>
       </div>
 
-      {/* ── Appraiser signature ── */}
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: C.ink }}>Appraiser:</span>
-          <span style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.05em', color: C.ink }}>DEMIRIS BROWN</span>
+      {/* ── Disclaimer (small, professional) ── */}
+      <div style={{
+        fontSize: 7.5, lineHeight: 1.45, color: C.muted, fontWeight: 700,
+        marginBottom: 12, textAlign: 'justify',
+      }}>
+        The listed values for replacement in the event of a loss are offered to give the owner sufficient
+        protection to recover like quality and value and similar styling and do not necessarily reflect the
+        original purchase price or previous appraisals. Values are determined to permit satisfactory
+        replacement with a similar item of equal value. We do not agree to purchase or replace the articles.
+      </div>
+
+      {/* ── Appraiser signature line ── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.muted, marginBottom: 4 }}>Appraiser</div>
+          <div style={{ fontSize: 16, fontWeight: 900, letterSpacing: '0.04em', color: C.ink }}>DEMIRIS BROWN</div>
+          <div style={{ borderBottom: `2px solid ${C.ink}`, marginTop: 3, width: 280 }} />
+          <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, fontStyle: 'italic', marginTop: 3 }}>
+            Graduate Gemologist, GIA · Accredited Jewelry Professional
+          </div>
         </div>
-        <div style={{ borderBottom: `2px solid ${C.ink}`, marginTop: 4, maxWidth: '90%' }} />
+
+        {/* QR verify */}
+        <div style={{ textAlign: 'center' }}>
+          <QRCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} size={52} />
+          <div style={{ fontSize: 7, color: C.muted, marginTop: 2, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 900 }}>Verify</div>
+        </div>
       </div>
 
       {/* ── Legal footer ── */}
-      <div style={{ fontSize: 9, color: C.muted, lineHeight: 1.5, fontWeight: 700 }}>
-        The foregoing appraisal is made with the understanding that the Appraiser assumes no liability with respect to any action that may be taken on the basis of this appraisal.
-      </div>
-
-      {/* ── QR verify (small, bottom right) ── */}
-      <div style={{ position: 'absolute', bottom: 30, right: 40 }}>
-        <QRCode shareToken={p.shareToken} appraisalNumber={p.appraisalNumber} size={48} />
-        <div style={{ fontSize: 6, color: C.muted, textAlign: 'center', marginTop: 2, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 700 }}>Verify</div>
+      <div style={{
+        position: 'absolute', bottom: 14, left: '0.55in', right: '0.55in',
+        fontSize: 7, color: C.light, lineHeight: 1.4, fontWeight: 700,
+        borderTop: `1px solid ${C.hairline}`, paddingTop: 4,
+      }}>
+        The foregoing appraisal is made with the understanding that the Appraiser assumes no liability with respect
+        to any action that may be taken on the basis of this appraisal. This document is the property of Motor City
+        Jewelry and may not be reproduced without permission. simpletonapp.com
       </div>
     </div>
   );

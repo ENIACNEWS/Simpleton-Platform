@@ -748,21 +748,97 @@ h1:not(.simplicity-assistant *), h2:not(.simplicity-assistant *), h3:not(.simpli
   66% { transform: translate(-20px, 20px); }
 }
 
-/* SIMPLETON PROFESSIONAL PRINT STYLES */
+/* ═══════════════════════════════════════════════════════════════
+   SIMPLETON PROFESSIONAL PRINT STYLES
+   Engineered for silver-halide / giclée-grade output.
+   Forces solid black text, hides all UI chrome, preserves
+   background colors for accents, and locks to one US-letter page.
+   ═══════════════════════════════════════════════════════════════ */
 @media print {
-  body {
-    background: white !important;
-    color: #1a1a1a !important;
+  /* ── Page setup — zero margins, browser renders full bleed ── */
+  @page {
+    size: letter portrait;
+    margin: 0;
+  }
+
+  /* ── Global resets ── */
+  *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
 
-  nav, footer, .no-print,
+  html, body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 8.5in !important;
+    height: 11in !important;
+    overflow: hidden !important;
+  }
+
+  /* ── Hide ALL non-document UI ── */
+  nav, header, footer,
+  .no-print,
   .simpleton-document-actions,
-  [data-radix-popper-content-wrapper] {
+  [data-radix-popper-content-wrapper],
+  [data-radix-portal],
+  [role="dialog"],
+  [role="menu"],
+  [role="tooltip"],
+  [role="alertdialog"],
+  .page-glow,
+  .brain-trigger,
+  .brain-panel,
+  button:not(.appraisal-doc button) {
     display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    pointer-events: none !important;
   }
 
+  /* ── Appraisal document wrapper ── */
+  .appraisal-doc {
+    box-shadow: none !important;
+    border: none !important;
+    width: 8.5in !important;
+    height: 11in !important;
+    max-height: 11in !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    position: relative !important;
+    background: white !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* ── Force solid black text throughout document ── */
+  .appraisal-doc,
+  .appraisal-doc * {
+    color: #000 !important;
+    text-shadow: none !important;
+    opacity: 1 !important;
+  }
+
+  /* ── Preserve intentional accent colors (red rules, value highlights) ── */
+  .appraisal-doc [data-print-color] {
+    color: attr(data-print-color) !important;
+  }
+
+  /* ── Images — max quality, no browser downscaling ── */
+  .appraisal-doc img {
+    image-rendering: -webkit-optimize-contrast !important;
+    image-rendering: crisp-edges !important;
+    -ms-interpolation-mode: bicubic !important;
+    print-color-adjust: exact !important;
+    break-inside: avoid !important;
+  }
+
+  /* ── Legacy Simpleton document classes ── */
   .simpleton-document-body {
     background: white !important;
     border: none !important;
@@ -770,57 +846,10 @@ h1:not(.simplicity-assistant *), h2:not(.simplicity-assistant *), h3:not(.simpli
     box-shadow: none !important;
   }
 
-  .simpleton-letterhead {
-    border-bottom: 2px solid #c9a96e !important;
-    padding-bottom: 16px !important;
-    margin-bottom: 16px !important;
-  }
-
-  .simpleton-letterhead h1 {
-    color: #c9a96e !important;
-    font-size: 20px !important;
-  }
-
-  .simpleton-letterhead p {
-    color: #666 !important;
-  }
-
-  .simpleton-document-content {
-    color: #1a1a1a !important;
-  }
-
-  .simpleton-document-content h2,
-  .simpleton-document-content h3,
-  .simpleton-document-content h4 {
-    color: #1a1a1a !important;
-    page-break-after: avoid !important;
-  }
-
-  .simpleton-document-content p,
-  .simpleton-document-content li {
-    color: #333 !important;
-    line-height: 1.7 !important;
-  }
-
-  .simpleton-footer {
-    border-top: 1px solid #e5e5e5 !important;
-    margin-top: 24px !important;
-    padding-top: 12px !important;
-  }
-
-  .simpleton-footer p {
-    color: #999 !important;
-  }
-
   .simpleton-print-overlay {
     position: static !important;
     background: white !important;
     overflow: visible !important;
-  }
-
-  @page {
-    margin: 0.75in;
-    size: letter;
   }
 }
 

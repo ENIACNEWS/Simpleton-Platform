@@ -159,7 +159,7 @@ export default function AppraisalView() {
         @media print {
           body, html { background: white !important; margin: 0; padding: 0; }
           .no-print { display: none !important; }
-          .appraisal-doc { box-shadow: none !important; width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; height: 11in !important; max-height: 11in !important; overflow: hidden !important; }
+          .appraisal-doc { box-shadow: none !important; width: 8.5in !important; max-width: 8.5in !important; margin: 0 !important; padding: 0 !important; height: 11in !important; max-height: 11in !important; overflow: hidden !important; }
           @page { size: letter portrait; margin: 0; }
         }
       `}</style>
